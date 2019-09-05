@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Phenix.Unity.AI
 {    
@@ -16,7 +17,9 @@ namespace Phenix.Unity.AI
 
     public abstract class GOAPGoal
     {
-        List<WorldStateBitDataGoal> _goalProps;                
+        List<WorldStateBitDataGoal> _goalProps;
+
+        float _nextActiveTimer = 0;
 
         public int GOAPGoalType { get; protected set; }
 
@@ -58,8 +61,11 @@ namespace Phenix.Unity.AI
                     ws.Set(item.worldStateBitData.bit, !item.worldStateBitData.val);
                 }
             }
+            _nextActiveTimer = Time.timeSinceLevelLoad + GetCD();
         }
 
         public virtual bool IsAborted() { return false; }        
+        public virtual float GetCD() { return 0; }
+        public bool InCD() { return _nextActiveTimer > Time.timeSinceLevelLoad; }
     }
 }

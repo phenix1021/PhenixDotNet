@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Phenix.Unity.AI
 {    
@@ -53,6 +52,10 @@ namespace Phenix.Unity.AI
             GOAPGoal ret = null;
             foreach (var goal in _goals)
             {
+                if (goal.InCD())
+                {
+                    continue;
+                }
                 float weight = goal.GetWeight(WorldState);
                 if (weight > max)
                 {

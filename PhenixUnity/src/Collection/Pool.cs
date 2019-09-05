@@ -17,7 +17,12 @@ namespace Phenix.Unity.Collection
         }       
 
         public void Collect(T t)
-        {            
+        {
+            if (t == null)
+            {
+                return;
+            }
+
             if (_capacity > 0 && _cache.Count < _capacity)
             {
                 _cache.Enqueue(t);
