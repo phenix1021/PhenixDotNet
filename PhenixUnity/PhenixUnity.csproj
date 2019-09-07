@@ -84,6 +84,7 @@
     <Compile Include="src\AI\GOAP\GOAPGoal.cs" />
     <Compile Include="src\AI\GOAP\GOAPPlan.cs" />
     <Compile Include="src\AI\GOAP\WorldState.cs" />
+    <Compile Include="src\AI\Search\AStar.cs" />
     <Compile Include="src\Collection\GameObjectPool.cs" />
     <Compile Include="src\Collection\Pool.cs" />
     <Compile Include="src\Extend\BehaviourExtend.cs" />

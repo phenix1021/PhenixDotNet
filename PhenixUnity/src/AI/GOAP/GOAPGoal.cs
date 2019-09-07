@@ -21,7 +21,7 @@ namespace Phenix.Unity.AI
 
         float _nextActiveTimer = 0;
 
-        public int GOAPGoalType { get; protected set; }
+        public int GOAPGoalType { get; protected set; }        
 
         protected GOAPGoal(int goalType, List<WorldStateBitDataGoal> goalProps)        
         {
@@ -47,6 +47,19 @@ namespace Phenix.Unity.AI
             }
 
             return true;
+        }
+
+        public void ApplyEffect(WorldState ws)
+        {
+            if (ws == null)
+            {
+                return;
+            }
+
+            foreach (var item in _goalProps)
+            {
+                ws.Set(item.worldStateBitData.bit, item.worldStateBitData.val);
+            }
         }
 
         public abstract float GetWeight(WorldState ws);        
