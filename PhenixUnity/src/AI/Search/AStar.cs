@@ -33,12 +33,25 @@ namespace Phenix.Unity.AI
                     return true;
                 }
             }
-            return false;
+            return false;            
         }
 
         bool InClosed(NODE node)
         {
-            foreach (var item in _closed)
+            /*foreach (var item in _closed)
+            {
+                if (IsSame(node, item))
+                {
+                    return true;
+                }
+            }
+            return false;*/
+            return InNodes(node, ref _closed);
+        }
+
+        bool InNodes(NODE node, ref List<NODE> nodes)
+        {
+            foreach (var item in nodes)
             {
                 if (IsSame(node, item))
                 {
@@ -87,7 +100,7 @@ namespace Phenix.Unity.AI
                 Neighbors(cur, ref neighbors);                
                 foreach (NODE t in neighbors)
                 {
-                    if (InOpened(t) || InClosed(t))
+                    if (InOpened(t) || InClosed(t) || InNodes(t, ref path))
                     {
                         continue;
                     }
