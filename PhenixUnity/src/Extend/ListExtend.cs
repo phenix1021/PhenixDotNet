@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Phenix.Unity.Extend
 {
@@ -7,13 +7,13 @@ namespace Phenix.Unity.Extend
     {        
         public static void Shuffle<T>(this List<T> list)
         {
-            for (int i = 0; i < list.Count - i; ++i)
+            for (int i = 0; i < list.Count; ++i)
             {
-                Random rand = new Random();
-                int randIdx = rand.Next(list.Count - i);
-                T tmp = list[randIdx];
-                list[randIdx] = list[list.Count - i - 1];
-                list[list.Count - i - 1] = tmp;
+                int randIdx1 = Random.Range(0, list.Count);
+                int randIdx2 = Random.Range(0, list.Count);
+                T tmp = list[randIdx1];
+                list[randIdx1] = list[randIdx2];
+                list[randIdx2] = tmp;
             }
         }
     }
