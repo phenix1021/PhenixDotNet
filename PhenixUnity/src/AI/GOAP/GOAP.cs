@@ -95,7 +95,11 @@ namespace Phenix.Unity.AI
                 {
                     _curGoal.OnExit(WorldState);
                 }                     
-                _curGoal = topGoal;                
+                _curGoal = topGoal;
+                foreach (var action in _actions)
+                {
+                    action.BeforeBuildPlan(_curGoal);
+                }
                 _plan.Build(WorldState, _curGoal, _actions);
                 _curGoal.OnEnter(WorldState);
             }

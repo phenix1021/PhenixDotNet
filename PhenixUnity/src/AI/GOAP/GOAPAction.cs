@@ -29,6 +29,30 @@ namespace Phenix.Unity.AI
             _WSEffect = WSEffect;
         }
 
+        protected void AddWSPrecondition(int bit, bool val)
+        {            
+            foreach (var condition in _WSPrecondition)
+            {
+                if (condition.bit == bit && condition.val == val)
+                {
+                    return;
+                }
+            }
+            _WSPrecondition.Add(new WorldStateBitData(bit, val));
+        }
+
+        protected void RemoveWSPrecondition(int bit, bool val)
+        {
+            foreach (var condition in _WSPrecondition)
+            {
+                if (condition.bit == bit && condition.val == val)
+                {
+                    _WSPrecondition.Remove(condition);
+                    return;
+                }
+            }            
+        }
+
         public virtual void Reset() { }
 
         public bool CheckWorldStatePrecondition(WorldState ws)
@@ -62,5 +86,6 @@ namespace Phenix.Unity.AI
 
         public virtual bool IsAborted() { return false; }
         public abstract bool IsFinished();
+        public virtual void BeforeBuildPlan(GOAPGoal goal) { }
     }
 }
