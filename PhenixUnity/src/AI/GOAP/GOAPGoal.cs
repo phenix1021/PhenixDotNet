@@ -23,6 +23,8 @@ namespace Phenix.Unity.AI
 
         public int GOAPGoalType { get; protected set; }        
 
+        public bool IsRunning { get; private set; }
+
         protected GOAPGoal(int goalType, List<WorldStateBitDataGoal> goalProps)        
         {
             GOAPGoalType = goalType;
@@ -64,7 +66,11 @@ namespace Phenix.Unity.AI
 
         public abstract float GetWeight(WorldState ws);        
 
-        public virtual void OnEnter(WorldState ws) { }
+        public virtual void OnEnter(WorldState ws)
+        {
+            IsRunning = true;
+        }
+
         public virtual void OnExit(WorldState ws)
         {
             foreach (var item in _goalProps)
@@ -75,6 +81,7 @@ namespace Phenix.Unity.AI
                 }
             }
             _nextActiveTimer = Time.timeSinceLevelLoad + GetCD();
+            IsRunning = false;
         }
 
         public virtual bool IsAborted() { return false; }        
