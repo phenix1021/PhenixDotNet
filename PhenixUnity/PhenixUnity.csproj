@@ -97,6 +97,7 @@
     <Compile Include="src\Log\LogFileAppender.cs" />
     <Compile Include="src\Log\LogGUIAppender.cs" />
     <Compile Include="src\MathTools.cs" />
+    <Compile Include="src\Pattern\AloneSingleton.cs" />
     <Compile Include="src\Pattern\RegisterGlobalSingleton.cs" />
     <Compile Include="src\Pattern\GlobalGameObject.cs" />
     <Compile Include="src\Pattern\Singleton.cs" />
