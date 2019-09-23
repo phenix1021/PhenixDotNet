@@ -30,6 +30,7 @@ namespace Phenix.Unity.Sprite
             QuadObject.GetComponent<MeshRenderer>().material = TP.materials[Random.Range(0, TP.materials.Length)];
             QuadObject.transform.localPosition = pos;
             QuadObject.transform.localEulerAngles = dir;
+            Show();
         }
 
         public static void Reset(SpriteBase sprite)
@@ -50,6 +51,16 @@ namespace Phenix.Unity.Sprite
         public virtual void OnUpdate()
         {
             PassTime += Time.deltaTime;
+        }
+
+        public void Hide()
+        {
+            QuadObject.SetActive(false);
+        }
+
+        public void Show()
+        {
+            QuadObject.SetActive(true);
         }
 
         public virtual void Release() { }

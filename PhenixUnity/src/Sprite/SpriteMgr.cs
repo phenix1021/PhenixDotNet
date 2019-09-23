@@ -32,6 +32,7 @@ namespace Phenix.Unity.Sprite
                 if (sprite.IsExpired())
                 {
                     _expireList.Add(i);
+                    sprite.Hide();
                     sprite.Release();
                 }
                 else
