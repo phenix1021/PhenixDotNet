@@ -85,6 +85,9 @@
     <Compile Include="src\AI\GOAP\GOAPPlan.cs" />
     <Compile Include="src\AI\GOAP\WorldState.cs" />
     <Compile Include="src\AI\Search\AStar.cs" />
+    <Compile Include="src\Camera\CameraEffect.cs" />
+    <Compile Include="src\Camera\CameraFollow.cs" />
+    <Compile Include="src\Camera\CameraFollowFixedView.cs" />
     <Compile Include="src\Collection\GameObjectPool.cs" />
     <Compile Include="src\Collection\Pool.cs" />
     <Compile Include="src\Extend\BehaviourExtend.cs" />
@@ -101,6 +104,8 @@
     <Compile Include="src\Pattern\RegisterGlobalSingleton.cs" />
     <Compile Include="src\Pattern\GlobalGameObject.cs" />
     <Compile Include="src\Pattern\Singleton.cs" />
+    <Compile Include="src\Sprite\SpriteBase.cs" />
+    <Compile Include="src\Sprite\SpriteMgr.cs" />
     <Compile Include="src\Utilities\TransformTools.cs" />
     <Compile Include="src\Utilities\Tools.cs" />
     <Compile Include="src\Window\FloatWindow.cs" />
