@@ -106,6 +106,7 @@
     <Compile Include="src\Pattern\Singleton.cs" />
     <Compile Include="src\Sprite\SpriteBase.cs" />
     <Compile Include="src\Sprite\SpriteMgr.cs" />
+    <Compile Include="src\Utilities\AudioTools.cs" />
     <Compile Include="src\Utilities\TransformTools.cs" />
     <Compile Include="src\Utilities\Tools.cs" />
     <Compile Include="src\Window\FloatWindow.cs" />

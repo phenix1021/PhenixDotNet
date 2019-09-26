@@ -3,33 +3,29 @@
 namespace Phenix.Unity.Sprite
 {
     [System.Serializable]
-    public sealed class SpriteTemplate
-    {
-        public int spriteCode;              // 类型
-        public float lifeTime = 0;          // 存在时长（秒），0表示持久
-        public Material[] materials;        // 材质（使用时任选其一）        
-    }
-
-    [System.Serializable]
     public abstract class SpriteBase
     {
-        protected SpriteTemplate TP { get; private set; }
+        int _spriteCode;              // 类型
+        float _lifeTime = 0;          // 存在时长（秒），0表示持久
+        Material _mat;                // 面片材质
+
         protected float PassTime { get; private set; }       // 已经过时间（秒）
-        protected GameObject QuadObject { get; private set; }      // 面片
+        protected GameObject Quad { get; private set; }      // 面片
 
         protected SpriteBase()
         {
-            QuadObject = GameObject.CreatePrimitive(PrimitiveType.Quad);
-            QuadObject.GetComponent<MeshCollider>().enabled = false;
+            Quad = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            Quad.GetComponent<MeshCollider>().enabled = false;
             Reset();
         }
 
-        protected void Init(int spriteCode, Vector3 pos, Vector3 dir)
+        protected void Init(int spriteCode, float lifeTime, Material mat, Vector3 pos, Vector3 dir)
         {
-            TP = SpriteMgr.Instance.GetTP(spriteCode);
-            QuadObject.GetComponent<MeshRenderer>().material = TP.materials[Random.Range(0, TP.materials.Length)];
-            QuadObject.transform.localPosition = pos;
-            QuadObject.transform.localEulerAngles = dir;
+            _spriteCode = spriteCode;
+            _lifeTime = lifeTime;
+            Quad.GetComponent<MeshRenderer>().material = mat;
+            Quad.transform.localPosition = pos;
+            Quad.transform.localEulerAngles = dir;
             Show();
         }
 
@@ -45,7 +41,7 @@ namespace Phenix.Unity.Sprite
 
         public virtual bool IsExpired()
         {
-            return TP != null && TP.lifeTime > 0 && PassTime >= TP.lifeTime;
+            return _lifeTime > 0 && PassTime >= _lifeTime;
         }
 
         public virtual void OnUpdate()
@@ -55,12 +51,12 @@ namespace Phenix.Unity.Sprite
 
         public void Hide()
         {
-            QuadObject.SetActive(false);
+            Quad.SetActive(false);
         }
 
         public void Show()
         {
-            QuadObject.SetActive(true);
+            Quad.SetActive(true);
         }
 
         public virtual void Release() { }
