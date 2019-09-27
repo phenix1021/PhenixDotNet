@@ -100,6 +100,7 @@
     <Compile Include="src\Log\LogFileAppender.cs" />
     <Compile Include="src\Log\LogGUIAppender.cs" />
     <Compile Include="src\MathTools.cs" />
+    <Compile Include="src\ParticleMgr.cs" />
     <Compile Include="src\Pattern\AloneSingleton.cs" />
     <Compile Include="src\Pattern\RegisterGlobalSingleton.cs" />
     <Compile Include="src\Pattern\GlobalGameObject.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="src\Sprite\SpriteBase.cs" />
     <Compile Include="src\Sprite\SpriteMgr.cs" />
     <Compile Include="src\Utilities\AudioTools.cs" />
+    <Compile Include="src\Utilities\MaterialTools.cs" />
     <Compile Include="src\Utilities\TransformTools.cs" />
     <Compile Include="src\Utilities\Tools.cs" />
     <Compile Include="src\Window\FloatWindow.cs" />

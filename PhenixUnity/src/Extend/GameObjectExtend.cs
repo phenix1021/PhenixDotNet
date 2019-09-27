@@ -26,5 +26,14 @@ namespace Phenix.Unity.Extend
                 }
             }
         }
+
+        public static GameObject ancestor(this GameObject go)
+        {
+            while (go.transform.parent != null)
+            {
+                go = go.transform.parent.gameObject;
+            }
+            return go;
+        }
     }
 }

@@ -17,11 +17,17 @@ namespace Phenix.Unity.Collection
 
         public void Collect(GameObject go)
         {
-            _cache.Enqueue(go);
-            if (_cache.Count >= _capacity)
+            if (go == null)
             {
-                GameObject.DestroyImmediate(_cache.Dequeue());
+                return;
             }
+
+            if (_cache.Count < _capacity)
+            {
+                _cache.Enqueue(go);
+            }
+
+            GameObject.DestroyImmediate(go);
         }
 
         public GameObject Get()
