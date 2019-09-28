@@ -31,7 +31,7 @@ namespace Phenix.Unity.Particle
 
         Dictionary<int/*粒子类型*/, ParticleData> _particles = new Dictionary<int, ParticleData>();        
 
-        protected void Add(int particleCode, GameObject prefab, int poolCapacity)
+        public void Add(int particleCode, GameObject prefab, int poolCapacity)
         {            
             _particles.Add(particleCode, new ParticleData(particleCode, prefab, poolCapacity));
         }
@@ -56,9 +56,9 @@ namespace Phenix.Unity.Particle
             ParticleData data = _particles[particleType];
             ParticleInst newParticleInst = data.pool.Get();
             if (newParticleInst.inst == null)
-            {
-                newParticleInst.inst = GameObject.Instantiate(data.prefab);
-                newParticleInst.emitters = newParticleInst.inst.GetComponentsInParent<ParticleSystem>();
+            {                
+                newParticleInst.inst = GameObject.Instantiate(data.prefab) as GameObject;
+                newParticleInst.emitters = newParticleInst.inst.GetComponentsInChildren<ParticleSystem>();
             }
 
             newParticleInst.inst.transform.parent = parent;
@@ -71,7 +71,7 @@ namespace Phenix.Unity.Particle
             }
         }
 
-        protected virtual void Update()
+        public void OnUpdate()
         {            
             // 遍历管理单元中的所有种类粒子
             foreach (var item in _particles)

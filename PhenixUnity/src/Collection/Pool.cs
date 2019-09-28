@@ -23,7 +23,7 @@ namespace Phenix.Unity.Collection
                 return;
             }
 
-            if (_capacity > 0 && _cache.Count < _capacity)
+            if (_capacity == 0 || _cache.Count < _capacity)
             {
                 _cache.Enqueue(t);
             }

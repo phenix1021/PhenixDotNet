@@ -27,13 +27,33 @@ namespace Phenix.Unity.Extend
             }
         }
 
-        public static GameObject ancestor(this GameObject go)
+        /// <summary>
+        /// 返回hierarchy上的根对象
+        /// </summary>        
+        public static GameObject Ancestor(this GameObject go)
         {
             while (go.transform.parent != null)
             {
                 go = go.transform.parent.gameObject;
             }
             return go;
+        }
+
+        /// <summary>
+        /// 返回forward方向在xz平面上的角度值
+        /// </summary>
+        public static float ForwardAngle(this GameObject go)
+        {
+            return ForwardAngle(go) * Mathf.Rad2Deg;
+        }
+
+        /// <summary>
+        /// 返回forward方向在xz平面上的弧度值
+        /// </summary>
+        public static float ForwardRadian(this GameObject go)
+        {
+            Vector3 vec = new Vector3(go.transform.forward.x, 0, go.transform.forward.z);
+            return Mathf.PI - Mathf.Atan2(vec.normalized.z, vec.normalized.x);
         }
     }
 }
