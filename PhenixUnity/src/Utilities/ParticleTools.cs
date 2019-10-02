@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Phenix.Unity.Pattern;
-using Phenix.Unity.Extend;
+using UnityEngine.Events;
 
 namespace Phenix.Unity.Utilities
 {
@@ -18,14 +18,22 @@ namespace Phenix.Unity.Utilities
             }
             var main = particleSystem.main;
             main.startRotation = new ParticleSystem.MinMaxCurve(startRotationRadian);
-            StartCoroutine(PlayImpl(particleSystem, delay));
+            if (delay == 0)
+            {
+                particleSystem.gameObject.SetActive(true);
+                particleSystem.Play();                
+            }
+            else
+            {
+                StartCoroutine(PlayImpl(particleSystem, delay));
+            }
         }
 
         IEnumerator PlayImpl(ParticleSystem particleSystem, float delay)
         {
             yield return new WaitForSeconds(delay);
             particleSystem.gameObject.SetActive(true);
-            particleSystem.Play();
+            particleSystem.Play();            
         }
 
         public void Stop(ParticleSystem particleSystem)

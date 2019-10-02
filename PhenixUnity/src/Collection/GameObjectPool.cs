@@ -26,8 +26,10 @@ namespace Phenix.Unity.Collection
             {
                 _cache.Enqueue(go);
             }
-
-            GameObject.DestroyImmediate(go);
+            else
+            {
+                GameObject.DestroyImmediate(go);
+            }            
         }
 
         public GameObject Get()

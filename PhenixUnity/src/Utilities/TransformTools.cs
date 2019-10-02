@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using Phenix.Unity.Math;
+using Phenix.Unity.Utilities;
 
 namespace Phenix.Unity.Utilities
 {

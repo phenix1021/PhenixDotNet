@@ -90,6 +90,7 @@
     <Compile Include="src\Camera\CameraFollowFixedView.cs" />
     <Compile Include="src\Collection\GameObjectPool.cs" />
     <Compile Include="src\Collection\Pool.cs" />
+    <Compile Include="src\Effect\MotionTrace.cs" />
     <Compile Include="src\Extend\BehaviourExtend.cs" />
     <Compile Include="src\Extend\GameObjectExtend.cs" />
     <Compile Include="src\Extend\ListExtend.cs" />
@@ -99,7 +100,7 @@
     <Compile Include="src\Log\LogAppender.cs" />
     <Compile Include="src\Log\LogFileAppender.cs" />
     <Compile Include="src\Log\LogGUIAppender.cs" />
-    <Compile Include="src\MathTools.cs" />
+    <Compile Include="src\Utilities\MathTools.cs" />
     <Compile Include="src\ParticleMgr.cs" />
     <Compile Include="src\Pattern\AloneSingleton.cs" />
     <Compile Include="src\Pattern\RegisterGlobalSingleton.cs" />

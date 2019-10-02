@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Phenix.Unity.Math
+namespace Phenix.Unity.Utilities
 {
 
     public class MathTools

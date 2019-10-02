@@ -2,7 +2,7 @@
 using System.IO;
 using UnityEngine;
 using Phenix.Unity.Pattern;
-using Phenix.Unity.Math;
+using Phenix.Unity.Utilities;
 
 namespace Phenix.Unity.Camera
 {

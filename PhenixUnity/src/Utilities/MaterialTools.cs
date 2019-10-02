@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Phenix.Unity.Pattern;
-using Phenix.Unity.Extend;
+using UnityEngine.Events;
 
 namespace Phenix.Unity.Utilities
 {
@@ -10,18 +10,19 @@ namespace Phenix.Unity.Utilities
         /// <summary>
         /// 颜色渐隐
         /// </summary>    
-        public void FadeOut(Renderer renderer, string colorPropName, float fadeInTime,
-            GameObject go, bool setActiveFalse = true)
+        public void FadeOut(Renderer renderer, string shaderColorProp, float fadeInTime,
+            GameObject go, bool setActiveFalse = true, UnityAction onFinished = null)
         {
             if (renderer == null || go == null)
             {
                 return;
             }
-            StartCoroutine(FadeOutImpl(renderer, colorPropName, fadeInTime, go, setActiveFalse));
+            go.SetActive(true);
+            StartCoroutine(FadeOutImpl(renderer, shaderColorProp, fadeInTime, go, setActiveFalse, onFinished));
         }
 
         IEnumerator FadeOutImpl(Renderer renderer, string colorPropName, float fadeInTime,
-            GameObject go, bool setActiveFalse)
+            GameObject go, bool setActiveFalse, UnityAction onFinished)
         {
             Color color = Color.white;
             renderer.material.SetColor(colorPropName, color);
@@ -40,19 +41,23 @@ namespace Phenix.Unity.Utilities
             {
                 go.SetActive(false);
             }
+            if (onFinished != null)
+            {
+                onFinished.Invoke();
+            }
         }
 
         /// <summary>
         /// 颜色渐现
         /// </summary>    
         public void FadeIn(Renderer renderer, string colorPropName, float fadeInTime,
-            GameObject go, bool setActiveTrue = true)
+            GameObject go, bool setActiveTrue = true, UnityAction onFinished = null)
         {
-            StartCoroutine(FadeInImpl(renderer, colorPropName, fadeInTime, go, setActiveTrue));
+            StartCoroutine(FadeInImpl(renderer, colorPropName, fadeInTime, go, setActiveTrue, onFinished));
         }
 
         IEnumerator FadeInImpl(Renderer renderer, string colorPropName, float fadeInTime,
-            GameObject go, bool setActiveTrue)
+            GameObject go, bool setActiveTrue, UnityAction onFinished)
         {
             Color color = Color.black;
             renderer.material.SetColor(colorPropName, color);
@@ -70,6 +75,10 @@ namespace Phenix.Unity.Utilities
             if (setActiveTrue)
             {
                 go.SetActive(true);
+            }
+            if (onFinished != null)
+            {
+                onFinished.Invoke();
             }
         }
     }
