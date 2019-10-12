@@ -85,6 +85,7 @@
     <Compile Include="src\AI\GOAP\GOAPPlan.cs" />
     <Compile Include="src\AI\GOAP\WorldState.cs" />
     <Compile Include="src\AI\Search\AStar.cs" />
+    <Compile Include="src\Animation\AnimationMixMgr.cs" />
     <Compile Include="src\Camera\CameraEffect.cs" />
     <Compile Include="src\Camera\CameraFollow.cs" />
     <Compile Include="src\Camera\CameraFollowFixedView.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="src\Log\LogFileAppender.cs" />
     <Compile Include="src\Log\LogGUIAppender.cs" />
     <Compile Include="src\TrailGenerator.cs" />
+    <Compile Include="src\Utilities\AnimationTools.cs" />
     <Compile Include="src\Utilities\MathTools.cs" />
     <Compile Include="src\ParticleMgr.cs" />
     <Compile Include="src\Pattern\AloneSingleton.cs" />
