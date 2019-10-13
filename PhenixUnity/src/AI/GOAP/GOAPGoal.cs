@@ -23,7 +23,7 @@ namespace Phenix.Unity.AI
 
         public int GOAPGoalType { get; protected set; }        
 
-        public bool IsRunning { get; private set; }
+        public bool InProgress { get; private set; }
 
         protected GOAPGoal(int goalType, List<WorldStateBitDataGoal> goalProps)        
         {
@@ -68,7 +68,7 @@ namespace Phenix.Unity.AI
 
         public virtual void OnEnter(WorldState ws)
         {
-            IsRunning = true;
+            InProgress = true;
         }
 
         public virtual void OnExit(WorldState ws)
@@ -81,7 +81,7 @@ namespace Phenix.Unity.AI
                 }
             }
             _nextActiveTimer = Time.timeSinceLevelLoad + GetCD();
-            IsRunning = false;
+            InProgress = false;
         }
 
         public virtual bool IsAborted() { return false; }        

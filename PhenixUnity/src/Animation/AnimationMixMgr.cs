@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using Phenix.Unity.Utilities;
 
 namespace Phenix.Unity.Anim
 {
@@ -46,6 +47,19 @@ namespace Phenix.Unity.Anim
                     animState.AddMixingTransform(mixTransform);                    
                 }
             }            
+        }
+
+        public void PlayAnim(Animation anim, string mixAnimName, float fadeInTime, 
+            QueueMode queueMode = QueueMode.PlayNow)
+        {
+            foreach (var mixData in mixDatum)
+            {
+                if (mixData.newAnimationName == mixAnimName)
+                {
+                    AnimationTools.PlayAnim(anim, mixAnimName, fadeInTime, queueMode, 
+                        PlayMode.StopSameLayer/*不可以是StopAll*/);
+                }
+            }
         }
     }
 }
