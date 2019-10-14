@@ -1,16 +1,17 @@
 ﻿using UnityEngine;
-using Phenix.Unity.Utilities;
+using Phenix.Unity.Pattern;
+using System.Collections;
 
 namespace Phenix.Unity.Utilities
 {
-    public class TransformTools
+    public class TransformTools : AloneSingleton<TransformTools>
     {
         /// <summary>
         /// 获取对象的bounds
         /// </summary>
         /// <param name="go"></param>
         /// <returns></returns>
-        public static Bounds GetBounds(GameObject go)
+        public Bounds GetBounds(GameObject go)
         {
             Bounds? bounds = null;
             foreach (Renderer mesh in go.GetComponentsInChildren<MeshRenderer>())
@@ -39,7 +40,7 @@ namespace Phenix.Unity.Utilities
         /// </summary>
         /// <param name="go"></param>
         /// <returns></returns>
-        public static Bounds GetBounds(params GameObject[] goes)
+        public Bounds GetBounds(params GameObject[] goes)
         {
             Bounds? bounds = null;
             foreach (var item in goes)
@@ -58,7 +59,7 @@ namespace Phenix.Unity.Utilities
         /// 贴地移动
         /// </summary>        
         /// <returns>返回是否接触地面</returns>
-        public static bool MoveOnGround(CharacterController cc, Vector3 velocity)
+        public bool MoveOnGround(CharacterController cc, Vector3 velocity)
         {
             return cc.SimpleMove(velocity); // CharacterController的SimpleMove自带重力，不受velocity的y值影响
         }
@@ -67,7 +68,7 @@ namespace Phenix.Unity.Utilities
         /// 贴地移动
         /// </summary>        
         /// <returns>当侧面发生碰撞（可选）或离地时返回false</returns>        
-        public static bool MoveOnGround(Transform transform, CharacterController cc, Vector3 velocity, 
+        public bool MoveOnGround(Transform transform, CharacterController cc, Vector3 velocity, 
             bool allowSideCollision = false )
         {
             Vector3 old = transform.position;
@@ -102,7 +103,7 @@ namespace Phenix.Unity.Utilities
         /// <summary>
         /// target相对self朝向的角度
         /// </summary>        
-        public static float ForwardAngleToTarget(Transform self, Transform target)
+        public float ForwardAngleToTarget(Transform self, Transform target)
         {
             if (self != null && target != null)
             {
@@ -117,7 +118,7 @@ namespace Phenix.Unity.Utilities
         /// <summary>
         /// self是否朝向target
         /// </summary>        
-        public static bool IsLookingAtTarget(Transform self, Transform target)
+        public bool IsLookingAtTarget(Transform self, Transform target)
         {
             return ForwardAngleToTarget(self, target) <= 10;
         }
@@ -125,7 +126,7 @@ namespace Phenix.Unity.Utilities
         /// <summary>
         /// target朝向相对self的角度
         /// </summary>        
-        public static float AngleToTargetForward(Transform self, Transform target)
+        public float AngleToTargetForward(Transform self, Transform target)
         {
             if (self != null && target != null)
             {
@@ -140,7 +141,7 @@ namespace Phenix.Unity.Utilities
         /// <summary>
         /// target是否面向self（无论self朝向如何）
         /// </summary>        
-        public static bool IsAheadOfTarget(Transform self, Transform target)
+        public bool IsAheadOfTarget(Transform self, Transform target)
         {
             if (self == null || target == null)
                 return false;
@@ -152,7 +153,7 @@ namespace Phenix.Unity.Utilities
         /// <summary>
         /// target是否背对self（无论self朝向如何）
         /// </summary>        
-        public static bool IsBehindTarget(Transform self, Transform target)
+        public bool IsBehindTarget(Transform self, Transform target)
         {
             if (self == null || target == null)
                 return false;
@@ -161,19 +162,65 @@ namespace Phenix.Unity.Utilities
             return angle > 315 || angle < 45;
         }
 
-        public static bool InRange(Transform trans, Vector3 center, float radius)
+        public bool InRange(Transform trans, Vector3 center, float radius)
         {
             return (trans.position - center).sqrMagnitude < radius * radius;
         }
 
-        public static bool IsGroundThere(Vector3 pos)
+        public bool IsGroundThere(Vector3 pos)
         {
             return Physics.Raycast(pos + Vector3.up, -Vector3.up, 5, 1 << 10);
         }
 
-        public static bool IsNearToLine(Vector3 point, Vector3 lineStart, Vector3 lineEnd, float maxDist)
+        public bool IsNearToLine(Vector3 point, Vector3 lineStart, Vector3 lineEnd, float maxDist)
         {
             return MathTools.DistanceFromPointToVector(lineStart, lineEnd, point) <= maxDist;
+        }
+
+        /// <summary>
+        /// 震动(适用于静止对象)
+        /// </summary>        
+        /// <param name="delay">延时</param>
+        /// <param name="time">持续时长(0表示持久)</param>
+        /// <param name="dir">振动方向</param>
+        /// <param name="freq">震动频度</param>
+        /// <param name="smooth">震动幅度</param>        
+        public Coroutine Shake(Transform trans, Vector3 shakeDir, float delay, float time, float freq, float smooth)
+        {
+            if (trans == null || freq == 0 || smooth == 0)
+            {
+                return null;
+            }
+            return StartCoroutine(ShakeImpl(trans, shakeDir, delay, time, freq, smooth));
+        }
+
+        IEnumerator ShakeImpl(Transform trans, Vector3 shakeDir, float delay, float time, float freq, float smooth)
+        {
+            yield return new WaitForSecondsRealtime(delay);
+
+            Vector3 oriPos = trans.localPosition;
+            shakeDir = shakeDir.normalized;
+            float extireTimer = (time == 0 ? 0 : Time.realtimeSinceStartup + time);
+
+            while (extireTimer ==0 || Time.realtimeSinceStartup < extireTimer)
+            {
+                float xNoise = (Mathf.PerlinNoise((Time.realtimeSinceStartup + 0) * 10 * freq, Time.smoothDeltaTime) * 2 - 1) * smooth;
+                float yNoise = (Mathf.PerlinNoise((Time.realtimeSinceStartup + 50) * 10 * freq, Time.smoothDeltaTime) * 2 - 1) * smooth;
+                float zNoise = (Mathf.PerlinNoise((Time.realtimeSinceStartup + 100) * 10 * freq, Time.smoothDeltaTime) * 2 - 1) * smooth;
+
+                Vector3 offset = Vector3.Scale(shakeDir, new Vector3(xNoise, yNoise, zNoise));
+                trans.localPosition = oriPos + offset;
+
+                yield return new WaitForEndOfFrame();
+            }
+
+            trans.position = oriPos;
+        }
+
+        public void StopShake(Transform trans, Coroutine coroutine, Vector3 retorePos)
+        {
+            StopCoroutine(coroutine);
+            trans.position = retorePos;
         }
     }
 }

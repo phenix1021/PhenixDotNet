@@ -36,14 +36,17 @@ namespace Phenix.Unity.Utilities
             particleSystem.Play();            
         }
 
-        public void Stop(ParticleSystem particleSystem)
+        public void Stop(ParticleSystem particleSystem, bool hide = true)
         {
             if (particleSystem == null)
             {
                 return;
             }
             particleSystem.Stop();
-            particleSystem.gameObject.SetActive(false);            
+            if (hide)
+            {
+                particleSystem.gameObject.SetActive(false);
+            }            
         }
     }
 }
