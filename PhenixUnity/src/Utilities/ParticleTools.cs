@@ -10,22 +10,23 @@ namespace Phenix.Unity.Utilities
         /// <summary>
         /// 播放粒子时，动态设定ParticleSystem的start rotation参数
         /// </summary>        
-        public void Play(ParticleSystem particleSystem, float startRotationRadian, float delay = 0)
+        public Coroutine Play(ParticleSystem particleSystem, float startRotationRadian, float delay = 0)
         {
             if (particleSystem == null)
             {
-                return;
+                return null;
             }
             var main = particleSystem.main;
             main.startRotation = new ParticleSystem.MinMaxCurve(startRotationRadian);
             if (delay == 0)
             {
                 particleSystem.gameObject.SetActive(true);
-                particleSystem.Play();                
+                particleSystem.Play();
+                return null;
             }
             else
             {
-                StartCoroutine(PlayImpl(particleSystem, delay));
+                return StartCoroutine(PlayImpl(particleSystem, delay));
             }
         }
 

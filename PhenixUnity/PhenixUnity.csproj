@@ -86,6 +86,7 @@
     <Compile Include="src\AI\GOAP\WorldState.cs" />
     <Compile Include="src\AI\Search\AStar.cs" />
     <Compile Include="src\Animation\AnimationMixMgr.cs" />
+    <Compile Include="src\Audio\AudioMgr.cs" />
     <Compile Include="src\Camera\CameraEffect.cs" />
     <Compile Include="src\Camera\CameraFollow.cs" />
     <Compile Include="src\Camera\CameraFollowFixedView.cs" />

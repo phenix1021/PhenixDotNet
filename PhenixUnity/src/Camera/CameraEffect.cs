@@ -11,15 +11,15 @@ namespace Phenix.Unity.Camera
         /// <summary>
         /// 慢镜头特写
         /// </summary>        
-        public void SlowMotion(UnityEngine.Camera camera, float timeScale, float fov, 
+        public Coroutine SlowMotion(UnityEngine.Camera camera, float timeScale, float fov, 
             float effectTime, float restoreDelayTime, float restoreTime)
         {
             if (camera == null)
             {
-                return;
+                return null;
             }
             StopCoroutine("SlowMotionImpl");
-            StartCoroutine(SlowMotionImpl(camera, timeScale, fov, effectTime, restoreDelayTime, restoreTime));
+            return StartCoroutine(SlowMotionImpl(camera, timeScale, fov, effectTime, restoreDelayTime, restoreTime));
         }
 
         IEnumerator SlowMotionImpl(UnityEngine.Camera camera, float timeScale, float fov, 
@@ -94,14 +94,14 @@ namespace Phenix.Unity.Camera
         /// <summary>
         /// 镜头拍照
         /// </summary>        
-        public void TakePicture(UnityEngine.Camera camera, string fileName)
+        public Coroutine TakePicture(UnityEngine.Camera camera, string fileName)
         {
             if (camera == null)
             {
-                return;
+                return null;
             }
             StopCoroutine("TakePictureImpl");
-            StartCoroutine(TakePictureImpl(camera, fileName));
+            return StartCoroutine(TakePictureImpl(camera, fileName));
         }
 
         IEnumerator TakePictureImpl(UnityEngine.Camera camera, string fileName)

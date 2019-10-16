@@ -222,5 +222,41 @@ namespace Phenix.Unity.Utilities
             StopCoroutine(coroutine);
             trans.position = retorePos;
         }
+
+        public Coroutine Blink(Transform trans, Vector3 deltaScalePercent, float speed, float delay = 0)
+        {
+            if (trans == null || speed == 0)
+            {
+                return null;
+            }
+
+            if (deltaScalePercent.x < 0 || trans.localScale.x < deltaScalePercent.x)
+            {
+                return null;
+            }
+            if (deltaScalePercent.y < 0 || trans.localScale.y < deltaScalePercent.y)
+            {
+                return null;
+            }
+            if (deltaScalePercent.z < 0 || trans.localScale.z < deltaScalePercent.z)
+            {
+                return null;
+            }
+
+            return StartCoroutine(BlinkImpl(trans, deltaScalePercent, speed, delay));
+        }
+
+        IEnumerator BlinkImpl(Transform trans, Vector3 deltaScalePercent, float speed, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            float step = 0;
+            Vector3 baseScale = trans.localScale;
+            while (true)
+            {
+                step += speed * Time.deltaTime;
+                trans.localScale = baseScale + deltaScalePercent * Mathf.Sin(step * Mathf.PI);
+                yield return new WaitForEndOfFrame();
+            }            
+        }
     }
 }

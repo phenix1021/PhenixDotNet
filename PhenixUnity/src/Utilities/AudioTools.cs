@@ -9,22 +9,36 @@ namespace Phenix.Unity.Utilities
         /// <summary>
         /// 简单播一发
         /// </summary>    
-        public void PlayOneShot(AudioSource audioSource, AudioClip clip)
+        public Coroutine PlayOneShot(AudioSource audioSource, AudioClip clip, float delay = 0)
         {            
             audioSource.volume = 1;
+            if (delay == 0)
+            {
+                audioSource.PlayOneShot(clip);
+                return null;
+            }
+            else
+            {
+                return StartCoroutine(PlayOneShotImpl(audioSource, clip, delay));
+            }
+        }
+
+        IEnumerator PlayOneShotImpl(AudioSource audioSource, AudioClip clip, float delay)
+        {
+            yield return new WaitForSeconds(delay);
             audioSource.PlayOneShot(clip);
         }
 
         /// <summary>
         /// 音量渐起
         /// </summary>    
-        public void PlayIn(AudioSource audioSource, AudioClip clip, float fadeInTime)
+        public Coroutine PlayIn(AudioSource audioSource, AudioClip clip, float fadeInTime)
         {            
             audioSource.clip = clip;
             audioSource.loop = false;
             audioSource.volume = 0;
 
-            StartCoroutine(PlayInImpl(audioSource, fadeInTime));
+            return StartCoroutine(PlayInImpl(audioSource, fadeInTime));
         }
 
         IEnumerator PlayInImpl(AudioSource audioSource, float fadeInTime)
@@ -42,13 +56,13 @@ namespace Phenix.Unity.Utilities
         /// <summary>
         /// 音量渐落
         /// </summary>    
-        public void PlayOut(AudioSource audioSource, AudioClip clip, float fadeOutTime)
+        public Coroutine PlayOut(AudioSource audioSource, AudioClip clip, float fadeOutTime)
         {
             audioSource.clip = clip;
             audioSource.loop = false;
             audioSource.volume = 1;
 
-            StartCoroutine(PlayOutImpl(audioSource, fadeOutTime));
+            return StartCoroutine(PlayOutImpl(audioSource, fadeOutTime));
         }
 
         IEnumerator PlayOutImpl(AudioSource audioSource, float fadeOutTime)
@@ -80,18 +94,18 @@ namespace Phenix.Unity.Utilities
         /// <summary>
         /// 在指定时长内循环播放clip
         /// </summary>    
-        public void PlayLoop(AudioSource audioSource, AudioClip clip, float time,
+        public Coroutine PlayLoop(AudioSource audioSource, AudioClip clip, float time,
             float fadeInTime = 0, float fadeOutTime = 0)
         {
             if (time > 0 && time < fadeInTime + fadeOutTime)
             {
-                return;
+                return null;
             }
 
             audioSource.clip = clip;
             audioSource.loop = true;
 
-            StartCoroutine(PlayLoopImpl(audioSource, time, fadeInTime, fadeOutTime));
+            return StartCoroutine(PlayLoopImpl(audioSource, time, fadeInTime, fadeOutTime));
         }
 
         IEnumerator PlayLoopImpl(AudioSource audioSource, float time,
@@ -123,9 +137,9 @@ namespace Phenix.Unity.Utilities
         /// <summary>
         /// 过渡播放(当前clip渐落之后，新clip渐起)
         /// </summary>    
-        public void PlayCross(AudioSource audioSource, AudioClip clip, float fadeOutTime, float fadeInTime)
+        public Coroutine PlayCross(AudioSource audioSource, AudioClip clip, float fadeOutTime, float fadeInTime)
         {
-            StartCoroutine(PlayCrossImpl(audioSource, clip, fadeOutTime, fadeInTime));
+            return StartCoroutine(PlayCrossImpl(audioSource, clip, fadeOutTime, fadeInTime));
         }
 
         IEnumerator PlayCrossImpl(AudioSource audioSource, AudioClip clip, float fadeOutTime, float fadeInTime)

@@ -10,15 +10,15 @@ namespace Phenix.Unity.Utilities
         /// <summary>
         /// 颜色渐隐
         /// </summary>    
-        public void FadeOut(Renderer renderer, string shaderColorProp, float fadeInTime,
+        public Coroutine FadeOut(Renderer renderer, string shaderColorProp, float fadeInTime,
             GameObject go, bool setActiveFalse = true, UnityAction onFinished = null)
         {
             if (renderer == null || go == null)
             {
-                return;
+                return null;
             }
             go.SetActive(true);
-            StartCoroutine(FadeOutImpl(renderer, shaderColorProp, fadeInTime, go, setActiveFalse, onFinished));
+            return StartCoroutine(FadeOutImpl(renderer, shaderColorProp, fadeInTime, go, setActiveFalse, onFinished));
         }
 
         IEnumerator FadeOutImpl(Renderer renderer, string colorPropName, float fadeInTime,
@@ -50,10 +50,10 @@ namespace Phenix.Unity.Utilities
         /// <summary>
         /// 颜色渐现
         /// </summary>    
-        public void FadeIn(Renderer renderer, string colorPropName, float fadeInTime,
+        public Coroutine FadeIn(Renderer renderer, string colorPropName, float fadeInTime,
             GameObject go, bool setActiveTrue = true, UnityAction onFinished = null)
         {
-            StartCoroutine(FadeInImpl(renderer, colorPropName, fadeInTime, go, setActiveTrue, onFinished));
+            return StartCoroutine(FadeInImpl(renderer, colorPropName, fadeInTime, go, setActiveTrue, onFinished));
         }
 
         IEnumerator FadeInImpl(Renderer renderer, string colorPropName, float fadeInTime,
