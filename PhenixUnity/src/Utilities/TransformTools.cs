@@ -4,7 +4,7 @@ using System.Collections;
 
 namespace Phenix.Unity.Utilities
 {
-    public class TransformTools : AloneSingleton<TransformTools>
+    public class TransformTools : StandAloneSingleton<TransformTools>
     {
         /// <summary>
         /// 获取对象的bounds

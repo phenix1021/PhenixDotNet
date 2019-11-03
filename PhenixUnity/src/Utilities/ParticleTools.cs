@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 namespace Phenix.Unity.Utilities
 {
-    public class ParticleTools : AloneSingleton<ParticleTools>
+    public class ParticleTools : StandAloneSingleton<ParticleTools>
     {
         /// <summary>
         /// 播放粒子时，动态设定ParticleSystem的start rotation参数

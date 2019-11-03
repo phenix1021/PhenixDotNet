@@ -34,13 +34,13 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
       <HintPath>..\..\..\tools\projs\PhenixUnityGameKit\Phenix\PhenixEditor\bin\Debug\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\..\..\Unity2017\Editor\Data\UnityExtensions\Unity\GUISystem\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -102,11 +102,29 @@
     <Compile Include="src\Log\LogAppender.cs" />
     <Compile Include="src\Log\LogFileAppender.cs" />
     <Compile Include="src\Log\LogGUIAppender.cs" />
+    <Compile Include="src\Message\Message.cs" />
+    <Compile Include="src\Message\MessageMgr.cs" />
     <Compile Include="src\TrailGenerator.cs" />
+    <Compile Include="src\UI\Controls\FastScrollView.cs" />
+    <Compile Include="src\UI\Controls\ColorGradient.cs" />
+    <Compile Include="src\UI\Controls\ColorGradient1.cs" />
+    <Compile Include="src\UI\Controls\FlipPage.cs" />
+    <Compile Include="src\UI\Controls\NumFont.cs" />
+    <Compile Include="src\UI\Controls\JoyStick.cs" />
+    <Compile Include="src\UI\Controls\RadarChart.cs" />
+    <Compile Include="src\UI\Controls\SimpleScrollView.cs" />
+    <Compile Include="src\UI\Controls\VerticalText.cs" />
+    <Compile Include="src\UI\UIDragable.cs" />
+    <Compile Include="src\UI\Dragable.cs" />
+    <Compile Include="src\UI\LongPressable.cs" />
+    <Compile Include="src\UI\DoubleClickable.cs" />
+    <Compile Include="src\UI\MVC\Model.cs" />
+    <Compile Include="src\UI\MVC\UIFacade.cs" />
+    <Compile Include="src\UI\MVC\View.cs" />
     <Compile Include="src\Utilities\AnimationTools.cs" />
     <Compile Include="src\Utilities\MathTools.cs" />
     <Compile Include="src\ParticleMgr.cs" />
-    <Compile Include="src\Pattern\AloneSingleton.cs" />
+    <Compile Include="src\Pattern\StandAloneSingleton.cs" />
     <Compile Include="src\Pattern\RegisterGlobalSingleton.cs" />
     <Compile Include="src\Pattern\GlobalGameObject.cs" />
     <Compile Include="src\Pattern\Singleton.cs" />
@@ -119,6 +137,9 @@
     <Compile Include="src\Utilities\Tools.cs" />
     <Compile Include="src\Window\FloatWindow.cs" />
     <Compile Include="src\Window\SysInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="UnityEngine.dll" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

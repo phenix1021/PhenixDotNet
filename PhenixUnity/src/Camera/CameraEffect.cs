@@ -6,7 +6,7 @@ using Phenix.Unity.Utilities;
 
 namespace Phenix.Unity.Camera
 {
-    public class CameraEffect : AloneSingleton<CameraEffect>
+    public class CameraEffect : StandAloneSingleton<CameraEffect>
     {
         /// <summary>
         /// 慢镜头特写

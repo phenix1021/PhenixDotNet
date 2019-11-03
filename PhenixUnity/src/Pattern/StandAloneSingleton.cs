@@ -5,7 +5,7 @@ namespace Phenix.Unity.Pattern
     /// <summary>
     /// 独立单件模式（不需要显式挂接对象，但无法在设计期序列化字段）
     /// </summary>
-    public abstract class AloneSingleton<T> : MonoBehaviour where T : AloneSingleton<T>
+    public abstract class StandAloneSingleton<T> : MonoBehaviour where T : StandAloneSingleton<T>
     {
         static T _inst;
 

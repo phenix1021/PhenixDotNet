@@ -4,7 +4,7 @@ using Phenix.Unity.Pattern;
 
 namespace Phenix.Unity.Utilities
 {
-    public class AudioTools : AloneSingleton<AudioTools>
+    public class AudioTools : StandAloneSingleton<AudioTools>
     {
         /// <summary>
         /// 简单播一发

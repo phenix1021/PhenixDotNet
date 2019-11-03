@@ -4,7 +4,7 @@ namespace Phenix.Unity.Camera
 {
     public abstract class CameraFollow : MonoBehaviour
     {
-        public UnityEngine.Camera camera;
+        public UnityEngine.Camera cam;
         public Transform target;
 
         [SerializeField]
@@ -15,7 +15,7 @@ namespace Phenix.Unity.Camera
 
         protected virtual void Awake()
         {
-            camera = UnityEngine.Camera.main;
+            cam = UnityEngine.Camera.main;
         }
 
         protected virtual void Start() { }

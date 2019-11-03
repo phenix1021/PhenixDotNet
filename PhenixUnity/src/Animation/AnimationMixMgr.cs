@@ -20,12 +20,13 @@ namespace Phenix.Unity.Anim
     /// <usage>
     /// 添加到管理器的融合动画可以直接通过animation["新动画名"]访问
     /// </usage>
+    [AddComponentMenu("Phenix/Animation/AnimationMixMgr")]
     public class AnimationMixMgr : MonoBehaviour
     {
         public List<AnimationMixData> mixDatum = new List<AnimationMixData>();
 
         [SerializeField]
-        Animation _animation;
+        Animation _animation = null;
 
         // Use this for initialization
         void Start()

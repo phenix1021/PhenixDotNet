@@ -35,6 +35,7 @@ namespace Phenix.Unity.Effect
     /// 挂接在表示拖尾的gameobject上，并且需要调整拖尾对象transform的pos为握柄处，且z轴指向武器纵向，x轴指向武器横向        
     /// </mark>>
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
+    [AddComponentMenu("Phenix/Effect/TrailGenerator")]
     public class TrailGenerator : MonoBehaviour
     {
         //[SerializeField]

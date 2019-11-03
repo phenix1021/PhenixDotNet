@@ -2,6 +2,7 @@
 
 namespace Phenix.Unity.Camera
 {
+    [AddComponentMenu("Phenix/Camera/CameraFollowFixedView")]
     public class CameraFollowFixedView : CameraFollow
     {
         [SerializeField]
@@ -9,7 +10,7 @@ namespace Phenix.Unity.Camera
 
         protected override void LateUpdate()
         {
-            if (camera == null)
+            if (cam == null)
             {
                 return;
             }
@@ -20,19 +21,19 @@ namespace Phenix.Unity.Camera
         void Follow()
         {
             Vector3 destPos = GetDestPos();
-            camera.transform.position = Vector3.Lerp(camera.transform.position, destPos, Time.deltaTime * speed);
+            cam.transform.position = Vector3.Lerp(cam.transform.position, destPos, Time.deltaTime * speed);
             
-            Vector3 finalDir = target.position - camera.transform.position;
+            Vector3 finalDir = target.position - cam.transform.position;
             finalDir.Normalize();
 
-            camera.transform.forward = Vector3.Lerp(camera.transform.forward, finalDir, Time.deltaTime * rotateSpeed);
+            cam.transform.forward = Vector3.Lerp(cam.transform.forward, finalDir, Time.deltaTime * rotateSpeed);
         }
 
         Vector3 GetDestPos()
         {
             if (target == null)
             {
-                return camera.transform.position;
+                return cam.transform.position;
             }
 
             return target.position + _offset;

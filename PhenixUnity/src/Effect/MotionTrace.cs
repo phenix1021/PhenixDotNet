@@ -8,6 +8,7 @@ namespace Phenix.Unity.Effect
     /// <summary>
     /// 动作轨迹捕捉（残影）
     /// </summary>
+    [AddComponentMenu("Phenix/Effect/MotionTrace")]
     public class MotionTrace : MonoBehaviour
     {
         // 运动样本

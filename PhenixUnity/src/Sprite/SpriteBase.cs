@@ -7,7 +7,7 @@ namespace Phenix.Unity.Sprite
     {
         int _spriteCode;              // 类型
         float _lifeTime = 0;          // 存在时长（秒），0表示持久
-        Material _mat;                // 面片材质
+        //Material _mat;                // 面片材质
 
         protected float PassTime { get; private set; }       // 已经过时间（秒）
         protected GameObject Quad { get; private set; }      // 面片

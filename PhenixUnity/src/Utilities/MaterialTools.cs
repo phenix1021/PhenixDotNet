@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 namespace Phenix.Unity.Utilities
 {
-    public class MaterialTools : AloneSingleton<MaterialTools>
+    public class MaterialTools : StandAloneSingleton<MaterialTools>
     {
         /// <summary>
         /// 颜色渐隐
