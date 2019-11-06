@@ -7,12 +7,12 @@ namespace Phenix.Unity.UI
     [AddComponentMenu("Phenix/UI/UIDragable")]
     public class UIDragable : Dragable
     {
-        public RectTransform canvasTransform;
+        public RectTransform rect;
 
         void ChangeToAnchorPos(ref PointerEventData eventData)
         {
             Vector2 pointerAnchoredPos = Vector2.zero;
-            bool ret = RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasTransform, eventData.position, eventData.pressEventCamera, out pointerAnchoredPos);
+            bool ret = RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, eventData.position, eventData.pressEventCamera, out pointerAnchoredPos);
             if (ret)
             {
                 eventData.position = pointerAnchoredPos;

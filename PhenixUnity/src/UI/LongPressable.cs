@@ -1,6 +1,7 @@
 ﻿using UnityEngine.Events;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Phenix.Unity.Utilities;
 
 namespace Phenix.Unity.UI
 {
@@ -25,7 +26,10 @@ namespace Phenix.Unity.UI
         public LongPressEvent onLongPressed;           // 长按完成
         public LongPressEvent onLongPressAbort;        // 长按中断
 
-        float _pressDownTime = 0;                      
+        float _pressDownTime = 0;
+
+        [Tooltip("是否透传pointer事件")]
+        public bool passEvent = false;
 
         void LongPressing(float second)
         {
@@ -55,7 +59,12 @@ namespace Phenix.Unity.UI
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            _pressDownTime = Time.timeSinceLevelLoad;            
+            _pressDownTime = Time.timeSinceLevelLoad;
+
+            if (passEvent)
+            {
+                UITools.Instance.PassPointerEvent(eventData, ExecuteEvents.pointerDownHandler);
+            }
         }
 
         public void OnPointerUp(PointerEventData eventData)
@@ -66,6 +75,11 @@ namespace Phenix.Unity.UI
                 LongPressed(diff);                
             }
             ResetLongPressTime();
+
+            if (passEvent)
+            {
+                UITools.Instance.PassPointerEvent(eventData, ExecuteEvents.pointerUpHandler);
+            }
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -76,6 +90,11 @@ namespace Phenix.Unity.UI
                 LongPressAbort(diff);
             }
             ResetLongPressTime();
+
+            if (passEvent)
+            {
+                UITools.Instance.PassPointerEvent(eventData, ExecuteEvents.pointerExitHandler);
+            }
         }
         
         void ResetLongPressTime()

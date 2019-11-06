@@ -105,15 +105,16 @@
     <Compile Include="src\Message\Message.cs" />
     <Compile Include="src\Message\MessageMgr.cs" />
     <Compile Include="src\TrailGenerator.cs" />
-    <Compile Include="src\UI\Controls\FastScrollView.cs" />
-    <Compile Include="src\UI\Controls\ColorGradient.cs" />
-    <Compile Include="src\UI\Controls\ColorGradient1.cs" />
-    <Compile Include="src\UI\Controls\FlipPage.cs" />
-    <Compile Include="src\UI\Controls\NumFont.cs" />
-    <Compile Include="src\UI\Controls\JoyStick.cs" />
-    <Compile Include="src\UI\Controls\RadarChart.cs" />
-    <Compile Include="src\UI\Controls\SimpleScrollView.cs" />
-    <Compile Include="src\UI\Controls\VerticalText.cs" />
+    <Compile Include="src\UI\ArcView.cs" />
+    <Compile Include="src\UI\PassPointerEvent.cs" />
+    <Compile Include="src\UI\ColorGradient.cs" />
+    <Compile Include="src\UI\ColorGradient1.cs" />
+    <Compile Include="src\UI\FlipPage.cs" />
+    <Compile Include="src\UI\NumFont.cs" />
+    <Compile Include="src\UI\JoyStick.cs" />
+    <Compile Include="src\UI\RadarChart.cs" />
+    <Compile Include="src\UI\SimpleScrollView.cs" />
+    <Compile Include="src\UI\VerticalText.cs" />
     <Compile Include="src\UI\UIDragable.cs" />
     <Compile Include="src\UI\Dragable.cs" />
     <Compile Include="src\UI\LongPressable.cs" />
@@ -135,6 +136,7 @@
     <Compile Include="src\Utilities\ParticleTools.cs" />
     <Compile Include="src\Utilities\TransformTools.cs" />
     <Compile Include="src\Utilities\Tools.cs" />
+    <Compile Include="src\Utilities\UITools.cs" />
     <Compile Include="src\Window\FloatWindow.cs" />
     <Compile Include="src\Window\SysInfo.cs" />
   </ItemGroup>

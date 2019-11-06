@@ -1,30 +1,35 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 namespace Phenix.Unity.UI
 {
+    [System.Serializable]
+    public class UnityEventOnQueryData : UnityEvent<int, GameObject> { }
 
-    public class FastScrollView : MonoBehaviour
+    /// <summary>
+    /// 适用于小量数据全部展示 或 海量数据分页展示
+    /// </summary>
+    [AddComponentMenu("Phenix/UI/SimpleScrollView")]
+    public class SimpleScrollView : MonoBehaviour
     {
         public enum ScrollDirection
         {
             HORIZONTAL = 0,
             VERTICAL,
         }
-
+        
         public ScrollDirection scrollDirection;
 
         [SerializeField]
         List<GameObject> _cells = new List<GameObject>();
-
+                
         public RectTransform viewPort;
-
+                
         public RectTransform content;
 
         float _cellSize;          // 内容格子高度值
-        
-        public int maxCellCount = 0;
 
         public ScrollRect scrollRect;
         HorizontalOrVerticalLayoutGroup _layout;
@@ -53,51 +58,34 @@ namespace Phenix.Unity.UI
             _layout.childControlHeight = _layout.childControlWidth = true;
             _layout.childForceExpandHeight = _layout.childForceExpandWidth = true;
 
-            content.DetachChildren();
+            content.DetachChildren();            
 
-            maxCellCount = Mathf.Max(maxCellCount, _cells.Count);
-            
             foreach (var item in _cells)
             {
                 item.transform.parent = content;
             }
 
-            RefreshContent();
+            Refresh();
 
-            scrollRect.onValueChanged.AddListener(OnValueChanged);
+            //scrollRect.onValueChanged.AddListener(OnValueChanged);
         }
 
-        bool IsFull()
-        {
-            return maxCellCount > 0 && _cells.Count < maxCellCount;
-        }
-
-        void OnValueChanged(Vector2 arg)
+        /*void OnValueChanged(Vector2 arg)
         {
             Debug.Log(arg);
-        }
+        }*/
 
         public void Add(List<GameObject> cells)
         {
-            if (IsFull())
-            {
-                return;
-            }
-
             foreach (var cell in cells)
             {
                 Add(cell, false);
             }
-            RefreshContent();
+            Refresh();
         }
 
         public void Add(GameObject cell, bool refresh = true)
         {
-            if (IsFull())
-            {
-                return;
-            }
-
             _cells.Add(cell);
             cell.transform.parent = content;
             if (cell.activeSelf == false)
@@ -107,7 +95,19 @@ namespace Phenix.Unity.UI
 
             if (refresh)
             {
-                RefreshContent();
+                Refresh();
+            }
+        }
+
+        public float GetNormalizedPosition()
+        {
+            if (scrollDirection == ScrollDirection.VERTICAL)
+            {
+                return scrollRect.verticalNormalizedPosition;
+            }
+            else
+            {
+                return scrollRect.horizontalNormalizedPosition;
             }
         }
 
@@ -116,7 +116,7 @@ namespace Phenix.Unity.UI
             _cells.Remove(cell);
             cell.transform.parent = null;
             cell.SetActive(false);
-            RefreshContent();
+            Refresh();
         }
 
         public void Clear()
@@ -124,9 +124,10 @@ namespace Phenix.Unity.UI
             _cells.Clear();
             content.DetachChildren();
             _normalizedPosInScroll.Clear();
+            Refresh();
         }
 
-        void RefreshContent()
+        void Refresh()
         {
             int count = Mathf.Max(_cells.Count, 1);
 
@@ -194,7 +195,7 @@ namespace Phenix.Unity.UI
             }
         }
 
-        static int idx = 0;
+        /*static int idx = 0;
         private void Update()
         {
             if (Input.GetKeyUp(KeyCode.A))
@@ -205,6 +206,6 @@ namespace Phenix.Unity.UI
             {
                 Debug.Log("cur value " + scrollRect.verticalNormalizedPosition);
             }
-        }
+        }*/
     }
 }

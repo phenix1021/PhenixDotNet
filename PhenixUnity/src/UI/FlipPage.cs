@@ -20,6 +20,7 @@ namespace Phenix.Unity.UI
     [System.Serializable]
     public class UnityEventPageShow : UnityEvent<int/*页面号*/, Image> { }
 
+    [AddComponentMenu("Phenix/UI/FlipPage")]
     public class FlipPage : MonoBehaviour
     {
         public Canvas canvas;

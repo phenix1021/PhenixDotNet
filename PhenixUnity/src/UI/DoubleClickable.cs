@@ -1,8 +1,7 @@
-﻿using System;
-using UnityEngine.Events;
+﻿using UnityEngine.Events;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Phenix.Unity.Utilities;
 
 namespace Phenix.Unity.UI
 {
@@ -24,7 +23,10 @@ namespace Phenix.Unity.UI
         public DoubleClickEvent onDoubleClick;        
 
         float _firstClickTime = 0;
-        float _secondClickTime = 0;        
+        float _secondClickTime = 0;
+
+        [Tooltip("是否透传pointer事件")]
+        public bool passEvent = false;
 
         void DoubleClick()
         {
@@ -45,6 +47,11 @@ namespace Phenix.Unity.UI
             {
                 _secondClickTime = Time.timeSinceLevelLoad;
             }
+
+            if (passEvent)
+            {
+                UITools.Instance.PassPointerEvent(eventData, ExecuteEvents.pointerDownHandler);
+            }
         }
 
         public void OnPointerUp(PointerEventData eventData)
@@ -61,12 +68,22 @@ namespace Phenix.Unity.UI
                 {
                     ResetClickTime();
                 }
-            }                
+            }
+
+            if (passEvent)
+            {
+                UITools.Instance.PassPointerEvent(eventData, ExecuteEvents.pointerUpHandler);
+            }
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {            
-            ResetClickTime();            
+            ResetClickTime();
+
+            if (passEvent)
+            {
+                UITools.Instance.PassPointerEvent(eventData, ExecuteEvents.pointerExitHandler);
+            }
         }
 
         void ResetClickTime()

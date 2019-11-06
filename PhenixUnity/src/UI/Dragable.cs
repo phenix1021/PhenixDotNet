@@ -1,6 +1,7 @@
 ﻿using UnityEngine.Events;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Phenix.Unity.Utilities;
 
 namespace Phenix.Unity.UI
 {
@@ -29,11 +30,19 @@ namespace Phenix.Unity.UI
         public DraggingEvent onDragging;               // 拖动中
         public EndDragEvent onDragEnd;                 // 拖动完成        
 
+        [Tooltip("是否透传pointer事件")]
+        public bool passEvent = false;
+
         public virtual void OnBeginDrag(PointerEventData eventData)
         {        
             if (onDragBegin != null)
             {
                 onDragBegin.Invoke(eventData.position);
+            }
+
+            if (passEvent)
+            {
+                UITools.Instance.PassPointerEvent(eventData, ExecuteEvents.beginDragHandler);
             }
         }
 
@@ -43,6 +52,11 @@ namespace Phenix.Unity.UI
             {
                 onDragging.Invoke(eventData.pointerEnter, eventData.position);
             }
+
+            if (passEvent)
+            {
+                UITools.Instance.PassPointerEvent(eventData, ExecuteEvents.dragHandler);
+            }
         }
 
         public virtual void OnEndDrag(PointerEventData eventData)
@@ -50,7 +64,12 @@ namespace Phenix.Unity.UI
             if (onDragEnd != null)
             {
                 onDragEnd.Invoke(eventData.pointerEnter, eventData.position);
-            }            
+            }
+
+            if (passEvent)
+            {
+                UITools.Instance.PassPointerEvent(eventData, ExecuteEvents.endDragHandler);
+            }
         }        
     }
 }
