@@ -106,6 +106,10 @@
     <Compile Include="src\Message\MessageMgr.cs" />
     <Compile Include="src\TrailGenerator.cs" />
     <Compile Include="src\UI\ArcView.cs" />
+    <Compile Include="src\UI\Billboard.cs" />
+    <Compile Include="src\UI\GridView.cs" />
+    <Compile Include="src\UI\TabView.cs" />
+    <Compile Include="src\UI\TVShow.cs" />
     <Compile Include="src\UI\PassPointerEvent.cs" />
     <Compile Include="src\UI\ColorGradient.cs" />
     <Compile Include="src\UI\ColorGradient1.cs" />

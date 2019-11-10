@@ -89,6 +89,7 @@ namespace Phenix.Unity.Utilities
                 Vector3.Dot(lineDirection, lineDirection);
             return lineStart + (Mathf.Clamp(closestPoint, 0.0f, Vector3.Magnitude(fullDirection)) * lineDirection);
         }
+
         public static float Bounce(float x)
         {
             return Mathf.Abs(Mathf.Sin(6.28f * (x + 1f) * (x + 1f)) * (1f - x));

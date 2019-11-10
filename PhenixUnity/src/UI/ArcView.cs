@@ -2,7 +2,6 @@
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Collections;
-using UnityEngine.EventSystems;
 using Phenix.Unity.Extend;
 
 namespace Phenix.Unity.UI
@@ -28,17 +27,17 @@ namespace Phenix.Unity.UI
         List<GameObject> _toAdd = new List<GameObject>();       // 将要添加的对象
         List<GameObject> _toRemove = new List<GameObject>();    // 将要删除的对象
 
-        public FoldDirection foldDir;
+        public FoldDirection foldDir = FoldDirection.TO_LEFT;
 
         Vector2 _contentInitPos; // 中心位置
 
         [SerializeField]
-        float _axisRadius;  // 轴半径
+        float _axisRadius = 185;  // 轴半径
         [SerializeField]
-        float _axisOffsetDegree = 0;  // 轴偏移角度
+        float _axisOffsetDegree = -90;  // 轴偏移角度
 
         [SerializeField]
-        float _cellSpaceDegree; // cell间隔角度
+        float _cellSpaceDegree = 45; // cell间隔角度
         
         float _foldDistance;  // 缩放距离
         float _maxCellSize;   // 最大格子尺寸
@@ -51,6 +50,9 @@ namespace Phenix.Unity.UI
         float _switchSpeed = 1; // 切换速度
         [SerializeField]
         float _rotateSpeed = 1; // 旋转速度
+
+        [SerializeField]
+        bool _destroyOnRemove = true;
 
         Vector2 _pointerPos = Vector2.zero;
         int _cellIdxOffset = 0;        
@@ -71,8 +73,14 @@ namespace Phenix.Unity.UI
                 _switchSpeed = 1;
             }
 
-            hotSpot.onDragBegin.AddListener(OnBeginDrag);
-            hotSpot.onDragEnd.AddListener(OnEndDrag);
+            if (hotSpot.onDragBegin != null)
+            {
+                hotSpot.onDragBegin.AddListener(OnBeginDrag);
+            }
+            if (hotSpot.onDragEnd != null)
+            {
+                hotSpot.onDragEnd.AddListener(OnEndDrag);
+            }            
             hotSpot.rect = hotSpot.gameObject.transform as RectTransform;            
 
             Reset();            
@@ -80,9 +88,18 @@ namespace Phenix.Unity.UI
 
         public void Reset()
         {
+            if (content == null)
+            {
+                return;
+            }
+
             content.DetachChildren();
             for (int i = 0; i < cells.Count; i++)
             {
+                if (cells[i] == null)
+                {
+                    continue;
+                }
                 RectTransform rectTransform = cells[i].transform as RectTransform;
                 Vector2 pos = GetCellInitPos(i);
                 rectTransform.parent = content;
@@ -175,6 +192,10 @@ namespace Phenix.Unity.UI
             {
                 cell.transform.parent = null;
                 cells.Remove(cell);
+                if (_destroyOnRemove)
+                {
+                    DestroyImmediate(cell);
+                }                
                 _maxCellSize = GetMaxCellSize();
             }            
         }
@@ -193,6 +214,10 @@ namespace Phenix.Unity.UI
             float max = 0;
             foreach (var item in cells)
             {
+                if (item == null)
+                {
+                    continue;
+                }
                 RectTransform trans = item.transform as RectTransform;
                 float size = Mathf.Max(trans.rect.width, trans.rect.height);
                 if (size > max)
@@ -247,22 +272,22 @@ namespace Phenix.Unity.UI
             switch (foldDir)
             {
                 case FoldDirection.TO_TOP:
-                    _foldDistance = _axisRadius - (content.position.y - Screen.height);// + _maxCellSize;
+                    _foldDistance = _axisRadius - (content.position.y - Screen.height) + _maxCellSize;
                     tarPos.x = _contentInitPos.x;
                     tarPos.y = _contentInitPos.y + _foldDistance;
                     break;
                 case FoldDirection.TO_BOTTOM:
-                    _foldDistance = _axisRadius + content.position.y;// + _maxCellSize;
+                    _foldDistance = _axisRadius + content.position.y + _maxCellSize;
                     tarPos.x = _contentInitPos.x;
                     tarPos.y = _contentInitPos.y - _foldDistance;
                     break;
                 case FoldDirection.TO_LEFT:
-                    _foldDistance = _axisRadius + content.position.x;// + _maxCellSize;
+                    _foldDistance = _axisRadius + content.position.x + _maxCellSize;
                     tarPos.x = _contentInitPos.x - _foldDistance;
                     tarPos.y = _contentInitPos.y;
                     break;
                 case FoldDirection.TO_RIGHT:
-                    _foldDistance = _axisRadius - (content.position.x - Screen.width);// + _maxCellSize;
+                    _foldDistance = _axisRadius - (content.position.x - Screen.width) + _maxCellSize;
                     tarPos.x = _contentInitPos.x + _foldDistance;
                     tarPos.y = _contentInitPos.y;
                     break;

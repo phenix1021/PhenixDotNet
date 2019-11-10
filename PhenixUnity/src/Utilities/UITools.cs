@@ -2,11 +2,12 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Phenix.Unity.Pattern;
+using System.Collections;
 
 namespace Phenix.Unity.Utilities
 {
     public class UITools : StandAloneSingleton<UITools>
-    {        
+    {
         // pointer是否在当前UI对象(即调用本函数的UI对象)上
         public bool IsPointerOverUIGameObject()
         {

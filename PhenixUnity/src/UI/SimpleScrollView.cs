@@ -36,6 +36,9 @@ namespace Phenix.Unity.UI
 
         List<float> _normalizedPosInScroll = new List<float>(); // 各个格子中心经过_viewPort中心时的scrollRect.horizontalNormalizedPosition值列表
 
+        [SerializeField]
+        bool _destroyOnRemove = true;
+
         // Use this for initialization
         void Start()
         {
@@ -115,17 +118,21 @@ namespace Phenix.Unity.UI
         {
             _cells.Remove(cell);
             cell.transform.parent = null;
-            cell.SetActive(false);
+            //cell.SetActive(false);
+            if (_destroyOnRemove)
+            {
+                DestroyImmediate(cell);
+            }            
             Refresh();
         }
 
-        public void Clear()
+        /*public void Clear()
         {
             _cells.Clear();
             content.DetachChildren();
             _normalizedPosInScroll.Clear();
             Refresh();
-        }
+        }*/
 
         void Refresh()
         {

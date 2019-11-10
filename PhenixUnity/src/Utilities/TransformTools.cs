@@ -187,7 +187,7 @@ namespace Phenix.Unity.Utilities
         /// <param name="smooth">震动幅度</param>        
         public Coroutine Shake(Transform trans, Vector3 shakeDir, float delay, float time, float freq, float smooth)
         {
-            if (trans == null || freq == 0 || smooth == 0)
+            if (trans == null || freq == 0 || smooth == 0 || trans.gameObject.activeInHierarchy == false)
             {
                 return null;
             }
@@ -204,6 +204,11 @@ namespace Phenix.Unity.Utilities
 
             while (extireTimer ==0 || Time.realtimeSinceStartup < extireTimer)
             {
+                if (trans == null || trans.gameObject.activeInHierarchy == false)
+                {
+                    yield break;
+                }
+
                 float xNoise = (Mathf.PerlinNoise((Time.realtimeSinceStartup + 0) * 10 * freq, Time.smoothDeltaTime) * 2 - 1) * smooth;
                 float yNoise = (Mathf.PerlinNoise((Time.realtimeSinceStartup + 50) * 10 * freq, Time.smoothDeltaTime) * 2 - 1) * smooth;
                 float zNoise = (Mathf.PerlinNoise((Time.realtimeSinceStartup + 100) * 10 * freq, Time.smoothDeltaTime) * 2 - 1) * smooth;
@@ -225,7 +230,7 @@ namespace Phenix.Unity.Utilities
 
         public Coroutine Blink(Transform trans, Vector3 deltaScalePercent, float speed, float delay = 0)
         {
-            if (trans == null || speed == 0)
+            if (trans == null || speed == 0 || trans.gameObject.activeInHierarchy == false)
             {
                 return null;
             }
@@ -253,10 +258,44 @@ namespace Phenix.Unity.Utilities
             Vector3 baseScale = trans.localScale;
             while (true)
             {
+                if (trans == null || trans.gameObject.activeInHierarchy == false)
+                {
+                    yield break;
+                }
+
                 step += speed * Time.deltaTime;
                 trans.localScale = baseScale + deltaScalePercent * Mathf.Sin(step * Mathf.PI);
                 yield return new WaitForEndOfFrame();
             }            
+        }
+
+        /// <summary>
+        /// 自旋
+        /// </summary>
+        /// <returns></returns>
+        public Coroutine Spin(Transform trans, Vector3 axis/*旋转轴*/, float speed)
+        {
+            if (trans == null || trans.gameObject.activeInHierarchy == false)
+            {
+                return null;
+            }
+
+            return StartCoroutine(SpinImpl(trans, axis, speed));
+        }
+
+        IEnumerator SpinImpl(Transform trans, Vector3 axis, float speed)
+        {
+            while (true)
+            {
+                if (trans == null || trans.gameObject.activeInHierarchy == false)
+                {
+                    yield break;
+                }
+
+                trans.Rotate(axis, speed * Time.deltaTime * 10);
+
+                yield return new WaitForEndOfFrame();
+            }
         }
     }
 }
