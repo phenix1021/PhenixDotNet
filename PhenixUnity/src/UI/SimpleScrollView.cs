@@ -6,12 +6,13 @@ using UnityEngine.Events;
 namespace Phenix.Unity.UI
 {
     [System.Serializable]
-    public class UnityEventOnQueryData : UnityEvent<int, GameObject> { }
+    public class UnityEventCellSelected : UnityEvent<GameObject/*原选中对象*/, GameObject/*新选中对象*/> { }
 
     /// <summary>
     /// 适用于小量数据全部展示 或 海量数据分页展示
     /// </summary>
     [AddComponentMenu("Phenix/UI/SimpleScrollView")]
+    [ExecuteInEditMode]
     public class SimpleScrollView : MonoBehaviour
     {
         public enum ScrollDirection
@@ -28,8 +29,9 @@ namespace Phenix.Unity.UI
         public RectTransform viewPort;
                 
         public RectTransform content;
-
-        float _cellSize;          // 内容格子高度值
+        
+        [SerializeField]
+        Vector2 _cellSize = new Vector2(100, 100);
 
         public ScrollRect scrollRect;
         HorizontalOrVerticalLayoutGroup _layout;
@@ -39,6 +41,32 @@ namespace Phenix.Unity.UI
         [SerializeField]
         bool _destroyOnRemove = true;
 
+        [SerializeField]
+        GameObject _cellSelected = null;
+        public UnityEventCellSelected onCellSelected;
+        public GameObject CellSelected
+        {
+            get { return _cellSelected; }
+            set
+            {
+                if (value != _cellSelected)
+                {
+                    if (onCellSelected != null)
+                    {
+                        GameObject preSelected = _cellSelected;
+                        _cellSelected = value;
+                        onCellSelected.Invoke(preSelected, value);
+                    }                                    
+                    else
+                    {
+                        _cellSelected = value;
+                    }
+                }
+            }
+        }
+
+        public int ContentChildrenCount { get { return content.childCount; } }
+
         // Use this for initialization
         void Start()
         {
@@ -46,26 +74,28 @@ namespace Phenix.Unity.UI
             {
                 content.anchorMin = new Vector2(0, 1);
                 content.anchorMax = new Vector2(1, 1);
-                _layout = content.GetComponent<VerticalLayoutGroup>();
-                _cellSize = content.rect.height; // 内容每个格子的宽、高由初始_content的尺寸决定
+                _layout = content.GetComponent<VerticalLayoutGroup>();                
             }
             else
             {
                 content.anchorMin = new Vector2(0, 0);
                 content.anchorMax = new Vector2(0, 1);
-                _layout = content.GetComponent<HorizontalLayoutGroup>();
-                _cellSize = content.rect.width; // 内容每个格子的宽、高由初始_content的尺寸决定
+                _layout = content.GetComponent<HorizontalLayoutGroup>();                
             }
 
-            _layout.childAlignment = TextAnchor.MiddleCenter;
-            _layout.childControlHeight = _layout.childControlWidth = true;
+            _layout.childAlignment = TextAnchor.MiddleCenter;            
             _layout.childForceExpandHeight = _layout.childForceExpandWidth = true;
 
             content.DetachChildren();            
 
             foreach (var item in _cells)
             {
-                item.transform.parent = content;
+                if (item == null)
+                {
+                    continue;
+                }
+                item.GetComponent<RectTransform>().sizeDelta = _cellSize;
+                item.transform.parent = content;                
             }
 
             Refresh();
@@ -89,8 +119,18 @@ namespace Phenix.Unity.UI
 
         public void Add(GameObject cell, bool refresh = true)
         {
+            if (cell == null)
+            {
+                return;
+            }
             _cells.Add(cell);
+            
+            RectTransform rt = cell.GetComponent<RectTransform>();
+            rt.sizeDelta = _cellSize;            
             cell.transform.parent = content;
+            cell.transform.localPosition = new Vector3(cell.transform.localPosition.x, cell.transform.localPosition.y, 0);
+            cell.transform.localScale = Vector3.one;
+
             if (cell.activeSelf == false)
             {
                 cell.SetActive(true);
@@ -119,11 +159,18 @@ namespace Phenix.Unity.UI
             _cells.Remove(cell);
             cell.transform.parent = null;
             //cell.SetActive(false);
+
             if (_destroyOnRemove)
             {
                 DestroyImmediate(cell);
-            }            
-            Refresh();
+            }
+
+            if (CellSelected == cell)
+            {
+                CellSelected = null;
+            }
+
+            Refresh();            
         }
 
         /*public void Clear()
@@ -142,12 +189,12 @@ namespace Phenix.Unity.UI
             if (scrollDirection == ScrollDirection.VERTICAL)
             {
                 totalSpace = _layout.spacing * (count - 1) + _layout.padding.top + _layout.padding.bottom;
-                content.sizeDelta = new Vector2(content.sizeDelta.x, _cellSize * count + totalSpace);
+                content.sizeDelta = new Vector2(content.sizeDelta.x, _cellSize.y * count + totalSpace);
             }
             else
             {
                 totalSpace = _layout.spacing * (count - 1) + _layout.padding.left + _layout.padding.right;
-                content.sizeDelta = new Vector2(_cellSize * count + totalSpace, content.sizeDelta.y);
+                content.sizeDelta = new Vector2(_cellSize.x * count + totalSpace, content.sizeDelta.y);
             }
 
             RefreshNormalizedPosInScroll();
@@ -166,7 +213,7 @@ namespace Phenix.Unity.UI
                 distance = content.rect.height - viewPort.rect.height;
                 for (int i = 0; i < _cells.Count; i++)
                 {
-                    float pos = _layout.padding.top + _cellSize * 0.5f + (_cellSize + _layout.spacing) * i;
+                    float pos = _layout.padding.top + _cellSize.y * 0.5f + (_cellSize.y + _layout.spacing) * i;
                     pos -= (viewPort.rect.height * 0.5f);
                     pos = (distance - pos) / distance;
                     _normalizedPosInScroll.Add(pos);
@@ -177,7 +224,7 @@ namespace Phenix.Unity.UI
                 distance = content.rect.width - viewPort.rect.width;
                 for (int i = 0; i < _cells.Count; i++)
                 {
-                    float pos = _layout.padding.left + _cellSize * 0.5f + (_cellSize + _layout.spacing) * i;
+                    float pos = _layout.padding.left + _cellSize.x * 0.5f + (_cellSize.x + _layout.spacing) * i;
                     pos -= (viewPort.rect.width * 0.5f);
                     pos /= distance;
                     _normalizedPosInScroll.Add(pos);
@@ -214,5 +261,27 @@ namespace Phenix.Unity.UI
                 Debug.Log("cur value " + scrollRect.verticalNormalizedPosition);
             }
         }*/
+
+        public void InitCellsOnInspector()
+        {
+            if (isActiveAndEnabled == false)
+            {
+                return;
+            }
+
+            content.DetachChildren();
+            for (int i = 0; i < _cells.Count; ++i)
+            {
+                Add(_cells[i], false);
+                /*GameObject cur = _cells[i];
+                if (cur != null)
+                {
+                    cur.GetComponent<RectTransform>().sizeDelta = _cellSize;
+                    cur.transform.parent = content;
+                }*/
+            }            
+
+            Refresh();
+        }
     }
 }

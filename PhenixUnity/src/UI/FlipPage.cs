@@ -17,23 +17,23 @@ namespace Phenix.Unity.UI
 
     [System.Serializable]
     public class UnityEventPageClicked : UnityEvent<int/*点击的页面号*/> { }
+
     [System.Serializable]
-    public class UnityEventPageShow : UnityEvent<int/*页面号*/, Image> { }
+    public class UnityEventPageShow : UnityEvent<int/*页面号*/, Image, Image> { }
 
     [AddComponentMenu("Phenix/UI/FlipPage")]
     public class FlipPage : MonoBehaviour
     {
-        public Canvas canvas;
-                
-        public RectTransform bookPanel;
-
-        public Sprite placeHold;
-        public List<Sprite> bookPages = new List<Sprite>();
+        public Canvas canvas;                
+        public RectTransform bookPanel;                
+        public List<Sprite> papers = new List<Sprite>();
 
         public bool interactable = true;
         public bool enableShadowEffect = true;
                 
-        public int curPage = 0;
+        [Tooltip("当前页号（一页包括左右两张纸）")]
+        [SerializeField]
+        int _curPage = 0;
 
         public Image clippingPlane;
         public Image nextPageClip;
@@ -61,6 +61,7 @@ namespace Phenix.Unity.UI
         //follow point 
         Vector3 _f;
 
+        // 是否正在翻页
         bool _pageFlipping = false;
 
         //current flip mode
@@ -69,28 +70,62 @@ namespace Phenix.Unity.UI
         Coroutine _currentCoroutine;
 
         public UnityEvent onPageFlipped;                          // 翻页完成
-        public UnityEventPageClicked onPageClicked;               // 点击页面
+        //public UnityEventPageClicked onPageClicked;               // 点击页面
         public UnityEventPageShow onPageShow;                     // 页面显示
 
-        public int TotalPageCount { get { return bookPages.Count; } }
+        int CurPaper { get { return _curPage * 2 + 1; } }
+
         public Vector3 EndBottomLeft { get { return _ebl; } }
         public Vector3 EndBottomRight { get { return _ebr; } }
         public float Height { get { return bookPanel.rect.height; } }
 
+        // papers集合是否符合要求
+        bool CheckPapers()
+        {
+            return (papers.Count > 0 && papers.Count % 2 == 0);
+        }
+
+        // 页号是否合理
+        bool CheckPageNumber(int pageNumber)
+        {
+            return (CheckPapers() && pageNumber >= 0 && pageNumber <= (papers.Count / 2 - 1));
+        }
+
+        // 转到指定页号
+        public bool TurnToPage(int pageNumber)
+        {
+            if (CheckPageNumber(pageNumber) == false)
+            {
+                return false;
+            }
+
+            if (_pageFlipping)
+            {
+                return false;
+            }
+
+            _curPage = pageNumber;
+            UpdatePage();
+            return true;
+        }
+
         void Start()
         {
+            if (CheckPapers() == false)
+            {
+                Debug.LogWarning("papers count must be greater than zero, and an even number.");
+                return;
+            }
+
             float pageWidth = (bookPanel.rect.width - 1) / 2;
             float pageHeight = bookPanel.rect.height;
 
             leftOnFlip.gameObject.SetActive(false);
             rightOnFlip.gameObject.SetActive(false);
+            
+            _curPage = Mathf.Clamp(_curPage, 0, papers.Count / 2 - 1);            
 
-            if (bookPages.Count <= curPage)
-            {
-                curPage = bookPages.Count > 0 ? bookPages.Count - 1 : 0;
-            }
-
-            UpdateSprites();
+            UpdatePage();
 
             _sb = new Vector3(0, -bookPanel.rect.height / 2);
             _ebr = new Vector3(bookPanel.rect.width / 2, -bookPanel.rect.height / 2);
@@ -125,7 +160,7 @@ namespace Phenix.Unity.UI
             rightHotSpot.GetComponent<EventTrigger>().triggers.Add(dragRight);
             rightHotSpot.GetComponent<EventTrigger>().triggers.Add(dragRelease);
 
-            EventTrigger.Entry leftClick = new EventTrigger.Entry();
+            /*EventTrigger.Entry leftClick = new EventTrigger.Entry();
             leftClick.eventID = EventTriggerType.PointerClick;
             leftClick.callback.AddListener(new UnityAction<BaseEventData>((x) => { OnMouseClickPage(false); }));
             leftHotSpot.GetComponent<EventTrigger>().triggers.Add(leftClick);
@@ -133,28 +168,33 @@ namespace Phenix.Unity.UI
             EventTrigger.Entry rightClick = new EventTrigger.Entry();
             rightClick.eventID = EventTriggerType.PointerClick;
             rightClick.callback.AddListener(new UnityAction<BaseEventData>((x) => { OnMouseClickPage(true); }));
-            rightHotSpot.GetComponent<EventTrigger>().triggers.Add(rightClick);
+            rightHotSpot.GetComponent<EventTrigger>().triggers.Add(rightClick);*/
         }
 
         void Update()
         {
+            if (canvas == null)
+            {
+                canvas = GetComponentInParent<Canvas>();
+            }            
+
             if (_pageFlipping && interactable)
             {
-                UpdateBook();
+                UpdateFlipping();
             }
         }
 
-        void UpdateBook()
+        void UpdateFlipping()
         {
             _f = Vector3.Lerp(_f, transformPointMousePosition(Input.mousePosition), Time.deltaTime * 10);
 
             if (_mode == FlipMode.RightToLeft)
-                UpdateBookRTLToPoint(_f);
+                UpdateFlipRight2LeftToPoint(_f);
             else
-                UpdateBookLTRToPoint(_f);
+                UpdateFlipLeft2RightToPoint(_f);
         }
 
-        public void UpdateBookLTRToPoint(Vector3 followLocation)
+        public void UpdateFlipLeft2RightToPoint(Vector3 followLocation)
         {
             _mode = FlipMode.LeftToRight;
             _f = followLocation;
@@ -190,7 +230,7 @@ namespace Phenix.Unity.UI
             shadowLTR.rectTransform.SetParent(leftOnFlip.rectTransform, true);
         }
 
-        public void UpdateBookRTLToPoint(Vector3 followLocation)
+        public void UpdateFlipRight2LeftToPoint(Vector3 followLocation)
         {
             _mode = FlipMode.RightToLeft;
             _f = followLocation;
@@ -279,9 +319,15 @@ namespace Phenix.Unity.UI
             return c;
         }
 
+        // 是否已经是最后一页
+        bool IsLastPage()
+        {
+            return _curPage == (papers.Count / 2 - 1);
+        }
+
         public void DragRightPageToPoint(Vector3 point)
         {
-            if (curPage >= bookPages.Count - 1)
+            if (IsLastPage())
                 return;
 
             _pageFlipping = true;
@@ -304,18 +350,24 @@ namespace Phenix.Unity.UI
            // Left.rectTransform.pivot = new Vector2(0, 0);
 
             left.transform.SetAsFirstSibling();
-            UpdateSpritesOnFlip();
+            UpdatePagesOnFlip();
 
             if (enableShadowEffect)
                 shadow.gameObject.SetActive(true);
 
-            UpdateBookRTLToPoint(_f);
+            UpdateFlipRight2LeftToPoint(_f);
+        }
+
+        bool IsFirstPage()
+        {
+            return _curPage == 0;
         }
 
         public void DragLeftPageToPoint(Vector3 point)
         {
-            if (curPage <= 0)
+            if (IsFirstPage())
                 return;
+
             _pageFlipping = true;
             _mode = FlipMode.LeftToRight;
             _f = point;
@@ -336,214 +388,40 @@ namespace Phenix.Unity.UI
             //Left.rectTransform.pivot = new Vector2(1, 0);
 
             right.transform.SetAsFirstSibling();
-            UpdateSpritesOnFlip();
+            UpdatePagesOnFlip();
 
             if (enableShadowEffect)
                 shadowLTR.gameObject.SetActive(true);
 
-            UpdateBookLTRToPoint(_f);
+            UpdateFlipLeft2RightToPoint(_f);
         }
 
-        void UpdateSprites()
+        void UpdatePage()
         {
-            if (bookPages.Count == 0)
+            left.sprite = papers[_curPage * 2];
+            right.sprite = papers[_curPage * 2 + 1];
+
+            if (onPageShow != null)
             {
-                left.enabled = right.enabled = false;
-            }
-            else if (curPage <= 0)
-            {
-                left.sprite = placeHold;
-                if (placeHold == null)
-                {
-                    left.enabled = false;
-                }
-
-                right.enabled = true;
-                right.sprite = bookPages[0];
-
-                if (onPageShow != null)
-                {
-                    onPageShow.Invoke(0, right);
-                }
-            }
-            else if (curPage >= bookPages.Count - 1)
-            {
-                left.enabled = true;
-                left.sprite = bookPages[bookPages.Count - 1];
-
-                if (onPageShow != null)
-                {
-                    onPageShow.Invoke(bookPages.Count - 1, left);
-                }
-
-                right.sprite = placeHold;
-                if (placeHold == null)
-                {
-                    right.enabled = false;
-                }
-            }
-            else
-            {
-                left.enabled = right.enabled = true;
-                if (curPage % 2 > 0)
-                {
-                    left.sprite = bookPages[curPage];
-                    right.sprite = bookPages[curPage + 1];
-
-                    if (onPageShow != null)
-                    {
-                        onPageShow.Invoke(curPage, left);
-                        onPageShow.Invoke(curPage + 1, right);
-                    }
-                }
-                else
-                {
-                    left.sprite = bookPages[curPage - 1];
-                    right.sprite = bookPages[curPage];
-
-                    if (onPageShow != null)
-                    {
-                        onPageShow.Invoke(curPage - 1, left);
-                        onPageShow.Invoke(curPage, right);
-                    }
-                }
-            }
+                onPageShow.Invoke(_curPage, left, right);
+            }            
         }
 
-        void UpdateSpritesOnFlip()
+        void UpdatePagesOnFlip()
         {
             if (_mode == FlipMode.LeftToRight)
             {
-                if (curPage % 2 == 0)
-                {
-                    rightOnFlip.sprite = bookPages[curPage - 1];
-
-                    if (curPage >= 2)
-                    {
-                        leftOnFlip.enabled = true;
-                        leftOnFlip.sprite = bookPages[curPage - 2];
-                    }
-                    else
-                    {
-                        leftOnFlip.sprite = placeHold;
-                        if (placeHold == null)
-                        {
-                            leftOnFlip.enabled = false;
-                        }
-                    }
-
-                    if (curPage >= 3)
-                    {
-                        left.enabled = true;
-                        left.sprite = bookPages[curPage - 3];
-                    }
-                    else
-                    {
-                        left.sprite = placeHold;
-                        if (placeHold == null)
-                        {
-                            left.enabled = false;
-                        }
-                    }
-                }
-                else
-                {
-                    rightOnFlip.sprite = bookPages[curPage];
-                    if (curPage >= 1)
-                    {
-                        leftOnFlip.sprite = bookPages[curPage - 1];
-                        leftOnFlip.enabled = true;
-                    }
-                    else
-                    {
-                        leftOnFlip.sprite = placeHold;
-                        if (placeHold == null)
-                        {
-                            leftOnFlip.enabled = false;
-                        }
-                    }
-
-                    if (curPage >= 2)
-                    {
-                        left.enabled = true;
-                        left.sprite = bookPages[curPage - 2];
-                    }
-                    else
-                    {
-                        left.sprite = placeHold;
-                        if (placeHold == null)
-                        {
-                            left.enabled = false;
-                        }
-                    }
-                }
+                left.sprite = papers[CurPaper - 3];
+                leftOnFlip.sprite = papers[CurPaper - 2];
+                rightOnFlip.sprite = papers[CurPaper - 1];
+                right.sprite = papers[CurPaper];         
             }
             else
             {
-                if (curPage % 2 == 0)
-                {
-                    leftOnFlip.sprite = bookPages[curPage];
-
-                    if (curPage < bookPages.Count - 1)
-                    {
-                        rightOnFlip.sprite = bookPages[curPage + 1];
-                        rightOnFlip.enabled = true;
-                    }
-                    else
-                    {
-                        rightOnFlip.sprite = placeHold;
-                        if (placeHold == null)
-                        {
-                            rightOnFlip.enabled = false;
-                        }
-                    }
-
-                    if (curPage < bookPages.Count - 2)
-                    {
-                        right.sprite = bookPages[curPage + 2];
-                        right.enabled = true;
-                    }
-                    else
-                    {
-                        right.sprite = placeHold;
-                        if (placeHold == null)
-                        {
-                            right.enabled = false;
-                        }
-                    }
-                }
-                else
-                {
-                    leftOnFlip.sprite = bookPages[curPage + 1];
-
-                    if (curPage < bookPages.Count - 2)
-                    {
-                        rightOnFlip.sprite = bookPages[curPage + 2];
-                        rightOnFlip.enabled = true;
-                    }
-                    else
-                    {
-                        rightOnFlip.sprite = placeHold;
-                        if (placeHold == null)
-                        {
-                            rightOnFlip.enabled = false;
-                        }
-                    }
-
-                    if (curPage < bookPages.Count - 3)
-                    {
-                        right.sprite = bookPages[curPage + 3];
-                        right.enabled = true;
-                    }
-                    else
-                    {
-                        right.sprite = placeHold;
-                        if (placeHold == null)
-                        {
-                            right.enabled = false;
-                        }
-                    }
-                }
+                left.sprite = papers[CurPaper - 1];
+                leftOnFlip.sprite = papers[CurPaper];
+                rightOnFlip.sprite = papers[CurPaper + 1];
+                right.sprite = papers[CurPaper + 2];
             }
         }
 
@@ -606,19 +484,11 @@ namespace Phenix.Unity.UI
 
             if (_mode == FlipMode.RightToLeft)
             {
-                curPage += 2;
-                if (curPage > bookPages.Count - 1)
-                {
-                    curPage = bookPages.Count - 1;
-                }
+                _curPage += 1;                
             }
             else
             {
-                curPage -= 2;
-                if (curPage < 0)
-                {
-                    curPage = 0;
-                }
+                _curPage -= 1;
             }
 
             left.transform.SetParent(bookPanel.transform, true);
@@ -629,7 +499,7 @@ namespace Phenix.Unity.UI
             rightOnFlip.transform.SetParent(bookPanel.transform, true);
             right.transform.SetParent(bookPanel.transform, true);
 
-            UpdateSprites();
+            UpdatePage();
 
             shadow.gameObject.SetActive(false);
             shadowLTR.gameObject.SetActive(false);
@@ -640,7 +510,7 @@ namespace Phenix.Unity.UI
 
         void OnPageRestored()
         {
-            UpdateSprites();
+            UpdatePage();
 
             if (_mode == FlipMode.LeftToRight)
             {
@@ -665,9 +535,9 @@ namespace Phenix.Unity.UI
             for (int i = 0; i < steps - 1; i++)
             {
                 if (_mode == FlipMode.RightToLeft)
-                    UpdateBookRTLToPoint(_f + displacement);
+                    UpdateFlipRight2LeftToPoint(_f + displacement);
                 else
-                    UpdateBookLTRToPoint(_f + displacement);
+                    UpdateFlipLeft2RightToPoint(_f + displacement);
 
                 yield return new WaitForSeconds(0.025f);
             }
@@ -704,26 +574,26 @@ namespace Phenix.Unity.UI
             }
         }
 
-        public void OnMouseClickPage(bool clickRight/*是否点击右页*/)
+        /*public void OnMouseClickPage(bool clickRight 是否点击右页)
         {
             if (interactable == false || _pageFlipping || onPageClicked == null)
             {
                 return;
             }
 
-            if (curPage % 2 == 0)
+            if (_curPage % 2 == 0)
             {
                 if (clickRight)
                 {
                     //Debug.Log("this is page: " + curPage);
-                    onPageClicked.Invoke(curPage);
+                    onPageClicked.Invoke(_curPage);
                 }
                 else
                 {
-                    if (curPage > 0)
+                    if (_curPage > 0)
                     {
                         //Debug.Log("this is page: " + (curPage - 1));
-                        onPageClicked.Invoke(curPage - 1);
+                        onPageClicked.Invoke(_curPage - 1);
                     }                    
                 }
             }
@@ -732,17 +602,17 @@ namespace Phenix.Unity.UI
                 if (clickRight == false)
                 {
                     //Debug.Log("this is page: " + curPage);
-                    onPageClicked.Invoke(curPage);
+                    onPageClicked.Invoke(_curPage);
                 }
                 else
                 {
-                    if (curPage < bookPages.Count - 1)
+                    if (_curPage < papers.Count - 1)
                     {
                         //Debug.Log("this is page: " + (curPage + 1));
-                        onPageClicked.Invoke(curPage + 1);
+                        onPageClicked.Invoke(_curPage + 1);
                     }
                 }
             }
-        }
+        }*/
     }
 }

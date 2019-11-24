@@ -15,7 +15,8 @@ namespace Phenix.Unity.UI
         public float fillPercent = 1f;
 
         [Range(0f, 1f)]
-        public List<float> propValues = new List<float>();
+        [SerializeField]
+        List<float> _propValues = new List<float>();
 
         [Range(0f, 360f)]
         public float angleOffset = 0;
@@ -33,6 +34,15 @@ namespace Phenix.Unity.UI
         public float axisWidth = 1f;
         float _axisLength = 0;
         
+        public void SetPropValue(int idx, float val)
+        {
+            if (idx < 0 || idx >= _propValues.Count)
+            {
+                return;
+            }
+            _propValues[idx] = Mathf.Clamp01(val);
+            SetAllDirty();
+        }
 
         protected override void OnPopulateMesh(VertexHelper vh)
         {
@@ -49,19 +59,19 @@ namespace Phenix.Unity.UI
                 DrawAxis(vh);   // 绘制坐标轴
             }
 
-            int propCount = propValues.Count;
+            int propCount = _propValues.Count;
 
             if (propCount == 1)
             {                
                 // 绘制属性区域
-                DrawPropArea(vh, GetQuadFromLine(Vector2.zero, GetPoint(0) * propValues[0], 2, color));
+                DrawPropArea(vh, GetQuadFromLine(Vector2.zero, GetPoint(0) * _propValues[0], 2, color));
                 // 绘制属性轴
                 DrawPropAxis(vh, 0);
             }
             else if (propCount == 2)
             {                
                 // 绘制属性区域
-                DrawPropArea(vh, GetQuadFromLine(GetPoint(0) * propValues[0], GetPoint(1) * propValues[1], 2, color));
+                DrawPropArea(vh, GetQuadFromLine(GetPoint(0) * _propValues[0], GetPoint(1) * _propValues[1], 2, color));
                 // 绘制属性轴
                 DrawPropAxis(vh, 0);
                 DrawPropAxis(vh, 1);
@@ -70,9 +80,9 @@ namespace Phenix.Unity.UI
             {
                 for (int i = 0; i < propCount; i++)
                 {
-                    Vector2 pos1 = GetPoint(i) * propValues[i];
+                    Vector2 pos1 = GetPoint(i) * _propValues[i];
                     Vector2 pos2 = pos1 * (1 - fillPercent);
-                    Vector2 pos4 = (i + 1 >= propCount) ? (GetPoint(0) * propValues[0]) : (GetPoint(i + 1) * propValues[i + 1]);
+                    Vector2 pos4 = (i + 1 >= propCount) ? (GetPoint(0) * _propValues[0]) : (GetPoint(i + 1) * _propValues[i + 1]);
                     Vector2 pos3 = pos4 * (1 - fillPercent);
                     
                     // 绘制属性区域
@@ -93,7 +103,7 @@ namespace Phenix.Unity.UI
         void DrawEdge(VertexHelper vh, int curPropIdx)
         {
             Vector2 lineStartPos = GetPoint(curPropIdx);
-            Vector2 lineNextPos = GetPoint((curPropIdx + 1) % propValues.Count);
+            Vector2 lineNextPos = GetPoint((curPropIdx + 1) % _propValues.Count);
             vh.AddUIVertexQuad(GetQuadFromLine(lineStartPos, lineNextPos, edgeWidth, edgeColor));
         }
 
@@ -105,7 +115,7 @@ namespace Phenix.Unity.UI
 
         Vector2 GetPoint(int propIdx)
         {
-            int propCount = propValues.Count;
+            int propCount = _propValues.Count;
             float angle = 360f / propCount * propIdx + angleOffset;
             float sin = Mathf.Sin(angle * Mathf.Deg2Rad);
             float cos = Mathf.Cos(angle * Mathf.Deg2Rad);

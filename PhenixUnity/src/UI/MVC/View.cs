@@ -12,6 +12,8 @@ namespace Phenix.Unity.UI
         public MessageMgr Controllers { get; set; }
         public bool Visible { get; set; }
 
+        float _closeTimer = 0;
+
         protected View(int uiID)
         {            
             UIID = uiID;
@@ -26,11 +28,30 @@ namespace Phenix.Unity.UI
         public virtual void Open()
         {
             Visible = true;
+            _closeTimer = 0;
         }
 
         public virtual void Close()
         {
             Visible = false;
+            _closeTimer = Time.timeSinceLevelLoad;
+        }
+
+        /// <summary>
+        /// 获取已关闭时长（可以据此删除view里动态加载的内容）
+        /// </summary>        
+        protected float GetEllapseTimeSinceClose()
+        {
+            if (_closeTimer == 0)
+            {
+                return 0;
+            }
+            return Time.timeSinceLevelLoad - _closeTimer;
+        }
+
+        public virtual void OnUpdate()
+        {
+         
         }
 
         // --------------- 管理部分 -------------------
@@ -54,6 +75,14 @@ namespace Phenix.Unity.UI
             }
 
             return null;
-        }        
+        }
+
+        public static void UpdateAll()
+        {
+            foreach (var item in _views)
+            {
+                item.Value.OnUpdate();
+            }
+        }
     }
 }

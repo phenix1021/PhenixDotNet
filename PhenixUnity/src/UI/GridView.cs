@@ -26,6 +26,11 @@ namespace Phenix.Unity.UI
 
         public void InitCellsOnInspector()
         {
+            if (isActiveAndEnabled == false)
+            {
+                return;
+            }
+
             content.DetachChildren();            
             for (int i = 0; i < _cells.Count; ++i)
             {

@@ -30,6 +30,11 @@ namespace Phenix.Unity.UI
 
         public void InitTabsOnInspetor()
         {
+            if (isActiveAndEnabled == false)
+            {
+                return;
+            }
+
             contents.DetachChildren();
             GameObject pre = null;
             for (int i = 0; i < _tabs.Count; ++i)

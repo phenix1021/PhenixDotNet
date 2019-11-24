@@ -23,6 +23,11 @@ namespace Phenix.Unity.UI
         }
 
         /// <summary>
+        /// 在此进行数据初始化
+        /// </summary>
+        public virtual void Init() { }
+
+        /// <summary>
         /// 可在此校验数据变化，通知controller
         /// </summary>
         public virtual void OnUpdate()

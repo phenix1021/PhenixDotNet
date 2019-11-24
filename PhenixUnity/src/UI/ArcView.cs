@@ -88,6 +88,11 @@ namespace Phenix.Unity.UI
 
         public void Reset()
         {
+            if (isActiveAndEnabled == false)
+            {
+                return;
+            }
+
             if (content == null)
             {
                 return;

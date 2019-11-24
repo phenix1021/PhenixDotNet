@@ -16,8 +16,8 @@ namespace Phenix.Unity.UI
 
         RenderTexture _renderTexture;
 
-        private void OnEnable()
-        {
+        private void OnEnable()        
+        {            
             UpdateScreen();
         }
 
@@ -46,15 +46,34 @@ namespace Phenix.Unity.UI
             UpdateScreen();
         }
 
+        private void Update()
+        {
+            if (canvas)
+            {
+                return;
+            }
+            canvas = GetComponentInParent<Canvas>();
+            UpdateScreen();
+        }
+
         void UpdateScreen()
         {
+            if (canvas == null)
+            {
+                return;
+            }
+
             if (_renderTexture)
             {
                 _renderTexture.Release();
                 Destroy(_renderTexture);
             }
 
-            Vector2 tvScreenSize = tvScreen.rectTransform.rect.size * canvas.scaleFactor;
+            Vector2 tvScreenSize = tvScreen.rectTransform.sizeDelta * canvas.scaleFactor;
+            if (tvScreenSize.x <= 0 || tvScreenSize.y <= 0)
+            {
+                tvScreenSize = tvScreen.rectTransform.rect.size * canvas.scaleFactor;
+            }
             _renderTexture = new RenderTexture((int)tvScreenSize.x, (int)tvScreenSize.y, 16, RenderTextureFormat.ARGB32);
             if (QualitySettings.antiAliasing > 0 )
             {
@@ -62,6 +81,7 @@ namespace Phenix.Unity.UI
             }
 
             tvCamera.enabled = true;
+            //Debug.LogWarning("_renderTexture.width: " + _renderTexture.width + ", _renderTexture.height: " + _renderTexture.height);
             tvCamera.targetTexture = _renderTexture;
             tvScreen.texture = _renderTexture;
         }

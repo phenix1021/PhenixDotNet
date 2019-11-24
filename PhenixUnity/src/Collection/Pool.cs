@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Phenix.Unity.Collection
 {
@@ -10,11 +11,25 @@ namespace Phenix.Unity.Collection
         public delegate void ResetDelegate(T obj);
         event ResetDelegate _resetEvent;
 
-        public Pool(int capacity = 50, ResetDelegate reset = null)
+        float _expire = 0;
+        float _expireTimer = 0;
+
+        public Pool(int capacity = 50, ResetDelegate reset = null, float expire = 0/*0表示持久*/)
         {
             _capacity = capacity;
             _resetEvent += reset;
+            _expire = expire;
+            DelayExpire();
         }       
+
+        void DelayExpire()
+        {
+            if (_expire == 0)
+            {
+                return;
+            }
+            _expireTimer = Time.timeSinceLevelLoad + _expire;
+        }
 
         public void Collect(T t)
         {
@@ -44,7 +59,30 @@ namespace Phenix.Unity.Collection
             {
                 _resetEvent.Invoke(inst);
             }
+            DelayExpire();
             return inst;
+        }
+
+        bool IsExpired()
+        {
+            return _expireTimer > 0 && Time.timeSinceLevelLoad >= _expireTimer;
+        }
+
+        void HandleExpire()
+        {
+            if (IsExpired())
+            {
+                int releaseCount = _cache.Count / 2;
+                while (_cache.Count > releaseCount)
+                {
+                    _cache.Dequeue();
+                }
+            }
+        }
+
+        public void OnUpdate()
+        {
+            HandleExpire();
         }
     }
 }

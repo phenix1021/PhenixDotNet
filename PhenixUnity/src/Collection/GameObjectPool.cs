@@ -9,10 +9,24 @@ namespace Phenix.Unity.Collection
         int _capacity;
         GameObject _prefab;
 
-        public GameObjectPool(int capacity, GameObject prefab)
+        float _expire = 0;
+        float _expireTimer = 0;
+
+        public GameObjectPool(int capacity, GameObject prefab, float expire = 0/*0表示持久*/)
         {
             _capacity = capacity;
             _prefab = prefab;
+            _expire = expire;
+            DelayExpire();
+        }
+
+        void DelayExpire()
+        {
+            if (_expire == 0)
+            {
+                return;
+            }
+            _expireTimer = Time.timeSinceLevelLoad + _expire;
         }
 
         public void Collect(GameObject go)
@@ -34,10 +48,11 @@ namespace Phenix.Unity.Collection
 
         public GameObject Get()
         {
+            DelayExpire();
             if (_cache.Count > 0)
             {
                 return _cache.Dequeue();
-            }
+            }            
             return GameObject.Instantiate(_prefab);
         }
 
@@ -51,6 +66,28 @@ namespace Phenix.Unity.Collection
             {
                 GameObject.DestroyImmediate(_prefab, true);
             }
+        }
+
+        bool IsExpired()
+        {
+            return _expireTimer > 0 && Time.timeSinceLevelLoad >= _expireTimer;
+        }
+
+        void HandleExpire()
+        {
+            if (IsExpired())
+            {
+                int releaseCount = _cache.Count / 2;
+                while (_cache.Count > releaseCount)
+                {
+                    GameObject.DestroyImmediate(_cache.Dequeue());
+                }
+            }
+        }
+
+        public void OnUpdate()
+        {
+            HandleExpire();
         }
     }
 }

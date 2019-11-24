@@ -91,6 +91,7 @@
     <Compile Include="src\Camera\CameraFollow.cs" />
     <Compile Include="src\Camera\CameraFollowFixedView.cs" />
     <Compile Include="src\Collection\GameObjectPool.cs" />
+    <Compile Include="src\Collection\LRU.cs" />
     <Compile Include="src\Collection\Pool.cs" />
     <Compile Include="src\Effect\MotionTrace.cs" />
     <Compile Include="src\Extend\BehaviourExtend.cs" />
@@ -104,9 +105,11 @@
     <Compile Include="src\Log\LogGUIAppender.cs" />
     <Compile Include="src\Message\Message.cs" />
     <Compile Include="src\Message\MessageMgr.cs" />
+    <Compile Include="src\Scene\SceneMgr.cs" />
     <Compile Include="src\TrailGenerator.cs" />
     <Compile Include="src\UI\ArcView.cs" />
     <Compile Include="src\UI\Billboard.cs" />
+    <Compile Include="src\UI\Clickable.cs" />
     <Compile Include="src\UI\GridView.cs" />
     <Compile Include="src\UI\TabView.cs" />
     <Compile Include="src\UI\TVShow.cs" />
