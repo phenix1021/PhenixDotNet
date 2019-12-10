@@ -23,7 +23,7 @@ namespace Phenix.Unity.Effect
                 slice.hideFlags = HideFlags.HideAndDontSave;
             }
 
-            public void Init(Mesh mesh, Material mat, Shader shader, float expireTimer,
+            public void Init(UnityEngine.Mesh mesh, Material mat, Shader shader, float expireTimer,
                 Vector3 position, Quaternion rotation)
             {
                 if (slice == null)
@@ -65,7 +65,7 @@ namespace Phenix.Unity.Effect
         public string shaderColorProp;     // shader中用来控制显示的color属性名
 
         Pool<MotionSample> _pool = new Pool<MotionSample>(10);
-        Pool<Mesh> _poolMesh = new Pool<Mesh>(10);
+        Pool<UnityEngine.Mesh> _poolMesh = new Pool<UnityEngine.Mesh>(10);
         List<MotionSample> _samples = new List<MotionSample>();
         List<MotionSample> _remove = new List<MotionSample>();
 
@@ -105,7 +105,7 @@ namespace Phenix.Unity.Effect
             SkinnedMeshRenderer[] renderers = target.transform.GetComponentsInChildren<SkinnedMeshRenderer>();
             foreach (var renderer in renderers)
             {
-                Mesh mesh = _poolMesh.Get();
+                UnityEngine.Mesh mesh = _poolMesh.Get();
                 renderer.BakeMesh(mesh);
                 MotionSample sample = _pool.Get();
                 sample.Init(mesh, 

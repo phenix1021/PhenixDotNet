@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
-using Phenix.Unity.Pattern;
 using System.Collections;
+using Phenix.Unity.Pattern;
+using Phenix.Unity.Extend;
 
 namespace Phenix.Unity.Utilities
 {
@@ -98,6 +99,22 @@ namespace Phenix.Unity.Utilities
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// 在XZ平面上，transform.forward与Vector3.forward的角度。返回值范围：[0, 360)
+        /// </summary>        
+        public float ForwardAngle360InXZ(Transform self)
+        {            
+            return self.forward.Angle360(Vector3.forward, Vector3.up);
+        }
+
+        /// <summary>
+        /// 在XZ平面上，transform.forward与Vector3.forward的角度。返回值范围：（-180, 180]
+        /// </summary>        
+        public float ForwardSignedAngleInXZ(Transform self)
+        {
+            return self.forward.SignedAngle(Vector3.forward, Vector3.up);
         }
 
         /// <summary>
@@ -296,6 +313,72 @@ namespace Phenix.Unity.Utilities
 
                 yield return new WaitForEndOfFrame();
             }
+        }
+
+        /// <summary>
+        /// 获取CapsuleCollider上距离target最近的点
+        /// </summary>        
+        public Vector3 ClosestPoint(CapsuleCollider collider, Vector3 target)
+        {            
+            return collider.ClosestPointOnBounds(target);
+        }
+
+        /// <summary>
+        /// 获取BoxCollider上距离target最近的点
+        /// </summary>        
+        public Vector3 ClosestPoint(BoxCollider collider, Vector3 target)
+        {
+            // 原打算AABB类型BoxCollider（即rotation的xyz都为0）执行ClosestPointOnBounds，OBB执行ClosestPointOBB。
+            // 但后者代码貌似有问题，会直接穿透box。而始终用ClosestPointOnBounds会有一个小瑕疵，就是定位有些不够准确，
+            // 对于1*1*1小cube一直顶着按会慢慢穿过去。总体效果还可以。暂时先用。
+            return collider.ClosestPointOnBounds(target); 
+            /*if (collider.transform.rotation == Quaternion.identity)
+            {
+                return collider.ClosestPointOnBounds(target);
+            }            
+            return ClosestPointOBB(collider, target);*/
+        }
+
+        /// <summary>
+        /// 获取SphereCollider上距离target最近的点
+        /// </summary>        
+        public Vector3 ClosestPoint(SphereCollider collider, Vector3 target)
+        {
+            Vector3 p;
+
+            p = target - collider.transform.position;
+            p.Normalize();
+
+            p *= collider.radius * collider.transform.localScale.x;
+            p += collider.transform.position;
+
+            return p;
+        }
+
+        Vector3 ClosestPointOBB(BoxCollider collider, Vector3 target)
+        {
+            // Cache the collider transform
+            var ct = collider.transform;
+
+            // Firstly, transform the point into the space of the collider
+            var local = ct.worldToLocalMatrix.MultiplyPoint3x4(target);
+
+            // Now, shift it to be in the center of the box
+            local -= collider.center;
+
+            // Inverse scale it by the colliders scale
+            var localNorm =
+                new Vector3(
+                    Mathf.Clamp(local.x, -collider.size.x, collider.size.x),
+                    Mathf.Clamp(local.y, -collider.size.y, collider.size.y),
+                    Mathf.Clamp(local.z, -collider.size.z, collider.size.z)
+                );
+
+            // Now we undo our transformations
+            localNorm += collider.center;
+
+            // Return resulting point
+            return ct.localToWorldMatrix.MultiplyPoint3x4(localNorm);
         }
     }
 }

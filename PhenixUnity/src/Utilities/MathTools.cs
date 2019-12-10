@@ -214,5 +214,32 @@ namespace Phenix.Unity.Utilities
         {
             return (2.0f * st - 4.0f * ctrl + 2.0f * en) * t + 2.0f * ctrl - 2.0f * st;
         }
+
+        public static float ClampAngle(float angle, float min, float max)
+        {
+            if (angle < -360.0f)
+                angle += 360.0f;
+
+            if (angle > 360.0f)
+                angle -= 360.0f;
+
+            return Mathf.Clamp(angle, min, max);
+        }
+
+        /// <summary>
+        ///  获得在与axis垂直平面上，向量v1到v2的角度。返回值范围：（-180, 180]
+        /// </summary>
+        public static float SignedAngle(Vector3 v1, Vector3 v2, Vector3 axis)
+        {
+            return (float)Mathf.Atan2(Vector3.Dot(axis, Vector3.Cross(v1, v2)), Vector3.Dot(v1, v2)) * 57.29578f;
+        }
+
+        /// <summary>
+        /// 获得在与axis垂直平面上，向量v1到v2的角度。返回值范围：[0，360）
+        /// </summary>
+        public static float Angle360(Vector3 v1, Vector3 v2, Vector3 axis)
+        {            
+            return Mathf.Repeat(360f + SignedAngle(v1, v2, axis), 360f);
+        }
     }
 }

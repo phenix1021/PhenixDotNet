@@ -143,7 +143,7 @@ namespace Phenix.Unity.Effect
         
         void BuildTrailMesh()
         {
-            Mesh mesh = _meshFilter.mesh;
+            UnityEngine.Mesh mesh = _meshFilter.mesh;
             mesh.Clear();
 
             // 移除超期样本

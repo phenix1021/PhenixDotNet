@@ -3,14 +3,14 @@
 namespace Phenix.Unity.AI
 {
 
-    public abstract class FSM
+    public class FSM
     {
         List<FSMState> _states;                         // 状态集        
         FSMEvent _curEvent;                             // 当前事件
         protected FSMState CurState { get; set; }       // 当前状态
         public FSMState DefState { get; set; }          // 默认状态                    
 
-        protected FSM(List<FSMState> states, FSMState defState)
+        public FSM(List<FSMState> states, FSMState defState)
         {
             _states = states;
             CurState = DefState = defState;
@@ -69,6 +69,35 @@ namespace Phenix.Unity.AI
                 return;
             }
             _curEvent = ev;            
+        }
+
+        public void TransferTo(int stateType, FSMEvent ev = null)
+        {            
+            foreach (var item in _states)
+            {
+                if (item.StateType == stateType)
+                {
+                    TransferTo(item, ev);
+                    return;
+                }
+            }            
+        }
+
+        void TransferTo(FSMState state, FSMEvent ev)
+        {
+            if (state == null)
+            {
+                return;
+            }
+
+            if (state == CurState)
+            {
+                return;
+            }
+
+            CurState.OnExit();
+            CurState = state;
+            CurState.OnEnter(ev);
         }
     }
 }

@@ -56,6 +56,12 @@ namespace Phenix.Unity.Collection
             return GameObject.Instantiate(_prefab);
         }
 
+        public GameObject Get(out bool isNewInst/*是否新创建的实例*/)
+        {
+            isNewInst = (_cache.Count == 0);
+            return Get();
+        }
+
         public void Destroy()
         {
             while (_cache.Count > 0)
