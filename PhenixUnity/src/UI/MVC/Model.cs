@@ -8,7 +8,7 @@ namespace Phenix.Unity.UI
         // ----------------------- 实例部分 -------------------------
         //public object Data { get; private set; }
         public int UIID { get; private set; }
-        public MessageMgr Controllers { get; set; }
+        //public MessageMgr Controllers { get; set; }
 
         protected Model(/*object data, */int uiID)
         {

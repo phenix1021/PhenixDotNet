@@ -11,16 +11,16 @@ namespace Phenix.Unity.UI
     public class PassPointerEvent : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler, IPointerUpHandler, 
         IPointerDownHandler, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler, IScrollHandler
     {
-        public bool passPointerEnter = true;
-        public bool passPointerExit = true;
-        public bool passPointerDown = true;
-        public bool passPointerUp = true;
-        public bool passPointerClick = true;        
-        public bool passBeginDrag = true;
-        public bool passDrag = true;
-        public bool passEndDrag = true;
-        public bool passDrop = true;
-        public bool passScroll = true;
+        public bool passPointerEnter = false;
+        public bool passPointerExit = false;
+        public bool passPointerDown = false;
+        public bool passPointerUp = false;
+        public bool passPointerClick = false;        
+        public bool passBeginDrag = false;
+        public bool passDrag = false;
+        public bool passEndDrag = false;
+        public bool passDrop = false;
+        public bool passScroll = false;
 
         public GameObject target = null;
 

@@ -12,6 +12,10 @@ namespace Phenix.Unity.UI
         void ChangeToAnchorPos(ref PointerEventData eventData)
         {
             Vector2 pointerAnchoredPos = Vector2.zero;
+            if (rect == null)
+            {
+                rect = GetComponentInParent<Canvas>().GetComponent<RectTransform>();
+            }
             bool ret = RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, eventData.position, eventData.pressEventCamera, out pointerAnchoredPos);
             if (ret)
             {

@@ -6,7 +6,7 @@ namespace Phenix.Unity.UI
     public class UIFacade
     {        
         Canvas _canvas;
-        MessageMgr _controllers = new MessageMgr();
+        MessageMgr _msgMgr = new MessageMgr();
 
         public UIFacade(Canvas canvas)
         {
@@ -31,16 +31,20 @@ namespace Phenix.Unity.UI
             //}                                   
             inst.transform.SetParent(_canvas.transform);
             inst.transform.localPosition = new Vector3(inst.transform.localPosition.x, inst.transform.localPosition.y, 0);
-            //(inst.transform as RectTransform).offsetMin = (inst.transform as RectTransform).offsetMax = Vector2.zero;
-            (inst.transform as RectTransform).localScale = Vector3.one;            
+            //(inst.transform as RectTransform).offsetMin = (inst.transform as RectTransform).offsetMax = Vector2.zero;            
+            (inst.transform as RectTransform).localScale = Vector3.one;
+            if ((inst.transform as RectTransform).anchorMin == Vector2.zero && (inst.transform as RectTransform).anchorMax == Vector2.one)
+            {
+                (inst.transform as RectTransform).sizeDelta = Vector2.zero;
+            }
 
             view.UIRoot = inst;            
-            view.Controllers = _controllers;
+            //view.Controllers = _msgMgr;
             view.Init();
 
             if (model != null)
             {
-                model.Controllers = _controllers;
+                //model.Controllers = _msgMgr;
                 model.Init();
             }            
 
@@ -49,17 +53,17 @@ namespace Phenix.Unity.UI
 
         public void RegisterMessage(int msgID, MessageHandler handler)
         {
-            _controllers.RegisterHandler(msgID, handler);
+            _msgMgr.RegisterHandler(msgID, handler);
         }
 
         public void SendMsg(Phenix.Unity.Message.Message msg)
         {
-            _controllers.SendMsg(msg);
+            _msgMgr.SendMsg(msg);
         }
 
         public void OnUpdate()
         {
-            _controllers.HandleMessages();
+            _msgMgr.HandleMessages();
             Model.UpdateAll();
             View.UpdateAll();
         }      

@@ -9,8 +9,9 @@ namespace Phenix.Unity.UI
         // ---------------- 实例部分 ---------------------
         public GameObject UIRoot { get; set; }
         public int UIID { get; private set; }
-        public MessageMgr Controllers { get; set; }
+        //public MessageMgr Controllers { get; set; }
         public bool Visible { get; set; }
+        protected Canvas Canvas { get; private set; }
 
         float _closeTimer = 0;
 
@@ -23,7 +24,10 @@ namespace Phenix.Unity.UI
         /// <summary>
         /// 在此绑定各UI事件的处理回调函数
         /// </summary>
-        public virtual void Init() { }
+        public virtual void Init()
+        {
+            Canvas = UIRoot.GetComponentInParent<Canvas>();
+        }
 
         public virtual void Open()
         {

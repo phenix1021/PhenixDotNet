@@ -12,10 +12,7 @@ namespace Phenix.Unity.UI
         [SerializeField]
         List<GameObject> _cells = new List<GameObject>();
 
-        public RectTransform content;
-
-        [SerializeField]
-        bool _destroyOnRemove = true;
+        public RectTransform content;        
 
         GridLayoutGroup _layout;
 
@@ -37,8 +34,20 @@ namespace Phenix.Unity.UI
                 GameObject cur = _cells[i];
                 if (cur != null)
                 {
-                    cur.transform.parent = content;
+                    cur.transform.SetParent(content);
                 }                
+            }
+            RefreshContentHeight();
+        }
+
+        public void Clear()
+        {
+            content.DetachChildren();
+            while (_cells.Count > 0)
+            {
+                GameObject go = _cells[0];
+                _cells.Remove(go);
+                DestroyImmediate(go);                
             }
             RefreshContentHeight();
         }
@@ -72,7 +81,9 @@ namespace Phenix.Unity.UI
             }
 
             _cells.Add(cell);
-            cell.transform.parent = content;
+            cell.transform.SetParent(content);
+            cell.transform.localPosition = new Vector3(cell.transform.localPosition.x, cell.transform.localPosition.y, 0);
+            cell.transform.localScale = Vector3.one;
             RefreshContentHeight();
         }
 
@@ -83,16 +94,17 @@ namespace Phenix.Unity.UI
                 return;
             }
             _cells.Remove(cell);
-            cell.transform.parent = null;
-            if (_destroyOnRemove)
-            {
-                DestroyImmediate(cell);
-            }
+            cell.transform.SetParent(null);
+            DestroyImmediate(cell);
             RefreshContentHeight();
         }
 
         void RefreshContentHeight()
         {
+            if (_layout == null)
+            {
+                _layout = GetComponentInChildren<GridLayoutGroup>();
+            }
             float top = _layout.padding.top;
             float bottom = _layout.padding.bottom;
             float left = _layout.padding.left;
@@ -100,9 +112,35 @@ namespace Phenix.Unity.UI
             float spaceX = _layout.spacing.x;
             float spaceY = _layout.spacing.y;
 
-            int cellCountPerRow = (int)((content.rect.width - left - right) / (_layout.cellSize.x + spaceX));
+            //int cellCountPerRow = (int)((content.rect.width - left - right) / (_layout.cellSize.x + spaceX));
+            int cellCountPerRow = GetCellCountPerRow(left, right, spaceX);
             int needRowCount = Mathf.CeilToInt(_cells.Count * 1f / cellCountPerRow);
             content.sizeDelta = new Vector2(content.sizeDelta.x, top + bottom + needRowCount * (_layout.cellSize.y + spaceY));
+        }
+
+        int GetCellCountPerRow(float left, float right, float spaceX)
+        {
+            float remain = content.rect.width - left - right - _layout.cellSize.x;
+            if (remain < 0)
+            {
+                return 0;
+            }
+
+            int ret = 1;
+            while (true)
+            {
+                remain -= (spaceX + _layout.cellSize.x);
+                if (remain >= 0)
+                {
+                    ++ret;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return ret;
         }
     }
 }
