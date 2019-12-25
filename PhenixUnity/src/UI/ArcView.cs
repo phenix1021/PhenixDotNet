@@ -17,7 +17,7 @@ namespace Phenix.Unity.UI
             TO_LEFT,
             TO_RIGHT,
         }
-
+        
         public RectTransform panel;     // 基座位置
         public RectTransform content;   // 容器
         public UIDragable hotSpot;      // 感应区
@@ -42,23 +42,22 @@ namespace Phenix.Unity.UI
         float _foldDistance;  // 缩放距离
         float _maxCellSize;   // 最大格子尺寸
 
-        bool _isFolded = false;  // 圆盘是否收起
+        bool _isFolded = false;     // 圆盘是否收起
         bool _rotating = false;     // 圆盘是否正在旋转
         bool _switching = false;    // 圆盘是否正在切换（收起/展开）               
 
         [SerializeField]
-        float _switchSpeed = 1; // 切换速度
+        float _switchSpeed = 2f; // 切换速度
         [SerializeField]
-        float _rotateSpeed = 1; // 旋转速度
+        float _rotateSpeed = 2f; // 旋转速度
 
         [SerializeField]
         bool _destroyOnRemove = true;
 
         Vector2 _pointerPos = Vector2.zero;
         int _cellIdxOffset = 0;        
-
-        // Use this for initialization
-        void Start()
+                
+        void Awake()
         {
             content.pivot = panel.pivot = new Vector2(0.5f, 0.5f);
             _contentInitPos = content.localPosition;
@@ -82,8 +81,7 @@ namespace Phenix.Unity.UI
                 hotSpot.onDragEnd.AddListener(OnEndDrag);
             }            
             hotSpot.rect = hotSpot.gameObject.transform as RectTransform;            
-
-            Reset();            
+            Reset();
         }
 
         public void Reset()
@@ -98,6 +96,7 @@ namespace Phenix.Unity.UI
                 return;
             }
 
+            _switching = _rotating = false;
             content.DetachChildren();
             for (int i = 0; i < cells.Count; i++)
             {
@@ -107,7 +106,7 @@ namespace Phenix.Unity.UI
                 }
                 RectTransform rectTransform = cells[i].transform as RectTransform;
                 Vector2 pos = GetCellInitPos(i);
-                rectTransform.parent = content;
+                rectTransform.SetParent(content);
                 rectTransform.localPosition = new Vector3(pos.x, pos.y);
             }
             _maxCellSize = GetMaxCellSize();
@@ -157,7 +156,7 @@ namespace Phenix.Unity.UI
 
             cells.Add(cell);
             Vector2 pos = GetCellInitPos(cells.Count - 1);
-            cell.transform.parent = content;
+            cell.transform.SetParent(content);
             cell.transform.localPosition = new Vector3(pos.x, pos.y);
             _maxCellSize = GetMaxCellSize();            
         }
@@ -195,7 +194,7 @@ namespace Phenix.Unity.UI
 
             if (found)
             {
-                cell.transform.parent = null;
+                cell.transform.SetParent(null);
                 cells.Remove(cell);
                 if (_destroyOnRemove)
                 {
@@ -235,7 +234,7 @@ namespace Phenix.Unity.UI
 
         void Switch()
         {
-            if (_rotating)
+            if (_rotating || _switching)
             {
                 return;
             }
@@ -249,8 +248,34 @@ namespace Phenix.Unity.UI
             else
             {
                 // 展开圆盘
-                Unfold();
+                Pop();
             }            
+        }
+
+        // 立即收起(无动画)
+        public void FoldNow()
+        {
+            if (_switching || _rotating || _isFolded)
+            {
+                return;
+            }
+
+            _isFolded = true;
+            hotSpot.gameObject.SetActive(false);
+            content.transform.localPosition = GetSwitchMoveDest();
+        }
+
+        // 立即展开(无动画)
+        public void PopNow()
+        {
+            if (_switching || _rotating || _isFolded == false)
+            {
+                return;
+            }
+
+            _isFolded = false;
+            hotSpot.gameObject.SetActive(true);
+            content.transform.localPosition = GetSwitchMoveDest();
         }
 
         // 收起
@@ -261,7 +286,7 @@ namespace Phenix.Unity.UI
         }
 
         // 展开
-        void Unfold()
+        void Pop()
         {            
             StartCoroutine("SwitchMoveImpl");
         }
@@ -314,7 +339,7 @@ namespace Phenix.Unity.UI
 
             yield return new WaitForEndOfFrame();
 
-            while ((elapseTime += Time.deltaTime) < switchTotalTime)
+            while ((elapseTime += Time.unscaledDeltaTime) < switchTotalTime)
             {
                 content.transform.localPosition = Vector3.Lerp(content.transform.localPosition, tarPos, Mathf.Min(elapseTime / switchTotalTime, 1));
                 yield return new WaitForEndOfFrame();
@@ -353,7 +378,7 @@ namespace Phenix.Unity.UI
         // 旋转圆盘
         void Rotate(Vector2 pointerPosOnEndDrag)
         {
-            if (_switching)
+            if (_switching || _rotating)
             {
                 return;
             }            
@@ -426,7 +451,7 @@ namespace Phenix.Unity.UI
 
             yield return new WaitForEndOfFrame();
             
-            while ((elapseTime += Time.deltaTime) < rotateTotalTime)
+            while ((elapseTime += Time.unscaledDeltaTime) < rotateTotalTime)
             {                
                 for (int i = 0; i < cells.Count; i++)
                 {

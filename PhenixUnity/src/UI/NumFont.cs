@@ -117,7 +117,7 @@ namespace Phenix.Unity.UI
             go.name = "Num";
             //go.hideFlags = HideFlags.HideAndDontSave;
             go.transform.SetParent(transform);
-            go.transform.localPosition = new Vector3(go.transform.localPosition.x, go.transform.localPosition.y, 0);
+            go.transform.localPosition = Vector3.zero;// new Vector3(go.transform.localPosition.x, go.transform.localPosition.y, 0);
             go.transform.localScale = Vector3.one;            
             Image img = go.GetComponent<Image>();
             if (img == null)
