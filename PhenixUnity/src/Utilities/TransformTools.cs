@@ -380,5 +380,28 @@ namespace Phenix.Unity.Utilities
             // Return resulting point
             return ct.localToWorldMatrix.MultiplyPoint3x4(localNorm);
         }
+
+        /// <summary>
+        /// 获得pointer指向的对象
+        /// </summary>
+        public static GameObject GetPointerObject(LayerMask layerMask)
+        {
+            Ray ray = UnityEngine.Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hitInfo;
+            if (Physics.Raycast(ray, out hitInfo, float.PositiveInfinity, layerMask))
+            {
+                return hitInfo.collider.gameObject;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// 要将目标tar移动到pointer位置所获得的坐标值（世界坐标）
+        /// </summary>        
+        public static Vector3 MoveToPointerPos(Transform tar)
+        {
+            return UnityEngine.Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y,
+                UnityEngine.Camera.main.WorldToScreenPoint(tar.position).z));
+        }
     }
 }
