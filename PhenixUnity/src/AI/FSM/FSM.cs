@@ -46,6 +46,10 @@ namespace Phenix.Unity.AI
             else if (_curEvent != null)
             {
                 FSMState next = OnTransfer(_curEvent);
+                if (next == null)
+                {
+                    UnityEngine.Debug.LogError(_curEvent.EventCode);
+                }
                 CurState.OnExit();
                 CurState = next;
                 CurState.OnEnter(_curEvent);

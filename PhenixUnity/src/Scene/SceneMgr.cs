@@ -20,6 +20,7 @@ namespace Phenix.Unity.Scene
         public void LoadScene(int sceneIdx, bool allowSceneActivation = true, 
             System.Action<float> onLoading = null, System.Action onReady = null, System.Action onCompleted = null)
         {
+            Resources.UnloadUnusedAssets();
             _asyncOpt = SceneManager.LoadSceneAsync(sceneIdx, _mode);
             _asyncOpt.allowSceneActivation = allowSceneActivation;
             if (onLoading != null)
@@ -35,6 +36,7 @@ namespace Phenix.Unity.Scene
         public void LoadScene(string sceneName, bool allowSceneActivation = true,
             System.Action<float> onLoading = null, System.Action onReady = null, System.Action onCompleted = null)
         {
+            Resources.UnloadUnusedAssets();
             _asyncOpt = SceneManager.LoadSceneAsync(sceneName, _mode);
             _asyncOpt.allowSceneActivation = allowSceneActivation;
             if (onLoading != null)

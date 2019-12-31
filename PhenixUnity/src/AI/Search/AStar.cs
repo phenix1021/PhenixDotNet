@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Phenix.Unity.Extend;
 
 namespace Phenix.Unity.AI
 {   
@@ -37,15 +36,7 @@ namespace Phenix.Unity.AI
         }
 
         bool InClosed(NODE node)
-        {
-            /*foreach (var item in _closed)
-            {
-                if (IsSame(node, item))
-                {
-                    return true;
-                }
-            }
-            return false;*/
+        {            
             return InNodes(node, ref _closed);
         }
 
@@ -119,21 +110,13 @@ namespace Phenix.Unity.AI
                     continue;
                 }
 
-                nextSteps.Sort((NODE a, NODE b) => { return (Cost(a) + Precedence(a)).CompareTo(Cost(b) + Precedence(b)); });
-                UnityEngine.Debug.Log("nextSteps count: " + nextSteps.Count);                
-                if (_opened.Count == 4)
-                {
-                    UnityEngine.Debug.Log("_opened count: " + _opened.Count);
-                }
+                nextSteps.Sort((NODE a, NODE b) => { return (Cost(a) + Precedence(a)).CompareTo(Cost(b) + Precedence(b)); });                    
+                
                 for (int i = 0; i < nextSteps.Count; i++)
                 {
                     if (i == 0)
                     {
-                        path.Add(nextSteps[0]);
-                        if (path.Count == 3)
-                        {
-                            UnityEngine.Debug.Log("path count: " + path.Count);
-                        }
+                        path.Add(nextSteps[0]);                        
                         continue;
                     }
                     _opened.Push(nextSteps[i]);
