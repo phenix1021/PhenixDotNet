@@ -148,6 +148,7 @@
     <Compile Include="src\Sprite\SpriteMgr.cs" />
     <Compile Include="src\Utilities\AudioTools.cs" />
     <Compile Include="src\Utilities\MaterialTools.cs" />
+    <Compile Include="src\Utilities\MeshTools.cs" />
     <Compile Include="src\Utilities\ParticleTools.cs" />
     <Compile Include="src\Utilities\TimeTools.cs" />
     <Compile Include="src\Utilities\TransformTools.cs" />

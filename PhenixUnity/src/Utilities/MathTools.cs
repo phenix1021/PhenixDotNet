@@ -76,8 +76,14 @@ namespace Phenix.Unity.Utilities
         /// </summary>        
         public static float DistanceFromPointToVector(Vector3 lineStart, Vector3 lineEnd, Vector3 point)
         {
-            Vector3 online = NearestPoint(lineStart, lineEnd, point);
-
+            //Vector3 online = NearestPoint(lineStart, lineEnd, point);
+            Vector3 online = NearestPointStrict(lineStart, lineEnd, point);
+            /*Debug.DrawLine(lineStart, lineEnd, Color.red);
+            Debug.DrawLine(lineStart, point, Color.green);
+            Debug.DrawLine(lineEnd, point, Color.green);
+            Debug.DrawLine(online, point, Color.yellow);
+            Debug.Log("the len:" + (point - online).magnitude);
+            Debug.Break();*/
             return (point - online).magnitude;
         }
 

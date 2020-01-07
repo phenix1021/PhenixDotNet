@@ -14,5 +14,16 @@ namespace Phenix.Unity.Anim
         public abstract void SetSpeed(string clipName, float val);
         // 已播放时长（秒）
         public abstract float GetTime(string clipName);
+        // 获得实际总时长
+        public virtual float GetRealLength(string clipName)
+        {
+            float speed = GetSpeed(clipName);
+            if (speed == 0)
+            {
+                return 0;
+            }
+
+            return GetLength(clipName) / speed;
+        }
     }
 }

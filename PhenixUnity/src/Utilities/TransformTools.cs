@@ -384,7 +384,7 @@ namespace Phenix.Unity.Utilities
         /// <summary>
         /// 获得pointer指向的对象
         /// </summary>
-        public static GameObject GetPointerObject(LayerMask layerMask)
+        public GameObject GetPointerObject(LayerMask layerMask)
         {
             Ray ray = UnityEngine.Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitInfo;
@@ -398,10 +398,21 @@ namespace Phenix.Unity.Utilities
         /// <summary>
         /// 要将目标tar移动到pointer位置所获得的坐标值（世界坐标）
         /// </summary>        
-        public static Vector3 MoveToPointerPos(Transform tar)
+        public Vector3 MoveToPointerPos(Transform tar)
         {
             return UnityEngine.Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y,
                 UnityEngine.Camera.main.WorldToScreenPoint(tar.position).z));
+        }
+
+        /// <summary>
+        /// 世界坐标 => GUI坐标。注意：GUI坐标系是指GUI.Label等GUI系统的坐标，以左上角为远点。不同于UGUI坐标系的以pivot为原点。
+        /// 补：屏幕坐标（左下角原点）、视口坐标（左下角原点且坐标值标准化）、GUI坐标（左上角原点）、UGUI坐标（pivot原点）
+        /// </summary>        
+        public Vector3 GetGUIPoint(Vector3 worldPos)
+        {
+            Vector3 screenPoint = UnityEngine.Camera.main.WorldToScreenPoint(worldPos);
+            Vector3 guiPoint = new Vector3(screenPoint.x, UnityEngine.Camera.main.pixelHeight - screenPoint.y, screenPoint.z);
+            return guiPoint;
         }
     }
 }
