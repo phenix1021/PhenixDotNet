@@ -1,12 +1,10 @@
-﻿using UnityEngine;
-
-namespace Phenix.Unity.AI
+﻿namespace Phenix.Unity.AI.BT
 {
     [TaskIcon("TaskIcons/Idle.png")]
-    public class Idle : Phenix.Unity.AI.Action<IdleImpl> { }
+    public class Idle : Action<IdleImpl> { }
 
     [System.Serializable]
-    public class IdleImpl : Phenix.Unity.AI.ActionImpl
+    public class IdleImpl : ActionImpl
     {
         /*public float time = 0;
 
@@ -29,7 +27,7 @@ namespace Phenix.Unity.AI
             {
                 return TaskStatus.Success;
             }*/
-            return TaskStatus.Running;
+            return TaskStatus.RUNNING;
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.BT
 {
     public abstract class Conditional : Task { }
     public abstract class Conditional<T> : Conditional where T : ConditionalImpl, new()
@@ -14,20 +14,20 @@ namespace Phenix.Unity.AI
             taskParams.OnAwake();
         }
 
-        public override void OnStart()
+        /*public override void OnStart()
         {
             taskParams.OnStart();
-        }
+        }*/
 
         public sealed override TaskStatus Run()
         {
             if (taskParams.Check())
             {
-                Status = TaskStatus.Success;
+                Status = TaskStatus.SUCCESS;
             }
             else
             {
-                Status = TaskStatus.Failure;
+                Status = TaskStatus.FAILURE;
             }
             return Status;
         }
@@ -42,14 +42,24 @@ namespace Phenix.Unity.AI
             taskParams.OnFirstRun();
         }
 
-        protected sealed override void OnTurnBegin()
+        protected sealed override void OnStart()
         {            
-            taskParams.OnTurnBegin();
+            taskParams.OnStart();
         }
 
-        protected sealed override void OnTurnEnd()
+        protected sealed override void OnEnd()
         {
             taskParams.OnTurnEnd();
+        }
+
+        public sealed override void OnDrawGizmos()
+        {
+            taskParams.OnDrawGizmos();
+        }
+
+        public sealed override void OnDrawGizmosSelected()
+        {
+            taskParams.OnDrawGizmosSelected();
         }
     }
 
@@ -83,5 +93,7 @@ namespace Phenix.Unity.AI
         public virtual void OnTurnBegin() { }
         public virtual void OnTurnEnd() { }
         public abstract bool Check();
+        public virtual void OnDrawGizmos() { }
+        public virtual void OnDrawGizmosSelected() { }
     }
 }

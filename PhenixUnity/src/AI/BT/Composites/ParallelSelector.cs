@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.BT
 {
     [TaskIcon("TaskIcons/ParallelSelector.png")]
     [TaskDescription("ParallelSelector")]
@@ -13,25 +13,25 @@ namespace Phenix.Unity.AI
         {
             if (Children.Count <= 0)
             {
-                return TaskStatus.Ignored;
+                return TaskStatus.IGNORED;
             }
 
-            TaskStatus status = TaskStatus.None;
+            TaskStatus status = TaskStatus.NONE;
             List<int> running = new List<int>();
             List<int> succeed = new List<int>();
             int ignoredCnt = 0;
             for (int i = 0; i < Children.Count; i++)
             {
                 status = Children[i].OnUpdate();
-                if (status == TaskStatus.Success)
+                if (status == TaskStatus.SUCCESS)
                 {
                     succeed.Add(i);
                 }                
-                else if (status == TaskStatus.Running)
+                else if (status == TaskStatus.RUNNING)
                 {
                     running.Add(i);
                 }
-                else if (status == TaskStatus.Ignored)
+                else if (status == TaskStatus.IGNORED)
                 {
                     ++ignoredCnt;
                 }
@@ -43,20 +43,20 @@ namespace Phenix.Unity.AI
                 {
                     Children[item].ForceTurnEnd();
                 }
-                return TaskStatus.Success;
+                return TaskStatus.SUCCESS;
             }
 
             if (running.Count > 0)
             {
-                return TaskStatus.Running;
+                return TaskStatus.RUNNING;
             }
 
             if (ignoredCnt == Children.Count)
             {
-                return TaskStatus.Ignored;
+                return TaskStatus.IGNORED;
             }
             
-            return TaskStatus.Failure;
+            return TaskStatus.FAILURE;
         }
     }
 }

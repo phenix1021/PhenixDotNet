@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.BT
 {
     public class Blackboard
     {
@@ -45,7 +46,8 @@ namespace Phenix.Unity.AI
         public void Set(string name, object obj, bool replace = true)
         {
             if (string.IsNullOrEmpty(name))
-            {                
+            {
+                Debug.LogError("blackboard item name is null or empty!");
                 return;
             }
             if (_shareObjs.ContainsKey(name))

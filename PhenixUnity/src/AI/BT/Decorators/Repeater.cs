@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.BT
 {
     [TaskIcon("TaskIcons/Repeater.png")]
     public class Repeater : Decorator
@@ -13,16 +13,16 @@ namespace Phenix.Unity.AI
 
         public override TaskStatus Decorate(TaskStatus status)
         {
-            if (status == TaskStatus.Success || status == TaskStatus.Failure)
+            if (status == TaskStatus.SUCCESS || status == TaskStatus.FAILURE)
             {
                 ++executionCnt;
             }
 
-            if (status == TaskStatus.Failure)
+            if (status == TaskStatus.FAILURE)
             {
                 if (endOnFailure)
                 {
-                    return TaskStatus.Failure;
+                    return TaskStatus.FAILURE;
                 }                
             }
 
@@ -30,11 +30,11 @@ namespace Phenix.Unity.AI
             {
                 if (count <= executionCnt)
                 {
-                    return TaskStatus.Ignored;
+                    return TaskStatus.IGNORED;
                 }                
             }
             
-            return TaskStatus.Running;
+            return TaskStatus.RUNNING;
         }
     }
 }

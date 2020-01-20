@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.BT
 {
     [Serializable]
     public class BehaviorTreeParams
@@ -127,10 +127,10 @@ namespace Phenix.Unity.AI
             _entry.OnAwake();
         }
 
-        public void OnStart()
+        /*public void OnStart()
         {
             _entry.OnStart();
-        }
+        }*/
 
         public void OnUpdate()
         {
@@ -139,7 +139,7 @@ namespace Phenix.Unity.AI
                 return;
             }
 
-            _isTurnCompleted = (_entry.OnUpdate() != TaskStatus.Running);
+            _isTurnCompleted = (_entry.OnUpdate() != TaskStatus.RUNNING);
             if (_isTurnCompleted)
             {
                 OnTurnCompleted();                
@@ -157,6 +157,39 @@ namespace Phenix.Unity.AI
                 }
             }*/
         }
+
+        public void OnDrawGizmos()
+        {
+            if (IsUnactive)
+            {
+                return;
+            }
+
+            foreach (var task in _tasks)
+            {
+                if (task.Status == TaskStatus.RUNNING || task is Conditional)
+                {
+                    task.OnDrawGizmos();
+                }
+            }
+        }
+
+        public void OnDrawGizmosSelected()
+        {
+            if (IsUnactive)
+            {
+                return;
+            }
+
+            foreach (var task in _tasks)
+            {
+                if (task.Status == TaskStatus.RUNNING || task is Conditional)
+                {
+                    task.OnDrawGizmosSelected();
+                }
+            }
+        }
+
 
         /*public void OnFixedUpdate()
         {
@@ -238,24 +271,6 @@ namespace Phenix.Unity.AI
         }
 
         public void OnControllerColliderHit(ControllerColliderHit hit)
-        {
-            if (IsUnactive)
-            {
-                return;
-            }
-            _entry.OnFixedUpdate();
-        }
-
-        public void OnDrawGizmos()
-        {
-            if (IsUnactive)
-            {
-                return;
-            }
-            _entry.OnFixedUpdate();
-        }
-
-        public void OnDrawGizmosSelected()
         {
             if (IsUnactive)
             {

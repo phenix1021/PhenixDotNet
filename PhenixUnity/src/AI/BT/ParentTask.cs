@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.BT
 {    
     public abstract class ParentTask : Task
     {
@@ -42,13 +42,13 @@ namespace Phenix.Unity.AI
 
         public override void ForceTurnEnd()
         {
-            if (Status == TaskStatus.Running)
+            if (Status == TaskStatus.RUNNING)
             {
                 foreach (var child in Children)
                 {
                     child.ForceTurnEnd();
                 }
-                OnTurnEnd();
+                OnEnd();
             }
         }
 
@@ -70,12 +70,12 @@ namespace Phenix.Unity.AI
             }
         }
 
-        public override void OnStart()
+        /*public override void OnStart()
         {
             foreach (var child in Children)
             {
                 child.OnStart();
             }
-        }
+        }*/
     }
 }

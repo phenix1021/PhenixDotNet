@@ -1,8 +1,4 @@
-﻿using UnityEngine;
-using System;
-using System.Collections;
-
-namespace Phenix.Unity.AI
+﻿namespace Phenix.Unity.AI.BT
 {
     [TaskIcon("TaskIcons/Entry.png")]
     [TaskDescription("Entry")]
@@ -19,7 +15,7 @@ namespace Phenix.Unity.AI
         {
             if (Children.Count <= 0)
             {
-                return TaskStatus.Ignored;
+                return TaskStatus.IGNORED;
             }
             
             return Children[0].OnUpdate();            

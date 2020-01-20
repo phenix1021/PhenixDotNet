@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.FSM
 {
 
     public class FSM

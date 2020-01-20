@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.BT
 {
     [AddComponentMenu("Phenix/Behavior Tree Agent")]
     [DisallowMultipleComponent]
@@ -20,10 +20,10 @@ namespace Phenix.Unity.AI
             }
 
             BehaviorTreeAsset tmp = ScriptableObject.Instantiate<BehaviorTreeAsset>(_btAsset);
-            if (Application.isEditor)
-            {
+            //if (Application.isEditor)
+            //{
                 tmp.MonitorAsset = _btAsset;
-            }
+            //}
             if (tmp.Deserialize(transform) == false)
             {
                 Debug.LogError(string.Format("deserialization failure."), this);
@@ -36,12 +36,12 @@ namespace Phenix.Unity.AI
 
         void Start()
         {
-            if (_btAsset == null)
+            /*if (_btAsset == null)
             {
                 return;
             }
 
-            _btAsset.BT.OnStart();
+            _btAsset.BT.OnStart();*/
         }
 
         // Update is called once per frame
@@ -53,6 +53,26 @@ namespace Phenix.Unity.AI
             }
 
             _btAsset.BT.OnUpdate();
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (_btAsset == null || _btAsset.BT == null)
+            {
+                return;
+            }
+
+            _btAsset.BT.OnDrawGizmos();
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            if (_btAsset == null || _btAsset.BT == null)
+            {
+                return;
+            }
+
+            _btAsset.BT.OnDrawGizmosSelected();
         }
 
         /*private void FixedUpdate()
@@ -151,26 +171,6 @@ namespace Phenix.Unity.AI
             }
 
             _btAsset.BT.OnControllerColliderHit(hit);
-        }
-
-        private void OnDrawGizmos()
-        {
-            if (_btAsset == null)
-            {
-                return;
-            }
-
-            _btAsset.BT.OnDrawGizmos();
-        }
-
-        private void OnDrawGizmosSelected()
-        {
-            if (_btAsset == null)
-            {
-                return;
-            }
-
-            _btAsset.BT.OnDrawGizmosSelected();
         }
 
         private void OnApplicationPause(bool pause)

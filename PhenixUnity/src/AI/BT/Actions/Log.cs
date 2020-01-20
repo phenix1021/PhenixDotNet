@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.BT
 {
     [TaskIcon("TaskIcons/Log.png")]
-    public class Log : Phenix.Unity.AI.Action<LogImpl> { }
+    public class Log : Action<LogImpl> { }
 
     [System.Serializable]
-    public class LogImpl : Phenix.Unity.AI.ActionImpl
+    public class LogImpl : ActionImpl
     {
         public string text;
         public bool logError = false;
@@ -31,7 +31,7 @@ namespace Phenix.Unity.AI
             {
                 Debug.Log(text);
             }
-            return TaskStatus.Success;
+            return TaskStatus.SUCCESS;
         }
     }
 }

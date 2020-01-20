@@ -1,6 +1,6 @@
 ﻿using UnityEngine.Events;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.FSM
 {
     public enum FSMEventResult
     {

@@ -1,4 +1,4 @@
-﻿namespace Phenix.Unity.AI
+﻿namespace Phenix.Unity.AI.FSM
 {
     public abstract class FSMState
     {

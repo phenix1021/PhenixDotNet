@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.BT
 {
     /*public abstract class Action : Task
     {
@@ -31,25 +31,19 @@ namespace Phenix.Unity.AI
             taskParams.OnAwake();
         }
 
-        public override void OnStart()
-        {
-            taskParams.OnStart();
-        }
-
         protected sealed override void OnFirstRun()
-        {            
+        {
             taskParams.OnFirstRun();
         }
 
-
-        protected sealed override void OnTurnBegin()
-        {            
-            taskParams.OnTurnBegin();            
-        }
-
-        protected sealed override void OnTurnEnd()
+        protected sealed override void OnStart()
         {
-            taskParams.OnTurnEnd();
+            taskParams.OnStart();
+        }        
+
+        protected sealed override void OnEnd()
+        {
+            taskParams.OnEnd();
         }
 
         public sealed override TaskStatus OnUpdate()
@@ -61,6 +55,16 @@ namespace Phenix.Unity.AI
         {
             Status = taskParams.Run();
             return Status;
+        }
+
+        public sealed override void OnDrawGizmos()
+        {
+            taskParams.OnDrawGizmos();
+        }
+
+        public sealed override void OnDrawGizmosSelected()
+        {
+            taskParams.OnDrawGizmosSelected();
         }
 
         public override float GetPriority()
@@ -112,16 +116,6 @@ namespace Phenix.Unity.AI
         }
 
         public void OnControllerColliderHit(ControllerColliderHit hit)
-        {
-
-        }
-
-        public void OnDrawGizmos()
-        {
-
-        }
-
-        public void OnDrawGizmosSelected()
         {
 
         }
@@ -188,12 +182,13 @@ namespace Phenix.Unity.AI
         }
 
         public virtual void OnAwake() { }
-        public virtual void OnStart() { }
         public virtual void OnFirstRun() { }
-        public virtual void OnTurnBegin() { }
-        public virtual void OnTurnEnd() { }        
+        public virtual void OnStart() { }             
+        public virtual void OnEnd() { }        
         public abstract TaskStatus Run();
         public virtual float GetPriority() { return 0; }
+        public virtual void OnDrawGizmos() { }
+        public virtual void OnDrawGizmosSelected() { }
 
         /*public void OnFixedUpdate()
         {
@@ -239,16 +234,6 @@ namespace Phenix.Unity.AI
         }
 
         public void OnControllerColliderHit(ControllerColliderHit hit)
-        {
-
-        }
-
-        public void OnDrawGizmos()
-        {
-
-        }
-
-        public void OnDrawGizmosSelected()
         {
 
         }

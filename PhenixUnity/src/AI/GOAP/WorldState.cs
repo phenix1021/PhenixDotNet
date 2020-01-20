@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.GOAP
 {
     public class WorldStateBitData
     {

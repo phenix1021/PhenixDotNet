@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.BT
 {
     [Serializable]
     public class BehaviorTreeReferenceParams
@@ -31,7 +31,7 @@ namespace Phenix.Unity.AI
             return _externalBT.Entry.Tick();*/
             if (externalBTAsset == null || externalBTAsset.BT == null)
             {
-                return TaskStatus.Failure;
+                return TaskStatus.FAILURE;
             }
             return externalBTAsset.BT.Entry.OnUpdate();
         }
@@ -45,13 +45,13 @@ namespace Phenix.Unity.AI
             externalBTAsset.BT.OnAwake();
         }
 
-        public override void OnStart()
+        /*public override void OnStart()
         {
             if (externalBTAsset == null || externalBTAsset.BT == null)
             {
                 return;
             }
             externalBTAsset.BT.OnStart();
-        }
+        }*/
     }
 }

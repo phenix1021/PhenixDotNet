@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.GOAP
 {    
     public class GOAP
     {   

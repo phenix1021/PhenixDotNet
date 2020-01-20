@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.BT
 {
     [TaskIcon("TaskIcons/ParallelSequence.png")]
     [TaskDescription("ParallelSequence")]
@@ -13,29 +13,29 @@ namespace Phenix.Unity.AI
         {
             if (Children.Count <= 0)
             {
-                return TaskStatus.Ignored;
+                return TaskStatus.IGNORED;
             }
 
-            TaskStatus status = TaskStatus.None;
+            TaskStatus status = TaskStatus.NONE;
             List<int> running = new List<int>();
             List<int> fail = new List<int>();
             int ignoredCnt = 0;
             for (int i = 0; i < Children.Count; i++)
             {
-                if (Children[i].Status == TaskStatus.Success)
+                if (Children[i].Status == TaskStatus.SUCCESS)
                 {
                     continue;
                 }
                 status = Children[i].OnUpdate();
-                if (status == TaskStatus.Running)
+                if (status == TaskStatus.RUNNING)
                 {
                     running.Add(i);
                 }
-                if (status == TaskStatus.Failure)
+                if (status == TaskStatus.FAILURE)
                 {
                     fail.Add(i);
                 }
-                if (status == TaskStatus.Ignored)
+                if (status == TaskStatus.IGNORED)
                 {
                     ++ignoredCnt;
                 }
@@ -47,20 +47,20 @@ namespace Phenix.Unity.AI
                 {
                     Children[item].ForceTurnEnd();
                 }
-                return TaskStatus.Failure;                
+                return TaskStatus.FAILURE;                
             }
 
             if (running.Count > 0)
             {
-                return TaskStatus.Running;                
+                return TaskStatus.RUNNING;                
             }
 
             if (ignoredCnt == Children.Count)
             {
-                return TaskStatus.Ignored;
+                return TaskStatus.IGNORED;
             }                
 
-            return TaskStatus.Success;
+            return TaskStatus.SUCCESS;
         }
     }
 }

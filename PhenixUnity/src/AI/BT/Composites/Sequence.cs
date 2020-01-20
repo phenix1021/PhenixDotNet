@@ -1,4 +1,4 @@
-﻿namespace Phenix.Unity.AI
+﻿namespace Phenix.Unity.AI.BT
 {
     [TaskIcon("TaskIcons/Sequence.png")]
     [TaskDescription("Sequence")]
@@ -10,25 +10,25 @@
         {            
             if (Children.Count <= 0)
             {
-                return TaskStatus.Ignored;
+                return TaskStatus.IGNORED;
             }
 
-            TaskStatus status = TaskStatus.None;
+            TaskStatus status = TaskStatus.NONE;
             int startIdx = System.Math.Max(0, FirstRunningChildIdx);
             int ignoredCnt = 0;
             for (int i = startIdx; i < Children.Count; i++)
             {
                 status = Children[i].OnUpdate();
-                if (status == TaskStatus.Failure)
+                if (status == TaskStatus.FAILURE)
                 {
                     break;
                 }
-                if (status == TaskStatus.Running)
+                if (status == TaskStatus.RUNNING)
                 {
                     FirstRunningChildIdx = i;
                     break;
                 }
-                if (status == TaskStatus.Ignored)
+                if (status == TaskStatus.IGNORED)
                 {
                     ++ignoredCnt;
                 }
@@ -36,13 +36,13 @@
 
             if (ignoredCnt == Children.Count - startIdx)
             {
-                return TaskStatus.Ignored;
+                return TaskStatus.IGNORED;
             }
 
             return status;           
         }
         
-        protected override void OnTurnEnd()
+        protected override void OnEnd()
         {
             FirstRunningChildIdx = -1;
         }

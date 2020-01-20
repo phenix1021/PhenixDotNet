@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.Events;
 using Phenix.Unity.Utilities;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.FSM
 {
     [System.Serializable]
     public class AnimationFSMState

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.BT
 {    
     public abstract class Decorator : ParentTask
     {
@@ -13,7 +13,7 @@ namespace Phenix.Unity.AI
         {
             if (Children.Count <= 0)
             {
-                return TaskStatus.Ignored;
+                return TaskStatus.IGNORED;
             }
             return Decorate(Children[0].OnUpdate());
         }

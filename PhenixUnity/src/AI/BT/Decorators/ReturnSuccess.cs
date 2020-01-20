@@ -1,15 +1,15 @@
-﻿namespace Phenix.Unity.AI
+﻿namespace Phenix.Unity.AI.BT
 {
     [TaskIcon("TaskIcons/ReturnSuccess.png")]
     public class ReturnSuccess : Decorator
     {
         public override TaskStatus Decorate(TaskStatus status)
         {
-            if (status == TaskStatus.Running)
+            if (status == TaskStatus.RUNNING)
             {
-                return TaskStatus.Running;
+                return TaskStatus.RUNNING;
             }
-            return TaskStatus.Success;
+            return TaskStatus.SUCCESS;
         }
     }
 }

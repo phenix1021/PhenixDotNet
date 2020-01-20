@@ -537,11 +537,14 @@ namespace Phenix.Unity.Movement
                         else if (collider is SphereCollider)
                         {
                             contactPoint = TransformTools.Instance.ClosestPoint((SphereCollider)collider, position);
-                        }
+                        }                        
                         else if (collider is MeshCollider)
                         {
                             TriangleTreeMgr ttm = collider.GetComponent<TriangleTreeMgr>();
-
+                            if (ttm == null)
+                            {
+                                ttm = collider.gameObject.AddComponent<TriangleTreeMgr>();                                
+                            }                            
                             if (ttm != null)
                             {
                                 contactPoint = ttm.ClosestPointOn(position, sphere.radius, displayDebugInfo, displayExtendedDebugInfo);
@@ -550,7 +553,6 @@ namespace Phenix.Unity.Movement
                             {
                                 // Make last ditch try for convex colliders
                                 MeshCollider mc = (MeshCollider)collider;
-
                                 if (mc.convex)
                                 {
                                     contactPoint = mc.ClosestPointOnBounds(position);
@@ -568,7 +570,7 @@ namespace Phenix.Unity.Movement
                         }
                         else if (collider is TerrainCollider)
                         {
-
+                            // 无须处理，地面和foot的碰撞检测在其它模块
                         }
                         else if (collider is WheelCollider)
                         {

@@ -1,15 +1,15 @@
 ﻿using UnityEngine;
 using System;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.BT
 {
     public enum TaskStatus
     {
-        None = 0,
-        Success,
-        Failure,
-        Running,
-        Ignored,
+        NONE = 0,
+        SUCCESS,
+        FAILURE,
+        RUNNING,
+        IGNORED,
     }
         
     [Serializable]
@@ -22,7 +22,7 @@ namespace Phenix.Unity.AI
     public abstract class Task : ScriptableObject
     {
         BehaviorTree _bt;
-        TaskStatus _status = TaskStatus.None;
+        TaskStatus _status = TaskStatus.NONE;
         Task _parent = null;
         bool _firstRun = true;
         bool _turnOver = true;
@@ -39,14 +39,14 @@ namespace Phenix.Unity.AI
 
         protected virtual void OnEnable() { }
         protected virtual void OnFirstRun() { }
-        protected virtual void OnTurnBegin() { }
-        protected virtual void OnTurnEnd() { }
+        protected virtual void OnStart() { }
+        protected virtual void OnEnd() { }
 
         public virtual void OnAwake() { }
-        public virtual void OnStart() { }
+        //public virtual void OnStart() { }
         public virtual TaskStatus OnUpdate()
         {
-            if (_status != TaskStatus.Ignored)
+            if (_status != TaskStatus.IGNORED)
             {
                 if (_firstRun)
                 {
@@ -56,12 +56,12 @@ namespace Phenix.Unity.AI
                 if (_turnOver)
                 {
                     _turnOver = false;
-                    OnTurnBegin();
+                    OnStart();
                 }
                 _status = Run();
-                if (_status != TaskStatus.Running)
+                if (_status != TaskStatus.RUNNING)
                 {
-                    OnTurnEnd();
+                    OnEnd();
                     _turnOver = true;
                 }
             }
@@ -71,15 +71,20 @@ namespace Phenix.Unity.AI
 
         public virtual void ForceTurnEnd()
         {
-            if (_status == TaskStatus.Running)
+            if (_status == TaskStatus.RUNNING)
             {
-                _status = TaskStatus.Failure;
-                OnTurnEnd();
+                _status = TaskStatus.FAILURE;
+                OnEnd();
             }
         }
 
         public abstract TaskStatus Run();        
         public virtual float GetPriority() { return 0; }
+
+        public virtual void OnDrawGizmos() { }
+
+        public virtual void OnDrawGizmosSelected() { }
+
 
         /*public void OnFixedUpdate()
         {
@@ -125,16 +130,6 @@ namespace Phenix.Unity.AI
         }
 
         public void OnControllerColliderHit(ControllerColliderHit hit)
-        {
-
-        }
-
-        public void OnDrawGizmos()
-        {
-
-        }
-
-        public void OnDrawGizmosSelected()
         {
 
         }

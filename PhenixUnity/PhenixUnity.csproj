@@ -33,11 +33,14 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="UnityEditor, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Unity2017\Editor\Data\Managed\UnityEditor.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\tools\projs\PhenixUnityGameKit\Phenix\PhenixEditor\bin\Debug\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\..\Unity2017\Editor\Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>..\..\..\..\Unity2017\Editor\Data\UnityExtensions\Unity\GUISystem\UnityEngine.UI.dll</HintPath>
@@ -50,13 +53,26 @@
     <Compile Include="src\AI\AnimationFSM\AnimationFSM.cs" />
     <Compile Include="src\AI\BT\Actions\Action.cs" />
     <Compile Include="src\AI\BT\Actions\BehaviorTreeReference.cs" />
+    <Compile Include="src\AI\BT\Actions\Cover.cs" />
+    <Compile Include="src\AI\BT\Actions\Evade.cs" />
+    <Compile Include="src\AI\BT\Actions\Flee.cs" />
+    <Compile Include="src\AI\BT\Actions\Follow.cs" />
+    <Compile Include="src\AI\BT\Actions\MoveTowards.cs" />
     <Compile Include="src\AI\BT\Actions\Idle.cs" />
     <Compile Include="src\AI\BT\Actions\Log.cs" />
+    <Compile Include="src\AI\BT\Actions\Patrol.cs" />
+    <Compile Include="src\AI\BT\Actions\Pursue.cs" />
+    <Compile Include="src\AI\BT\Actions\RotateTowards.cs" />
+    <Compile Include="src\AI\BT\Actions\NavMeshLocomotion.cs" />
+    <Compile Include="src\AI\BT\Actions\Search.cs" />
+    <Compile Include="src\AI\BT\Actions\Seek.cs" />
+    <Compile Include="src\AI\BT\Actions\Wander.cs" />
     <Compile Include="src\AI\BT\Attribute.cs" />
     <Compile Include="src\AI\BT\BehaviorTree.cs" />
     <Compile Include="src\AI\BT\BehaviorTreeAgent.cs" />
     <Compile Include="src\AI\BT\BehaviorTreeAsset.cs" />
     <Compile Include="src\AI\BT\Blackboard\Blackboard.cs" />
+    <Compile Include="src\AI\BT\Blackboard\SharedGameObject.cs" />
     <Compile Include="src\AI\BT\Blackboard\SharedVariable.cs" />
     <Compile Include="src\AI\BT\Composites\ParallelSelector.cs" />
     <Compile Include="src\AI\BT\Composites\ParallelSequence.cs" />
@@ -66,6 +82,8 @@
     <Compile Include="src\AI\BT\Composites\Selector.cs" />
     <Compile Include="src\AI\BT\Composites\Sequence.cs" />
     <Compile Include="src\AI\BT\Conditionals\Conditional.cs" />
+    <Compile Include="src\AI\BT\Conditionals\CanSeeObject.cs" />
+    <Compile Include="src\AI\BT\Conditionals\WithinDistance.cs" />
     <Compile Include="src\AI\BT\Decorators\Decorator.cs" />
     <Compile Include="src\AI\BT\Decorators\Inverter.cs" />
     <Compile Include="src\AI\BT\Decorators\Repeater.cs" />
@@ -80,16 +98,38 @@
     <Compile Include="src\AI\FSM\FSM.cs" />
     <Compile Include="src\AI\FSM\FSMEvent.cs" />
     <Compile Include="src\AI\FSM\FSMState.cs" />
+    <Compile Include="src\AI\Fuzzy\FuzzyDecision.cs" />
+    <Compile Include="src\AI\Fuzzy\FuzzyRange.cs" />
+    <Compile Include="src\AI\Fuzzy\FuzzyVariable.cs" />
+    <Compile Include="src\AI\Fuzzy\FuzzyFunction.cs" />
     <Compile Include="src\AI\GOAP\GOAP.cs" />
     <Compile Include="src\AI\GOAP\GOAPAction.cs" />
     <Compile Include="src\AI\GOAP\GOAPGoal.cs" />
     <Compile Include="src\AI\GOAP\GOAPPlan.cs" />
     <Compile Include="src\AI\GOAP\WorldState.cs" />
+    <Compile Include="src\AI\Locomotion\CanHearObject.cs" />
+    <Compile Include="src\AI\Locomotion\CanSeeObject.cs" />
+    <Compile Include="src\AI\Locomotion\Cover.cs" />
+    <Compile Include="src\AI\Locomotion\Evade.cs" />
+    <Compile Include="src\AI\Locomotion\Flee.cs" />
+    <Compile Include="src\AI\Locomotion\Follow.cs" />
+    <Compile Include="src\AI\Locomotion\LocomotionUtility.cs" />
+    <Compile Include="src\AI\Locomotion\MoveTowards.cs" />
+    <Compile Include="src\AI\Locomotion\NavMeshLocomotion.cs" />
+    <Compile Include="src\AI\Locomotion\Locomotion.cs" />
+    <Compile Include="src\AI\Locomotion\Patrol.cs" />
+    <Compile Include="src\AI\Locomotion\Pursue.cs" />
+    <Compile Include="src\AI\Locomotion\RotateTowards.cs" />
+    <Compile Include="src\AI\Locomotion\Search.cs" />
+    <Compile Include="src\AI\Locomotion\Seek.cs" />
+    <Compile Include="src\AI\Locomotion\Wander.cs" />
+    <Compile Include="src\AI\Locomotion\WithinDistance.cs" />
     <Compile Include="src\AI\Search\AStar.cs" />
     <Compile Include="src\Animation\AnimationMixMgr.cs" />
     <Compile Include="src\Animation\Proxy\AnimationProxy.cs" />
     <Compile Include="src\Animation\Proxy\AnimatorProxy.cs" />
     <Compile Include="src\Animation\Proxy\AnimProxy.cs" />
+    <Compile Include="src\Attribute\PhenixPropertyAttribute.cs" />
     <Compile Include="src\Audio\AudioMgr.cs" />
     <Compile Include="src\Camera\CameraEffect.cs" />
     <Compile Include="src\Camera\CameraFollow.cs" />
@@ -156,9 +196,6 @@
     <Compile Include="src\Utilities\UITools.cs" />
     <Compile Include="src\Window\FloatWindow.cs" />
     <Compile Include="src\Window\SysInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="UnityEngine.dll" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.BT
 {
     /// <summary>
     /// 自定义task图标文件
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
-    public class TaskIconAttribute : Attribute
+    public class TaskIconAttribute : System.Attribute
     {
         string _iconFile;
 
@@ -22,7 +22,7 @@ namespace Phenix.Unity.AI
     /// task功能描述
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
-    public class TaskDescriptionAttribute : Attribute
+    public class TaskDescriptionAttribute : System.Attribute
     {
         string _desc;
 

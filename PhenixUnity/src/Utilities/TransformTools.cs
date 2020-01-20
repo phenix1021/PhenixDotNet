@@ -1,5 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 using Phenix.Unity.Pattern;
 using Phenix.Unity.Extend;
 
@@ -324,19 +326,25 @@ namespace Phenix.Unity.Utilities
         }
 
         /// <summary>
+        /// 获取MeshCollider上距离target最近的点（不能用！没效果）
+        /// </summary>        
+        public Vector3 ClosestPoint(MeshCollider collider, Vector3 target)
+        {
+            return collider.ClosestPointOnBounds(target); // （不能用！没效果）
+        }
+
+        /// <summary>
         /// 获取BoxCollider上距离target最近的点
         /// </summary>        
         public Vector3 ClosestPoint(BoxCollider collider, Vector3 target)
-        {
-            // 原打算AABB类型BoxCollider（即rotation的xyz都为0）执行ClosestPointOnBounds，OBB执行ClosestPointOBB。
-            // 但后者代码貌似有问题，会直接穿透box。而始终用ClosestPointOnBounds会有一个小瑕疵，就是定位有些不够准确，
-            // 对于1*1*1小cube一直顶着按会慢慢穿过去。总体效果还可以。暂时先用。
-            return collider.ClosestPointOnBounds(target); 
-            /*if (collider.transform.rotation == Quaternion.identity)
+        {            
+            if (collider.transform.rotation == Quaternion.identity)
             {
+                // AABB类型BoxCollider（即rotation的xyz都为0）
                 return collider.ClosestPointOnBounds(target);
             }            
-            return ClosestPointOBB(collider, target);*/
+            // OBB类型碰撞盒
+            return ClosestPointOBB(collider, target);
         }
 
         /// <summary>
@@ -361,6 +369,32 @@ namespace Phenix.Unity.Utilities
             var ct = collider.transform;
 
             // Firstly, transform the point into the space of the collider
+            var local = ct.InverseTransformPoint(target);
+
+            // Now, shift it to be in the center of the box
+            local -= collider.center;
+
+            // Inverse scale it by the colliders scale
+            var localNorm =
+            new Vector3(
+            Mathf.Clamp(local.x, -collider.size.x * 0.5f, collider.size.x * 0.5f),
+            Mathf.Clamp(local.y, -collider.size.y * 0.5f, collider.size.y * 0.5f),
+            Mathf.Clamp(local.z, -collider.size.z * 0.5f, collider.size.z * 0.5f)
+            );
+
+            // Now we undo our transformations
+            localNorm += collider.center;
+
+            // Return resulting point
+            return ct.TransformPoint(localNorm);
+        }
+
+        /*Vector3 ClosestPointOBB(BoxCollider collider, Vector3 target)这个版本的函数有bug，无效果
+        {
+            // Cache the collider transform
+            var ct = collider.transform;
+
+            // Firstly, transform the point into the space of the collider
             var local = ct.worldToLocalMatrix.MultiplyPoint3x4(target);
 
             // Now, shift it to be in the center of the box
@@ -379,7 +413,7 @@ namespace Phenix.Unity.Utilities
 
             // Return resulting point
             return ct.localToWorldMatrix.MultiplyPoint3x4(localNorm);
-        }
+        }*/
 
         /// <summary>
         /// 获得pointer指向的对象
@@ -413,6 +447,201 @@ namespace Phenix.Unity.Utilities
             Vector3 screenPoint = UnityEngine.Camera.main.WorldToScreenPoint(worldPos);
             Vector3 guiPoint = new Vector3(screenPoint.x, UnityEngine.Camera.main.pixelHeight - screenPoint.y, screenPoint.z);
             return guiPoint;
+        }
+
+        /// <summary>
+        /// 获取球体表面随机点
+        /// </summary>
+        public Vector3 GetRandomPointOnSphere(Vector3 center, float radius)
+        {
+            return center + UnityEngine.Random.insideUnitSphere * radius;
+        }
+
+        /// <summary>
+        /// 获取圆周上随机点
+        /// </summary>
+        public Vector2 GetRandomPointOnCircle(Vector2 center, float radius)
+        {
+            return center + UnityEngine.Random.insideUnitCircle * radius;
+        }
+
+        Dictionary<GameObject, Dictionary<Type, Component>> _gameObjectComponentMap = new Dictionary<GameObject, Dictionary<Type, Component>>();                
+
+        // 使用“查表法”从对象上查找指定Component，相较每次都从对象结构遍历要节省许多开销
+        public T GetComponentForType<T>(GameObject target) where T : Component
+        {
+            Dictionary<Type, Component> typeComponentMap;
+            Component targetComponent;
+            // Return the cached component if it exists.
+            if (_gameObjectComponentMap.TryGetValue(target, out typeComponentMap))
+            {
+                if (typeComponentMap.TryGetValue(typeof(T), out targetComponent))
+                {
+                    return targetComponent as T;
+                }
+            }
+            else
+            {
+                // The cached component doesn't exist for the specified type.
+                typeComponentMap = new Dictionary<Type, Component>();
+                _gameObjectComponentMap.Add(target, typeComponentMap);
+            }
+
+            // Find the component reference and cache the results.
+            targetComponent = target.GetComponent<T>();
+            typeComponentMap.Add(typeof(T), targetComponent);
+            return targetComponent as T;
+        }
+
+        Dictionary<GameObject, Dictionary<Type, Component[]>> _gameObjectComponentsMap = new Dictionary<GameObject, Dictionary<Type, Component[]>>();
+        
+        // 使用“查表法”从对象上查找指定Components，相较每次都从对象结构遍历要节省许多开销
+        public T[] GetComponentsForType<T>(GameObject target) where T : Component
+        {
+            Dictionary<Type, Component[]> typeComponentsMap;
+            Component[] targetComponents;
+            // Return the cached component if it exists.
+            if (_gameObjectComponentsMap.TryGetValue(target, out typeComponentsMap))
+            {
+                if (typeComponentsMap.TryGetValue(typeof(T), out targetComponents))
+                {
+                    return targetComponents as T[];
+                }
+            }
+            else
+            {
+                // The cached components doesn't exist for the specified type.
+                typeComponentsMap = new Dictionary<Type, Component[]>();
+                _gameObjectComponentsMap.Add(target, typeComponentsMap);
+            }
+
+            // Find the component reference and cache the results.
+            targetComponents = target.GetComponents<T>();
+            typeComponentsMap.Add(typeof(T), targetComponents);
+            return targetComponents as T[];
+        }
+
+        Dictionary<GameObject, Dictionary<Type, Component>> _gameObjectParentComponentMap = new Dictionary<GameObject, Dictionary<Type, Component>>();
+
+        // 使用“查表法”从对象及其父对象上查找指定Component，相较每次都从对象结构遍历要节省许多开销
+        public T GetParentComponentForType<T>(GameObject target) where T : Component
+        {
+            Dictionary<Type, Component> typeComponentMap;
+            Component targetComponent;
+            // Return the cached component if it exists.
+            if (_gameObjectParentComponentMap.TryGetValue(target, out typeComponentMap))
+            {
+                if (typeComponentMap.TryGetValue(typeof(T), out targetComponent))
+                {
+                    return targetComponent as T;
+                }
+            }
+            else
+            {
+                // The cached component doesn't exist for the specified type.
+                typeComponentMap = new Dictionary<Type, Component>();
+                _gameObjectParentComponentMap.Add(target, typeComponentMap);
+            }
+
+            // Find the component reference and cache the results.
+            targetComponent = target.GetComponentInParent<T>();
+            typeComponentMap.Add(typeof(T), targetComponent);
+            return targetComponent as T;
+        }
+
+        Dictionary<GameObject, Dictionary<Type, Component[]>> _gameObjectParentComponentsMap = new Dictionary<GameObject, Dictionary<Type, Component[]>>();
+
+        // 使用“查表法”从对象及其父对象上查找指定Components，相较每次都从对象结构遍历要节省许多开销
+        public T[] GetParentComponentsForType<T>(GameObject target) where T : Component
+        {
+            Dictionary<Type, Component[]> typeComponentsMap;
+            Component[] targetComponents;
+            // Return the cached component if it exists.
+            if (_gameObjectParentComponentsMap.TryGetValue(target, out typeComponentsMap))
+            {
+                if (typeComponentsMap.TryGetValue(typeof(T), out targetComponents))
+                {
+                    return targetComponents as T[];
+                }
+            }
+            else
+            {
+                // The cached components doesn't exist for the specified type.
+                typeComponentsMap = new Dictionary<Type, Component[]>();
+                _gameObjectParentComponentsMap.Add(target, typeComponentsMap);
+            }
+
+            // Find the component reference and cache the results.
+            targetComponents = target.GetComponents<T>();
+            typeComponentsMap.Add(typeof(T), targetComponents);
+            return targetComponents as T[];
+        }
+
+        Dictionary<GameObject, Dictionary<Type, Component>> _gameObjectChildrenComponentMap = new Dictionary<GameObject, Dictionary<Type, Component>>();
+
+        // 使用“查表法”从对象及其子对象上查找指定Component，相较每次都从对象结构遍历要节省许多开销
+        public T GetChildrenComponentForType<T>(GameObject target) where T : Component
+        {
+            Dictionary<Type, Component> typeComponentMap;
+            Component targetComponent;
+            // Return the cached component if it exists.
+            if (_gameObjectChildrenComponentMap.TryGetValue(target, out typeComponentMap))
+            {
+                if (typeComponentMap.TryGetValue(typeof(T), out targetComponent))
+                {
+                    return targetComponent as T;
+                }
+            }
+            else
+            {
+                // The cached component doesn't exist for the specified type.
+                typeComponentMap = new Dictionary<Type, Component>();
+                _gameObjectChildrenComponentMap.Add(target, typeComponentMap);
+            }
+
+            // Find the component reference and cache the results.
+            targetComponent = target.GetComponentInChildren<T>();
+            typeComponentMap.Add(typeof(T), targetComponent);
+            return targetComponent as T;
+        }
+
+        Dictionary<GameObject, Dictionary<Type, Component[]>> _gameObjectChildrenComponentsMap = new Dictionary<GameObject, Dictionary<Type, Component[]>>();
+
+        // 使用“查表法”从对象及其子对象上查找指定Components，相较每次都从对象结构遍历要节省许多开销
+        public T[] GetChildrenComponentsForType<T>(GameObject target) where T : Component
+        {
+            Dictionary<Type, Component[]> typeComponentsMap;
+            Component[] targetComponents;
+            // Return the cached component if it exists.
+            if (_gameObjectChildrenComponentsMap.TryGetValue(target, out typeComponentsMap))
+            {
+                if (typeComponentsMap.TryGetValue(typeof(T), out targetComponents))
+                {
+                    return targetComponents as T[];
+                }
+            }
+            else
+            {
+                // The cached components doesn't exist for the specified type.
+                typeComponentsMap = new Dictionary<Type, Component[]>();
+                _gameObjectChildrenComponentsMap.Add(target, typeComponentsMap);
+            }
+
+            // Find the component reference and cache the results.
+            targetComponents = target.GetComponents<T>();
+            typeComponentsMap.Add(typeof(T), targetComponents);
+            return targetComponents as T[];
+        }
+
+        // Clears the static references.
+        public void ClearComponentCaches()
+        {
+            _gameObjectComponentMap.Clear();
+            _gameObjectComponentsMap.Clear();
+            _gameObjectParentComponentMap.Clear();
+            _gameObjectParentComponentsMap.Clear();
+            _gameObjectChildrenComponentMap.Clear();
+            _gameObjectChildrenComponentsMap.Clear();
         }
     }
 }

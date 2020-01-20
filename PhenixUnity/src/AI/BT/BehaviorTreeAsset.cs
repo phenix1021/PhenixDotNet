@@ -2,8 +2,9 @@
 using System.Xml;
 using System.Reflection;
 using System.Collections.Generic;
+using System;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.BT
 {
     /// <summary>
     /// 描述：行为树数据文件
@@ -460,7 +461,7 @@ namespace Phenix.Unity.AI
 
         void HandleSharedVariableDeserialization(object paramsObj, BehaviorTree bt)
         {
-            // 处理TaskParams中的SharedVariable成员
+            // 搜集TaskParams中可序列化的成员
             List<FieldInfo> paramsList = new List<FieldInfo>(paramsObj.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance));
             foreach (var param in paramsObj.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance))
             {
@@ -470,56 +471,107 @@ namespace Phenix.Unity.AI
                     paramsList.Add(param);
                 }
             }
+
+            // 遍历搜集后的序列化成员
             foreach (var param in paramsList)
-            {
-                if (param.FieldType.IsSubclassOf(typeof(SharedVariable)))
+            {                
+                if (param.FieldType.IsArray)
                 {
-                    object shareVariableObj = param.GetValue(paramsObj);
-                    MethodInfo dynamicMethod = shareVariableObj.GetType().GetMethod("IsDynamic", BindingFlags.Public | BindingFlags.Instance);
-                    if ((bool)dynamicMethod.Invoke(shareVariableObj, null) == false)
+                    // 目前对于SharedVariable的容器暂时只支持数组，且不能嵌套
+                    foreach (object elementObj in param.GetValue(paramsObj) as Array)
                     {
-                        continue;
-                    }
-
-                    PropertyInfo nameProp = shareVariableObj.GetType().GetProperty("Name", BindingFlags.Public | BindingFlags.Instance);
-                    PropertyInfo blackboardProp = shareVariableObj.GetType().GetProperty("Blackboard", BindingFlags.NonPublic | BindingFlags.Instance);
-
-                    string nameVal = nameProp.GetValue(shareVariableObj, null) as string;                    
-
-                    if (nameVal.StartsWith(prefixGlobalBlackboard))
-                    {
-                        if (Playing)
-                        {
-                            // 给sv对象设置全局黑板
-                            blackboardProp.SetValue(shareVariableObj, BehaviorTree.globalBlackboard, null);
-                            // 添加运行时全局黑板数据
-                            BehaviorTree.globalBlackboard.Set(nameVal, null);
-                        }
-                        else if (BehaviorTree.globalBlackboard.Keys.Contains(nameVal) == false)
-                        {
-                            // 非运行时
-                            nameProp.SetValue(shareVariableObj, string.Empty, null);
-                            Dirty = true;
-                        }                        
-                    }
-                    else
-                    {
-                        if (Playing)
-                        {
-                            // 给sv对象设置本地黑板
-                            blackboardProp.SetValue(shareVariableObj, bt.Blackboard, null);
-                            // 添加运行时本地黑板数据
-                            bt.Blackboard.Set(nameVal, null);
-                        }
-                        else if (_bt.Blackboard.Keys.Contains(nameVal) == false)
-                        {
-                            // 非运行时
-                            nameProp.SetValue(shareVariableObj, string.Empty, null);
-                            Dirty = true;
+                        // 遍历数组
+                        if (elementObj.GetType().IsSubclassOf(typeof(SharedVariable)))
+                        {                            
+                            HandleSharedVariableDeserializationImpl(elementObj, bt);
                         }
                     }
                 }
+                else if (param.FieldType.IsSubclassOf(typeof(SharedVariable)))
+                {
+                    object shareVariableObj = param.GetValue(paramsObj);
+                    HandleSharedVariableDeserializationImpl(shareVariableObj, bt);
+                }
             }
+        }
+
+        void HandleSharedVariableDeserializationImpl(object shareVariableObj, BehaviorTree bt)
+        {
+            PropertyInfo nameProp = shareVariableObj.GetType().GetProperty("Name", BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo blackboardProp = shareVariableObj.GetType().GetProperty("Blackboard", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            MethodInfo dynamicMethod = shareVariableObj.GetType().GetMethod("IsDynamic", BindingFlags.Public | BindingFlags.Instance);
+            if ((bool)dynamicMethod.Invoke(shareVariableObj, null) == false)
+            {
+                // 如果是静态变量
+                PropertyInfo valProp = shareVariableObj.GetType().GetProperty("Value", BindingFlags.Public | BindingFlags.Instance);
+                HandleStaticSharedGameObject(valProp, nameProp, shareVariableObj);
+                return;
+            }
+
+            // 以下针对动态变量                   
+
+            string nameVal = nameProp.GetValue(shareVariableObj, null) as string;
+
+            if (nameVal.StartsWith(prefixGlobalBlackboard))
+            {
+                if (Playing)
+                {
+                    // 给sv对象设置全局黑板
+                    blackboardProp.SetValue(shareVariableObj, BehaviorTree.globalBlackboard, null);
+                    // 添加运行时全局黑板数据
+                    BehaviorTree.globalBlackboard.Set(nameVal, null);
+                }
+                else if (BehaviorTree.globalBlackboard.Keys.Contains(nameVal) == false)
+                {
+                    // 非运行时
+                    nameProp.SetValue(shareVariableObj, string.Empty, null);
+                    Dirty = true;
+                }
+            }
+            else
+            {
+                if (Playing)
+                {
+                    // 给sv对象设置本地黑板
+                    blackboardProp.SetValue(shareVariableObj, bt.Blackboard, null);
+                    // 添加运行时本地黑板数据
+                    bt.Blackboard.Set(nameVal, null);
+                }
+                else if (_bt.Blackboard.Keys.Contains(nameVal) == false)
+                {
+                    // 非运行时
+                    nameProp.SetValue(shareVariableObj, string.Empty, null);
+                    Dirty = true;
+                }
+            }
+        }
+
+        void HandleStaticSharedGameObject(PropertyInfo valProp, PropertyInfo nameProp, object shareVariableObj)
+        {            
+            if (shareVariableObj.GetType() != typeof(SharedGameObject))
+            {
+                return;
+            }
+
+            GameObject go = null;
+            string nameVal = nameProp.GetValue(shareVariableObj, null) as string;
+            if (nameVal.StartsWith("0:"))
+            {
+                // 参数name以“0:”开头约定为场景对象
+                go = GameObject.Find(nameVal.Substring(2));
+            }
+            else if (nameVal.StartsWith("1:"))
+            {
+                // 参数name以“1:”开头约定为prefab
+                go = Resources.Load(nameVal.Substring(2)) as GameObject;
+            }
+            else if (string.IsNullOrEmpty(nameVal) == false)
+            {
+                Debug.LogError("invalid name in SharedGameObject, must start with '0:' or '1:'!");                
+            }
+            
+            valProp.SetValue(shareVariableObj, go, null);
         }
 
         void HandleExternalBTDeserialization(Task taskObj)
@@ -544,10 +596,10 @@ namespace Phenix.Unity.AI
             if (Playing)
             {
                 BehaviorTreeAsset tmp = ScriptableObject.Instantiate(callExternalBehaviorTree.externalBTAsset);
-                if (Application.isEditor)
-                {
+                //if (Application.isEditor)
+                //{
                     tmp.MonitorAsset = callExternalBehaviorTree.externalBTAsset;
-                }                
+                //}                
                 if (tmp.Deserialize(taskObj.BT.Transform) == false)
                 {
                     Debug.LogError(string.Format("externalBTAsset {0} deserialization failure", externalBTAssetName));

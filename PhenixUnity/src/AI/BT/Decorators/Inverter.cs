@@ -1,19 +1,19 @@
-﻿namespace Phenix.Unity.AI
+﻿namespace Phenix.Unity.AI.BT
 {
     [TaskIcon("TaskIcons/Inverter.png")]
     public class Inverter : Decorator
     {
         public override TaskStatus Decorate(TaskStatus status)
         {
-            if (status == TaskStatus.Success)
+            if (status == TaskStatus.SUCCESS)
             {
-                return TaskStatus.Failure;
+                return TaskStatus.FAILURE;
             }
-            else if (status == TaskStatus.Failure)
+            else if (status == TaskStatus.FAILURE)
             {
-                return TaskStatus.Success;
+                return TaskStatus.SUCCESS;
             }
-            return TaskStatus.Running;
+            return TaskStatus.RUNNING;
         }
     }
 }

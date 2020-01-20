@@ -1,7 +1,8 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Events;
 
-namespace Phenix.Unity.AI
+namespace Phenix.Unity.AI.BT
 {
     [Serializable]
     public abstract class SharedVariable { }
@@ -18,7 +19,7 @@ namespace Phenix.Unity.AI
         [SerializeField]
         protected string name;
 
-        Blackboard _blackboard;
+        Blackboard _blackboard;        
 
         protected Blackboard Blackboard { get { return _blackboard; } set { _blackboard = value; } }
         public string Name { get { return name; } set { name = value; } }
@@ -31,6 +32,11 @@ namespace Phenix.Unity.AI
             _dynamic = dynamic;
         }
         
+        public void Bind(UnityAction<T> setter)
+        {            
+            Value = Value;
+        }
+
         protected virtual T GetStaticValue()
         {
             return value;
@@ -69,27 +75,4 @@ namespace Phenix.Unity.AI
             }
         }
     }
-
-    [Serializable]
-    public abstract class SharedGameObject : SharedVariable<GameObject>
-    {
-        public SharedGameObject(Blackboard blackboard, bool dynamic = true)
-            : base(blackboard, dynamic) { }
-
-        protected override GameObject GetStaticValue()
-        {
-            if (value == null && string.IsNullOrEmpty(name) == false)
-            {
-                value = GameObject.Find(name);
-            }
-            return value;
-        }
-
-        protected override void SetStaticValue(GameObject val)
-        {
-            value = val;
-            name = val.name;
-        }
-    }
-    
 }

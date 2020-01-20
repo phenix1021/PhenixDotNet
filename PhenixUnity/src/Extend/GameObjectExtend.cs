@@ -40,11 +40,26 @@ namespace Phenix.Unity.Extend
         }
 
         /// <summary>
+        /// 对象全名（aa/bb/cc/dd/ee/...）
+        /// </summary>
+        public static string FullName(this GameObject go)
+        {
+            string ret = string.Concat(string.Empty, go.name);
+            while (go.transform.parent != null)
+            {
+                GameObject parent = go.transform.parent.gameObject;
+                ret = string.Concat(parent.name, "/", ret);
+                go = parent;
+            }
+            return ret;
+        }
+
+        /// <summary>
         /// 返回forward方向在xz平面上的角度值
         /// </summary>
         public static float ForwardAngle(this GameObject go)
         {
-            return ForwardAngle(go) * Mathf.Rad2Deg;
+            return ForwardRadian(go) * Mathf.Rad2Deg;
         }
 
         /// <summary>

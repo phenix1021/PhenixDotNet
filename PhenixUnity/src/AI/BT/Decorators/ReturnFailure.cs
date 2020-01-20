@@ -1,15 +1,15 @@
-﻿namespace Phenix.Unity.AI
+﻿namespace Phenix.Unity.AI.BT
 {
     [TaskIcon("TaskIcons/ReturnFailure.png")]
     public class ReturnFailure : Decorator
     {
         public override TaskStatus Decorate(TaskStatus status)
         {
-            if (status == TaskStatus.Running)
+            if (status == TaskStatus.RUNNING)
             {
-                return TaskStatus.Running;
+                return TaskStatus.RUNNING;
             }
-            return TaskStatus.Failure;
+            return TaskStatus.FAILURE;
         }
     }
 }

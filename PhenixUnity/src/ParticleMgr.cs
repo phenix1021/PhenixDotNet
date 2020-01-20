@@ -1,4 +1,4 @@
-﻿using UnityEngine;using System.Collections;using System.Collections.Generic;
+﻿using UnityEngine;using System.Collections.Generic;
 using Phenix.Unity.Collection;
 
 namespace Phenix.Unity.Particle
