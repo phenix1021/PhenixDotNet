@@ -22,6 +22,7 @@ namespace Phenix.Unity.AI.BT
             base.OnStart();
             _pursue.agent = Transform;
             _pursue.navMeshAgent = navMeshAgent;
+            _pursue.navMeshObstacle = navMeshObstacle;
             _pursue.speed = speed;
             _pursue.angularSpeed = angularSpeed;
             _pursue.arriveDistance = arriveDistance;
@@ -56,6 +57,12 @@ namespace Phenix.Unity.AI.BT
                 default:
                     return TaskStatus.NONE;
             }
+        }
+
+        public override void OnEnd()
+        {
+            base.OnEnd();
+            _pursue.OnEnd();
         }
     }
 }

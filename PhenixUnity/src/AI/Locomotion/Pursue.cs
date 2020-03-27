@@ -36,7 +36,7 @@ namespace Phenix.Unity.AI.Locomotion
 
             // Target will return the predicated position
             SetDestination(Target());
-
+            UpdateNavMeshObstacle();
             return LocomotionStatus.RUNNING;
         }
 

@@ -40,14 +40,15 @@ namespace Phenix.Unity.AI.BT
             task.Parent = null;
         }
 
-        public override void ForceTurnEnd()
+        public override void ForceEnd()
         {
             if (Status == TaskStatus.RUNNING)
             {
                 foreach (var child in Children)
                 {
-                    child.ForceTurnEnd();
+                    child.ForceEnd();
                 }
+                Status = TaskStatus.FAILURE;
                 OnEnd();
             }
         }

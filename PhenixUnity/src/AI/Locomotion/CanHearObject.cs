@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Phenix.Unity.Utilities;
+using Phenix.Unity.Collection;
 
 namespace Phenix.Unity.AI.Locomotion
 {
@@ -140,7 +141,11 @@ namespace Phenix.Unity.AI.Locomotion
         */
         public override void OnEnd()
         {
-            TransformTools.Instance.ClearComponentCaches();
+            ComponentCache.Instance.ClearCaches(targetObject);
+            foreach (var target in targetObjects)
+            {
+                ComponentCache.Instance.ClearCaches(target);
+            }
         }
     }
 }

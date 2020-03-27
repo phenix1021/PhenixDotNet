@@ -37,13 +37,13 @@
     <Reference Include="System.Xml" />
     <Reference Include="UnityEditor, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Unity2017\Editor\Data\Managed\UnityEditor.dll</HintPath>
+      <HintPath>D:\Unity\Editor\Data\Managed\UnityEditor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\..\Unity2017\Editor\Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>D:\Unity\Editor\Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\..\..\Unity2017\Editor\Data\UnityExtensions\Unity\GUISystem\UnityEngine.UI.dll</HintPath>
+      <HintPath>D:\Unity\Editor\Data\UnityExtensions\Unity\GUISystem\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -80,9 +80,12 @@
     <Compile Include="src\AI\BT\Composites\RandomSelector.cs" />
     <Compile Include="src\AI\BT\Composites\RandomSequence.cs" />
     <Compile Include="src\AI\BT\Composites\Selector.cs" />
+    <Compile Include="src\AI\BT\Composites\IfElse.cs" />
+    <Compile Include="src\AI\BT\Composites\While.cs" />
     <Compile Include="src\AI\BT\Composites\Sequence.cs" />
     <Compile Include="src\AI\BT\Conditionals\Conditional.cs" />
     <Compile Include="src\AI\BT\Conditionals\CanSeeObject.cs" />
+    <Compile Include="src\AI\BT\Conditionals\Switch.cs" />
     <Compile Include="src\AI\BT\Conditionals\WithinDistance.cs" />
     <Compile Include="src\AI\BT\Decorators\Decorator.cs" />
     <Compile Include="src\AI\BT\Decorators\Inverter.cs" />
@@ -117,6 +120,7 @@
     <Compile Include="src\AI\Locomotion\MoveTowards.cs" />
     <Compile Include="src\AI\Locomotion\NavMeshLocomotion.cs" />
     <Compile Include="src\AI\Locomotion\Locomotion.cs" />
+    <Compile Include="src\AI\Locomotion\NavMeshOffLink.cs" />
     <Compile Include="src\AI\Locomotion\Patrol.cs" />
     <Compile Include="src\AI\Locomotion\Pursue.cs" />
     <Compile Include="src\AI\Locomotion\RotateTowards.cs" />
@@ -129,20 +133,36 @@
     <Compile Include="src\Animation\Proxy\AnimationProxy.cs" />
     <Compile Include="src\Animation\Proxy\AnimatorProxy.cs" />
     <Compile Include="src\Animation\Proxy\AnimProxy.cs" />
+    <Compile Include="src\Animation\SMB\SMBBase.cs" />
+    <Compile Include="src\Animation\SMB\SMBDataBase.cs" />
     <Compile Include="src\Attribute\PhenixPropertyAttribute.cs" />
     <Compile Include="src\Audio\AudioMgr.cs" />
     <Compile Include="src\Camera\CameraEffect.cs" />
     <Compile Include="src\Camera\CameraFollow.cs" />
+    <Compile Include="src\Camera\CameraFollowThirdPerson.cs" />
     <Compile Include="src\Camera\CameraFollowFixedView.cs" />
     <Compile Include="src\Collection\GameObjectPool.cs" />
     <Compile Include="src\Collection\LRU.cs" />
+    <Compile Include="src\Collection\ComponentCache.cs" />
+    <Compile Include="src\Collection\MinHeap.cs" />
     <Compile Include="src\Collection\Pool.cs" />
+    <Compile Include="src\Effect\Ragdoll.cs" />
     <Compile Include="src\Effect\MotionTrace.cs" />
     <Compile Include="src\Extend\BehaviourExtend.cs" />
     <Compile Include="src\Extend\GameObjectExtend.cs" />
     <Compile Include="src\Extend\ListExtend.cs" />
     <Compile Include="src\Extend\Vector2Extend.cs" />
     <Compile Include="src\Extend\Vector3Extend.cs" />
+    <Compile Include="src\HexGrid\HexGridAStar.cs" />
+    <Compile Include="src\TurnBased\Command.cs" />
+    <Compile Include="src\HexGrid\HexGridComponent.cs" />
+    <Compile Include="src\HexGrid\HexTile.cs" />
+    <Compile Include="src\HexGrid\HexCoordinates.cs" />
+    <Compile Include="src\HexGrid\HexGrid.cs" />
+    <Compile Include="src\HexGrid\HexMapEditor.cs" />
+    <Compile Include="src\HexGrid\HexMesh.cs" />
+    <Compile Include="src\HexGrid\HexMetrics.cs" />
+    <Compile Include="src\HexGrid\HexTileComponent.cs" />
     <Compile Include="src\Log\Log.cs" />
     <Compile Include="src\Log\LogAppender.cs" />
     <Compile Include="src\Log\LogFileAppender.cs" />
@@ -155,10 +175,13 @@
     <Compile Include="src\Movement\Projectile.cs" />
     <Compile Include="src\Scene\SceneMgr.cs" />
     <Compile Include="src\TrailGenerator.cs" />
+    <Compile Include="src\TurnBased\TurnBasedClient.cs" />
+    <Compile Include="src\TurnBased\TurnBasedMgr.cs" />
     <Compile Include="src\UI\ArcView.cs" />
     <Compile Include="src\UI\Billboard.cs" />
     <Compile Include="src\UI\Clickable.cs" />
     <Compile Include="src\UI\GridView.cs" />
+    <Compile Include="src\UI\Map\MapIndicator.cs" />
     <Compile Include="src\UI\TabView.cs" />
     <Compile Include="src\UI\TVShow.cs" />
     <Compile Include="src\UI\PassPointerEvent.cs" />

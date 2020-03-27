@@ -14,11 +14,6 @@ namespace Phenix.Unity.AI.BT
             taskParams.OnAwake();
         }
 
-        /*public override void OnStart()
-        {
-            taskParams.OnStart();
-        }*/
-
         public sealed override TaskStatus Run()
         {
             if (taskParams.Check())
@@ -37,11 +32,6 @@ namespace Phenix.Unity.AI.BT
             return base.OnUpdate();
         }
 
-        protected sealed override void OnFirstRun()
-        {
-            taskParams.OnFirstRun();
-        }
-
         protected sealed override void OnStart()
         {            
             taskParams.OnStart();
@@ -49,7 +39,7 @@ namespace Phenix.Unity.AI.BT
 
         protected sealed override void OnEnd()
         {
-            taskParams.OnTurnEnd();
+            taskParams.OnEnd();
         }
 
         public sealed override void OnDrawGizmos()
@@ -88,10 +78,8 @@ namespace Phenix.Unity.AI.BT
         }
 
         public virtual void OnAwake() { }
-        public virtual void OnStart() { }
-        public virtual void OnFirstRun() { }
-        public virtual void OnTurnBegin() { }
-        public virtual void OnTurnEnd() { }
+        public virtual void OnStart() { }                
+        public virtual void OnEnd() { }
         public abstract bool Check();
         public virtual void OnDrawGizmos() { }
         public virtual void OnDrawGizmosSelected() { }

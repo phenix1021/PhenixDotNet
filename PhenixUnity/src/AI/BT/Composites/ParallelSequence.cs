@@ -45,7 +45,7 @@ namespace Phenix.Unity.AI.BT
             {
                 foreach (var item in running)
                 {
-                    Children[item].ForceTurnEnd();
+                    Children[item].ForceEnd();
                 }
                 return TaskStatus.FAILURE;                
             }

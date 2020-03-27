@@ -22,6 +22,7 @@ namespace Phenix.Unity.AI.BT
             base.OnStart();
             _flee.agent = Transform;
             _flee.navMeshAgent = navMeshAgent;
+            _flee.navMeshObstacle = navMeshObstacle;
             _flee.speed = speed;
             _flee.angularSpeed = angularSpeed;
             _flee.arriveDistance = arriveDistance;
@@ -56,6 +57,12 @@ namespace Phenix.Unity.AI.BT
                 default:
                     return TaskStatus.NONE;
             }
+        }
+
+        public override void OnEnd()
+        {
+            base.OnEnd();
+            _flee.OnEnd();
         }
     }
 }

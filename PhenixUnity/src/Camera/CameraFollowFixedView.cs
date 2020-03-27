@@ -6,27 +6,17 @@ namespace Phenix.Unity.Camera
     public class CameraFollowFixedView : CameraFollow
     {
         [SerializeField]
-        Vector3 _offset = new Vector3(0, 8, -6.4f);               
+        Vector3 _offset = new Vector3(0, 8, -6.4f);
 
-        protected override void LateUpdate()
+        [SerializeField]
+        float _speed = 4;          // 平移速度
+
+        [SerializeField]
+        float _rotateSpeed = 4;    // 旋转速度
+
+        Vector3 GetDestDir()
         {
-            if (cam == null)
-            {
-                return;
-            }
-
-            Follow();
-        }
-
-        void Follow()
-        {
-            Vector3 destPos = GetDestPos();
-            cam.transform.position = Vector3.Lerp(cam.transform.position, destPos, Time.deltaTime * speed);
-            
-            Vector3 finalDir = target.position - cam.transform.position;
-            finalDir.Normalize();
-
-            cam.transform.forward = Vector3.Lerp(cam.transform.forward, finalDir, Time.deltaTime * rotateSpeed);
+            return target.position - cam.transform.position;
         }
 
         Vector3 GetDestPos()
@@ -37,6 +27,19 @@ namespace Phenix.Unity.Camera
             }
 
             return target.position + _offset;
+        }
+
+        protected override void Follow()
+        {
+            Vector3 destPos = GetDestPos();
+            cam.transform.position = Vector3.Lerp(cam.transform.position, 
+                destPos, Time.deltaTime * _speed);
+
+            Vector3 finalDir = GetDestDir();
+            finalDir.Normalize();
+
+            cam.transform.forward = Vector3.Lerp(cam.transform.forward, finalDir, 
+                Time.deltaTime * _rotateSpeed);
         }
     }
 }

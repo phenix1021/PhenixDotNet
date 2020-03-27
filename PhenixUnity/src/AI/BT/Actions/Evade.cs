@@ -26,6 +26,7 @@ namespace Phenix.Unity.AI.BT
             base.OnStart();
             _evade.agent = Transform;
             _evade.navMeshAgent = navMeshAgent;
+            _evade.navMeshObstacle = navMeshObstacle;
             _evade.speed = speed;
             _evade.angularSpeed = angularSpeed;
             _evade.arriveDistance = arriveDistance;
@@ -63,6 +64,12 @@ namespace Phenix.Unity.AI.BT
                 default:
                     return TaskStatus.NONE;
             }
+        }
+
+        public override void OnEnd()
+        {
+            base.OnEnd();
+            _evade.OnEnd();
         }
     }
 }

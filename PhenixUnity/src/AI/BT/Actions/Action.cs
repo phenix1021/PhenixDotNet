@@ -31,11 +31,6 @@ namespace Phenix.Unity.AI.BT
             taskParams.OnAwake();
         }
 
-        protected sealed override void OnFirstRun()
-        {
-            taskParams.OnFirstRun();
-        }
-
         protected sealed override void OnStart()
         {
             taskParams.OnStart();
@@ -181,8 +176,7 @@ namespace Phenix.Unity.AI.BT
             return null;
         }
 
-        public virtual void OnAwake() { }
-        public virtual void OnFirstRun() { }
+        public virtual void OnAwake() { }        
         public virtual void OnStart() { }             
         public virtual void OnEnd() { }        
         public abstract TaskStatus Run();

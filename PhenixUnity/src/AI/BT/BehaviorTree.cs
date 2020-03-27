@@ -139,6 +139,11 @@ namespace Phenix.Unity.AI.BT
                 return;
             }
 
+            if (_isTurnCompleted)
+            {
+                Reset();
+            }
+
             _isTurnCompleted = (_entry.OnUpdate() != TaskStatus.RUNNING);
             if (_isTurnCompleted)
             {
@@ -146,16 +151,27 @@ namespace Phenix.Unity.AI.BT
             }
         }
 
+        void Reset()
+        {
+            foreach (var task in _tasks)
+            {
+                task.Status = TaskStatus.NONE;
+                if (task is BehaviorTreeReference)
+                {
+                    (task as BehaviorTreeReference).externalBTAsset.BT.Reset();
+                }
+            }
+        }
+
         void OnTurnCompleted()
         {
-            /*foreach (var task in _tasks)
-            {
-                task.Status = TaskStatus.None;
+            foreach (var task in _tasks)
+            {                
                 if (task is BehaviorTreeReference)
                 {
                     (task as BehaviorTreeReference).externalBTAsset.BT.OnTurnCompleted();
                 }
-            }*/
+            }
         }
 
         public void OnDrawGizmos()

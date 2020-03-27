@@ -7,6 +7,7 @@ namespace Phenix.Unity.AI.BT
     public class NavMeshLocomotionImpl : ActionImpl
     {
         protected NavMeshAgent navMeshAgent;
+        protected NavMeshObstacle navMeshObstacle;
 
         [SerializeField]
         protected float speed = 10;
@@ -23,6 +24,7 @@ namespace Phenix.Unity.AI.BT
         {
             base.OnStart();
             navMeshAgent = Transform.GetComponent<NavMeshAgent>();
+            navMeshObstacle = Transform.GetComponent<NavMeshObstacle>();
         }
 
         public override TaskStatus Run()

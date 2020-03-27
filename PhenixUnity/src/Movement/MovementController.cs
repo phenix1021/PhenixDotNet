@@ -225,6 +225,14 @@ namespace Phenix.Unity.Movement
             }
         }
 
+        void InvokeCallback<T>(Action<T> action, T param)
+        {
+            if (action != null)
+            {
+                action(param);
+            }
+        }
+
         void RemoveExpiredForces()
         {
             foreach (string name in _expiredForces)
@@ -523,11 +531,16 @@ namespace Phenix.Unity.Movement
                     foreach (Collider collider in Physics.OverlapSphere(OffsetPosition(sphere.offset), sphere.radius, _collidable))
                     {
                         Vector3 position = OffsetPosition(sphere.offset);
-                        Vector3 contactPoint = Vector3.zero;
+                        Vector3 contactPoint = Vector3.zero;                        
 
                         if (collider.gameObject == _target.gameObject)
                         {
                             continue; // ÅÅ³ý×ÔÉí
+                        }
+
+                        if (collider.isTrigger)
+                        {
+                            continue;
                         }
 
                         if (collider is BoxCollider)
@@ -861,6 +874,13 @@ namespace Phenix.Unity.Movement
             p.y += y;
 
             return p;
+        }
+
+        public void Reset() // add by phenix
+        {
+            _forces.Clear();
+            CurrentGround = null;
+            moveInput = Vector3.zero;
         }
     }
 }

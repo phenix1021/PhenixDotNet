@@ -51,7 +51,7 @@ namespace Phenix.Unity.AI.Locomotion
                 }
                 _hasMoved = velocityMagnitude > 0f;
             }
-
+            UpdateNavMeshObstacle();
             return LocomotionStatus.RUNNING;
         }
 

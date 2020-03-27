@@ -32,6 +32,7 @@ namespace Phenix.Unity.AI.BT
             base.OnStart();
             _cover.agent = Transform;
             _cover.navMeshAgent = navMeshAgent;
+            _cover.navMeshObstacle = navMeshObstacle;
             _cover.speed = speed;
             _cover.angularSpeed = angularSpeed;
             _cover.arriveDistance = arriveDistance;
@@ -63,6 +64,12 @@ namespace Phenix.Unity.AI.BT
                 default:
                     return TaskStatus.NONE;
             }
+        }
+
+        public override void OnEnd()
+        {
+            base.OnEnd();
+            _cover.OnEnd();
         }
     }
 }

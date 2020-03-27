@@ -223,13 +223,20 @@ namespace Phenix.Unity.Utilities
 
         public static float ClampAngle(float angle, float min, float max)
         {
-            if (angle < -360.0f)
-                angle += 360.0f;
+            return Mathf.Clamp(NormalizeAngle(angle), min, max);
+        }
 
-            if (angle > 360.0f)
-                angle -= 360.0f;
-
-            return Mathf.Clamp(angle, min, max);
+        public static float NormalizeAngle(float val)
+        {
+            while (val < -359)
+            {
+                val += 360;
+            }
+            while (val > 359)
+            {
+                val -= 360;
+            }
+            return val;
         }
 
         /// <summary>
@@ -246,6 +253,15 @@ namespace Phenix.Unity.Utilities
         public static float Angle360(Vector3 v1, Vector3 v2, Vector3 axis)
         {            
             return Mathf.Repeat(360f + SignedAngle(v1, v2, axis), 360f);
+        }
+
+        /// <summary>
+        /// 四舍五入（指定小数位数）
+        /// </summary>
+        public static float Round(float value, int digits)
+        {
+            float mult = Mathf.Pow(10.0f, (float)digits);
+            return Mathf.Round(value * mult) / mult;
         }
     }
 }

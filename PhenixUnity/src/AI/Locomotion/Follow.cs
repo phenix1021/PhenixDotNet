@@ -51,7 +51,7 @@ namespace Phenix.Unity.AI.Locomotion
                     _lastTargetPosition = targetPosition;
                 }
             }
-
+            UpdateNavMeshObstacle();
             return LocomotionStatus.RUNNING;
         }
 

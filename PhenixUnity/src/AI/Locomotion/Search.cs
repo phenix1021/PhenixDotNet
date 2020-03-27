@@ -128,7 +128,7 @@ namespace Phenix.Unity.AI.Locomotion
                     return LocomotionStatus.SUCCESS;
                 }
             }
-
+            UpdateNavMeshObstacle();
             // No object has been seen or heard so keep searching
             return LocomotionStatus.RUNNING;
         }

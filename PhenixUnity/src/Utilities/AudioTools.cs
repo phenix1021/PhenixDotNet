@@ -171,5 +171,24 @@ namespace Phenix.Unity.Utilities
                 audioSource.volume = 1;
             }
         }
+
+        /// <summary>
+        /// 动态设置声源（如子弹击中物体时在hitPoint动态添加临时声源，播放后删除）
+        /// </summary>        
+        public void PlaySoundAtPosition(AudioClip sound, Vector3 pos, float volume, 
+            float minDistance = 1f)
+        {
+            if (sound == null)
+                return;
+
+            GameObject emptyGO = new GameObject("Sound" + sound.name);            
+            emptyGO.transform.position = pos;
+            AudioSource source = emptyGO.AddComponent<AudioSource>();
+            source.clip = sound;
+            source.volume = volume;
+            source.minDistance = minDistance;
+            source.Play();
+            Destroy(emptyGO, sound.length);
+        }
     }
 }

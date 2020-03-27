@@ -17,5 +17,17 @@ namespace Phenix.Unity.Utilities
                 animEngine.CrossFade(anim, fadeInTime, playMode);
             }
         }
+
+        public static AnimationClip GetClip(Animator animator, string clipName)
+        {
+            foreach (var clip in animator.runtimeAnimatorController.animationClips)
+            {
+                if (clip && clip.name == clipName)
+                {
+                    return clip;
+                }
+            }
+            return null;
+        }
     }
 }

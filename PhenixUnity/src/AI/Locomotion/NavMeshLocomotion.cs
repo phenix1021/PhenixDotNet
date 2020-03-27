@@ -6,6 +6,7 @@ namespace Phenix.Unity.AI.Locomotion
     public abstract class NavMeshLocomotion : Locomotion
     {
         public NavMeshAgent navMeshAgent;
+        public NavMeshObstacle navMeshObstacle;
 
         public float speed = 10;        
         public float angularSpeed = 120;        
@@ -38,6 +39,10 @@ namespace Phenix.Unity.AI.Locomotion
             navMeshAgent.isStopped = false;
             _oriUpdateRotation = navMeshAgent.updateRotation;
             UpdateRotation(updateRotation);
+            if (navMeshObstacle)
+            {
+                navMeshObstacle.enabled = true;
+            }
         }
 
         /// <summary>
@@ -119,6 +124,14 @@ namespace Phenix.Unity.AI.Locomotion
             if (navMeshAgent.hasPath)
             {
                 navMeshAgent.isStopped = true;
+            }
+        }
+
+        protected void UpdateNavMeshObstacle()
+        {
+            if (navMeshObstacle)
+            {
+                navMeshObstacle.enabled = navMeshAgent.isStopped;
             }
         }
 

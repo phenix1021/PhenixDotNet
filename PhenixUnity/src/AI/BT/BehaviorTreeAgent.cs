@@ -57,6 +57,11 @@ namespace Phenix.Unity.AI.BT
 
         private void OnDrawGizmos()
         {
+            if (isActiveAndEnabled == false)
+            {
+                return;
+            }
+
             if (_btAsset == null || _btAsset.BT == null)
             {
                 return;
@@ -67,6 +72,11 @@ namespace Phenix.Unity.AI.BT
 
         private void OnDrawGizmosSelected()
         {
+            if (isActiveAndEnabled == false)
+            {
+                return;
+            }
+
             if (_btAsset == null || _btAsset.BT == null)
             {
                 return;

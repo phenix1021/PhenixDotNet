@@ -17,11 +17,15 @@ namespace Phenix.Unity.AI.BT
 
         Locomotion.Patrol _patrol = new Locomotion.Patrol();
 
+        protected virtual void OnRest() { }
+        protected virtual void OnMove() { }
+
         public override void OnStart()
         {
             base.OnStart();
             _patrol.agent = Transform;
             _patrol.navMeshAgent = navMeshAgent;
+            _patrol.navMeshObstacle = navMeshObstacle;
             _patrol.speed = speed;
             _patrol.angularSpeed = angularSpeed;
             _patrol.arriveDistance = arriveDistance;
@@ -34,7 +38,8 @@ namespace Phenix.Unity.AI.BT
             {
                 _patrol.waypoints.Add(waypoint.Value.gameObject);
             }
-
+            _patrol.onRest = OnRest;
+            _patrol.onMove = OnMove;
             _patrol.OnStart();
         }
 
@@ -51,6 +56,12 @@ namespace Phenix.Unity.AI.BT
                 default:
                     return TaskStatus.NONE;
             }
+        }
+
+        public override void OnEnd()
+        {
+            base.OnEnd();
+            _patrol.OnEnd();
         }
     }
 }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using Phenix.Unity.Utilities;
+using Phenix.Unity.Collection;
 
 namespace Phenix.Unity.AI.Locomotion
 {
@@ -106,7 +107,7 @@ namespace Phenix.Unity.AI.Locomotion
             if (useTargetBone)
             {
                 Animator animator;
-                if ((animator = TransformTools.Instance.GetParentComponentForType<Animator>(targetObject)) != null)
+                if ((animator = ComponentCache.Instance.GetParentComponent<Animator>(targetObject)) != null)
                 {
                     var bone = animator.GetBoneTransform(targetBone);
                     if (bone != null)
@@ -138,8 +139,8 @@ namespace Phenix.Unity.AI.Locomotion
                 {
                     return targetObject; // return the target object meaning it is within sight
                 }
-                else if (TransformTools.Instance.GetComponentForType<Collider>(targetObject) == null &&
-                    TransformTools.Instance.GetComponentForType<Collider2D>(targetObject) == null)
+                else if (ComponentCache.Instance.GetComponent<Collider>(targetObject) == null &&
+                    ComponentCache.Instance.GetComponent<Collider2D>(targetObject) == null)
                 {
                     // If the linecast doesn't hit anything then that the target object doesn't have a collider and there is nothing in the way
                     if (targetObject.gameObject.activeSelf)
@@ -260,7 +261,7 @@ namespace Phenix.Unity.AI.Locomotion
         {
             AudioSource[] colliderAudioSource;
             // Check to see if the hit agent has an audio source and that audio source is playing
-            if ((colliderAudioSource = TransformTools.Instance.GetComponentsForType<AudioSource>(targetObject)) != null)
+            if ((colliderAudioSource = ComponentCache.Instance.GetComponents<AudioSource>(targetObject)) != null)
             {
                 for (int i = 0; i < colliderAudioSource.Length; ++i)
                 {
@@ -292,6 +293,11 @@ namespace Phenix.Unity.AI.Locomotion
         public static void DrawViewOfSight(Transform transform, Vector3 positionOffset, float fieldOfViewAngle, 
             float angleOffset2D, float viewDistance, bool usePhysics2D)
         {
+            if (transform == null)
+            {
+                return;
+            }
+
 #if UNITY_EDITOR
             var oldColor = UnityEditor.Handles.color;
             var color = Color.yellow;

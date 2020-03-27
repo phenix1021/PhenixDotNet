@@ -14,12 +14,13 @@ namespace Phenix.Unity.AI.BT
         protected Vector3 targetPosition;
 
         Locomotion.Seek _seek = new Locomotion.Seek();
-
+        
         public override void OnStart()
         {
             base.OnStart();
             _seek.agent = Transform;
             _seek.navMeshAgent = navMeshAgent;
+            _seek.navMeshObstacle = navMeshObstacle;
             _seek.speed = speed;
             _seek.angularSpeed = angularSpeed;
             _seek.arriveDistance = arriveDistance;
@@ -31,9 +32,13 @@ namespace Phenix.Unity.AI.BT
                 _seek.target = target.Value.transform;
             }            
             _seek.targetPosition = targetPosition;
-
+            _seek.onMove = OnMove;
+            _seek.onMoving = OnMoving;
             _seek.OnStart();
         }
+
+        protected virtual void OnMove() { }
+        protected virtual void OnMoving() { }
 
         public override TaskStatus Run()
         {
@@ -53,6 +58,11 @@ namespace Phenix.Unity.AI.BT
                 default:
                     return TaskStatus.NONE;
             }
+        }
+        public override void OnEnd()
+        {
+            base.OnEnd();
+            _seek.OnEnd();
         }
     }
 }

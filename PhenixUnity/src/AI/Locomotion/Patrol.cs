@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Phenix.Unity.AI.Locomotion
 {
@@ -19,6 +20,9 @@ namespace Phenix.Unity.AI.Locomotion
         int _waypointIndex;
         float _waypointReachedTime;
 
+        public UnityAction onRest;
+        public UnityAction onMove;
+
         public override void OnStart()
         {
             base.OnStart();
@@ -36,6 +40,10 @@ namespace Phenix.Unity.AI.Locomotion
             }
             _waypointReachedTime = -1;
             SetDestination(Target());
+            if (onMove != null)
+            {
+                onMove.Invoke();
+            }
         }
 
         // Patrol around the different waypoints specified in the waypoint array. Always return a task status of running. 
@@ -50,6 +58,10 @@ namespace Phenix.Unity.AI.Locomotion
                 if (_waypointReachedTime == -1)
                 {
                     _waypointReachedTime = Time.time;
+                    if (onRest != null)
+                    {
+                        onRest.Invoke();
+                    }
                 }
                 // wait the required duration before switching waypoints.
                 if (_waypointReachedTime + waypointPauseDuration <= Time.time)
@@ -75,11 +87,16 @@ namespace Phenix.Unity.AI.Locomotion
                     {
                         _waypointIndex = (_waypointIndex + 1) % waypoints.Count;
                     }
+
                     SetDestination(Target());
+                    if (onMove != null)
+                    {
+                        onMove.Invoke();
+                    }
                     _waypointReachedTime = -1;
                 }
             }
-
+            UpdateNavMeshObstacle();
             return LocomotionStatus.RUNNING;
         }
 

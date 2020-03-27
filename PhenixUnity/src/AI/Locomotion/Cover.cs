@@ -97,7 +97,7 @@ namespace Phenix.Unity.AI.Locomotion
                     agent.rotation = Quaternion.RotateTowards(agent.rotation, rotation, maxLookAtRotationDelta);
                 }
             }
-
+            UpdateNavMeshObstacle();
             return LocomotionStatus.RUNNING;
         }
 

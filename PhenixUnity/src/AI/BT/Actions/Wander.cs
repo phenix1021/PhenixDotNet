@@ -36,6 +36,7 @@ namespace Phenix.Unity.AI.BT
             base.OnStart();
             _wander.agent = Transform;
             _wander.navMeshAgent = navMeshAgent;
+            _wander.navMeshObstacle = navMeshObstacle;
             _wander.speed = speed;
             _wander.angularSpeed = angularSpeed;
             _wander.arriveDistance = arriveDistance;
@@ -68,6 +69,12 @@ namespace Phenix.Unity.AI.BT
                 default:
                     return TaskStatus.NONE;
             }
+        }
+
+        public override void OnEnd()
+        {
+            base.OnEnd();
+            _wander.OnEnd();
         }
     }
 }

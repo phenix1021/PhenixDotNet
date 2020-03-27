@@ -4,37 +4,33 @@ namespace Phenix.Unity.AI.BT
 {
     [TaskIcon("TaskIcons/Repeater.png")]
     public class Repeater : Decorator
-    {
-        [Tooltip("less or equal 0 means forever")]
-        public int count = 1;        
-        public bool endOnFailure = false;
+    {        
+        public float time = 5;     // 重复时长（秒）
+        float _expireTimer = 0;
 
-        int executionCnt = 0;
+        public TaskStatus returnStatusOnExpire = TaskStatus.SUCCESS;
+
+        protected override void OnStart()
+        {
+            base.OnStart();
+            _expireTimer = Time.realtimeSinceStartup + time;
+        }
 
         public override TaskStatus Decorate(TaskStatus status)
         {
             if (status == TaskStatus.SUCCESS || status == TaskStatus.FAILURE)
             {
-                ++executionCnt;
+                return status;
             }
-
-            if (status == TaskStatus.FAILURE)
+            else if (status == TaskStatus.RUNNING && 
+                Time.realtimeSinceStartup >= _expireTimer)
             {
-                if (endOnFailure)
-                {
-                    return TaskStatus.FAILURE;
-                }                
+                return returnStatusOnExpire;
             }
-
-            if (count > 0)
+            else
             {
-                if (count <= executionCnt)
-                {
-                    return TaskStatus.IGNORED;
-                }                
-            }
-            
-            return TaskStatus.RUNNING;
+                return TaskStatus.RUNNING;
+            }            
         }
     }
 }

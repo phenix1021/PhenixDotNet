@@ -23,8 +23,10 @@ namespace Phenix.Unity.AI.Locomotion
         // The distance that the object needs to be within
         public float magnitude = 5;
 
-        /* If true, the object must be within line of sight to be within distance. For example, if this option is enabled then
-         an object behind a wall will not be within distance even though it may be physically close to the other object*/
+        /* If true, the object must be within line of sight to be within 
+         * distance. For example, if this option is enabled then an object 
+         * behind a wall will not be within distance even though it may be 
+         * physically close to the other object*/
         public bool lineOfSight;
 
         // The LayerMask of the objects to ignore when performing the line of sight check
@@ -96,7 +98,8 @@ namespace Phenix.Unity.AI.Locomotion
                 _objects.Clear();
                 if (usePhysics2D)
                 {
-                    var colliders = Physics.OverlapSphere(agent.position, magnitude, objectLayerMask.value);
+                    var colliders = Physics.OverlapSphere(agent.position, magnitude, 
+                        objectLayerMask.value);
                     for (int i = 0; i < colliders.Length; ++i)
                     {
                         _objects.Add(colliders[i].gameObject);
@@ -104,7 +107,8 @@ namespace Phenix.Unity.AI.Locomotion
                 }
                 else
                 {
-                    var colliders = Physics2D.OverlapCircleAll(agent.position, magnitude, objectLayerMask.value);
+                    var colliders = Physics2D.OverlapCircleAll(agent.position, magnitude, 
+                        objectLayerMask.value);
                     for (int i = 0; i < colliders.Length; ++i)
                     {
                         _objects.Add(colliders[i].gameObject);
@@ -158,19 +162,5 @@ namespace Phenix.Unity.AI.Locomotion
             offset = Vector3.zero;
             targetOffset = Vector3.zero;
         }
-/*
-        // Draw the seeing radius
-        public override void OnDrawGizmos()
-        {
-#if UNITY_EDITOR
-            if (Owner == null || magnitude == null) {
-                return;
-            }
-            var oldColor = UnityEditor.Handles.color;
-            UnityEditor.Handles.color = Color.yellow;
-            UnityEditor.Handles.DrawWireDisc(Owner.transform.position, usePhysics2D ? Owner.transform.forward : Owner.transform.up, magnitude.Value);
-            UnityEditor.Handles.color = oldColor;
-#endif
-        }*/
     }
 }

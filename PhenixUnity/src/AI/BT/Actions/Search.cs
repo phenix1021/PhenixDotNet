@@ -59,6 +59,7 @@ namespace Phenix.Unity.AI.BT
             base.OnStart();
             _search.agent = Transform;            
             _search.navMeshAgent = navMeshAgent;
+            _search.navMeshObstacle = navMeshObstacle;
             _search.speed = speed;
             _search.angularSpeed = angularSpeed;
             _search.arriveDistance = arriveDistance;
@@ -109,6 +110,12 @@ namespace Phenix.Unity.AI.BT
         public override void OnDrawGizmosSelected()
         {
             _search.OnDrawGizmosSelected();
+        }
+
+        public override void OnEnd()
+        {
+            base.OnEnd();
+            _search.OnEnd();
         }
     }
 }

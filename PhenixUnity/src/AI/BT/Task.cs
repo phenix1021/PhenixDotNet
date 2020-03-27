@@ -3,6 +3,7 @@ using System;
 
 namespace Phenix.Unity.AI.BT
 {
+    [Serializable]
     public enum TaskStatus
     {
         NONE = 0,
@@ -10,6 +11,7 @@ namespace Phenix.Unity.AI.BT
         FAILURE,
         RUNNING,
         IGNORED,
+        ERROR,
     }
         
     [Serializable]
@@ -24,35 +26,30 @@ namespace Phenix.Unity.AI.BT
         BehaviorTree _bt;
         TaskStatus _status = TaskStatus.NONE;
         Task _parent = null;
-        bool _firstRun = true;
-        bool _turnOver = true;
-        //string _guid;
+        //bool _firstRun = true;
+        bool _turnOver = true;        
                 
         [HideInInspector]
         public NodeData nodeData = new NodeData();
                 
         public BehaviorTree BT { get { return _bt; } set { _bt = value; } }
         public Task Parent { get { return _parent; } set { _parent = value; } }        
-        public TaskStatus Status { get { return _status; } set { _status = value; } }
-        //public string GUID { get { return _guid; } set { _guid = value; } }
-        //public NodeData NodeData { get { return _nodeData; } set { _nodeData = value; } }
+        public TaskStatus Status { get { return _status; } set { _status = value; } }        
 
-        protected virtual void OnEnable() { }
-        protected virtual void OnFirstRun() { }
-        protected virtual void OnStart() { }
-        protected virtual void OnEnd() { }
-
+        //protected virtual void OnEnable() { }
         public virtual void OnAwake() { }
-        //public virtual void OnStart() { }
+        protected virtual void OnStart() { }
+        protected virtual void OnEnd() { }        
+        
         public virtual TaskStatus OnUpdate()
         {
             if (_status != TaskStatus.IGNORED)
             {
-                if (_firstRun)
+                /*if (_firstRun)
                 {
-                    OnFirstRun();
+                    OnAwake();
                     _firstRun = false;
-                }
+                }*/
                 if (_turnOver)
                 {
                     _turnOver = false;
@@ -69,7 +66,7 @@ namespace Phenix.Unity.AI.BT
             return _status;
         }        
 
-        public virtual void ForceTurnEnd()
+        public virtual void ForceEnd()
         {
             if (_status == TaskStatus.RUNNING)
             {
