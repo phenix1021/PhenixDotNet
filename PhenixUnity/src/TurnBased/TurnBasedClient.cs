@@ -4,18 +4,20 @@ using System.Collections.Generic;
 namespace Phenix.Unity.TurnBased
 {
     public class TurnBasedClient : MonoBehaviour
-    {        
-        
+    {   
         // 优先级[0, 1]
-        public float priority;
+        public int priority;
         // 当前回合是否轮空
         public bool turnSkip;
         // 当前回合是否执行完毕
         public bool turnCompleted;
 
-        bool _isDead;
+        bool _isQuit;
 
-        public bool isAI;
+        [SerializeField]
+        bool _isAI;
+
+        public bool IsAI { get { return _isAI; } set { _isAI = value; OnIsAIChanged(); } }
 
         Queue<ITurnBasedCommand> _commands = new Queue<ITurnBasedCommand>(); // 本回合command集合
 
@@ -33,17 +35,17 @@ namespace Phenix.Unity.TurnBased
             }
         }
 
-        // 是否死亡
-        public bool IsDead
+        // 是否退出战斗
+        public bool IsQuit
         {
             get
             {
-                return _isDead;
+                return _isQuit;
             }
             set
             {
-                _isDead = value;
-                if (_isDead)
+                _isQuit = value;
+                if (_isQuit)
                 {
                     turnCompleted = true;
                 }
@@ -76,7 +78,7 @@ namespace Phenix.Unity.TurnBased
                     _commands.Dequeue();
                     if (_commands.Count == 0)
                     {
-                        turnCompleted = true; // client本轮执行结束
+                        turnCompleted = true; // client本回合所有命令执行完毕
                     }
                     else
                     {
@@ -89,7 +91,7 @@ namespace Phenix.Unity.TurnBased
 
         public void OnExecute(int turnID)
         {
-            if (isAI)
+            if (_isAI)
             {
                 ExecuteAI(turnID);
             }
@@ -109,6 +111,11 @@ namespace Phenix.Unity.TurnBased
         {
             // 本方手动控制
             // 发送UI提示，高显当前hero、行走范围、可攻击对象。玩家选择后生成command提交到hero
+        }
+
+        protected virtual void OnIsAIChanged()
+        {
+
         }
     }
 }

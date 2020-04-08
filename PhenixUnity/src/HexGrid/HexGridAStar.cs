@@ -11,13 +11,13 @@ namespace Phenix.Unity.Grid
     {
         HexGridComponent<T> _grid;
 
-        public HexGridAStar(HexGridComponent<T> grid)
+        public HexGridAStar(HexGridComponent<T> grid)                   
         {
             _grid = grid;
         }
 
         protected override bool Arrived(T node, T finish)
-        {
+        {            
             return node == finish;
         }
 
@@ -28,7 +28,7 @@ namespace Phenix.Unity.Grid
 
         protected override void Neighbors(T node, ref List<T> neighbors)
         {
-            _grid.Neighbors(node, ref neighbors, true);
+            _grid.WalkableNeighbors(node, ref neighbors);
         }
 
         protected override float GetH(T node, T finish)

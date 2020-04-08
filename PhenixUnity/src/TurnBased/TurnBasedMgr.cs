@@ -121,12 +121,20 @@ namespace Phenix.Unity.TurnBased
             {
                 if (client != null)
                 {
-                    client.turnCompleted = false;
+                    client.turnCompleted = client.IsQuit;
                 }
             }
 
             // 依据priority进行降序排列
-            _clients.Sort((a, b) => { return -a.priority.CompareTo(b.priority); });
+            _clients.Sort((a, b) => 
+            {
+                int ret = -a.priority.CompareTo(b.priority);
+                if (ret == 0)
+                {
+                    return -a.GetHashCode().CompareTo(b.GetHashCode());
+                }
+                return ret;
+            });
 
             if (onTurnBegin != null)
             {
@@ -154,50 +162,5 @@ namespace Phenix.Unity.TurnBased
             
             _clients.Add(client);            
         }
-
-      /*  protected virtual void Update()
-        {
-            if (_active == false)
-            {
-                return;
-            }
-
-            OnTurnBegin();            
-
-            foreach (var client in _clients)
-            {
-                if (client == null || client.turnCompleted)
-                {
-                    continue;
-                }
-
-                if (client.turnSkip)
-                {
-                    // 本回合轮空                    
-                    continue;
-                }
-
-                StartCoroutine(HandleClient(client));
-
-                if (IsCombatOver())
-                {
-                    // 战斗结束
-                    OnCombatEnd();
-                    return;
-                }
-            }
-
-            OnTurnEnd();
-        }
-
-        IEnumerator HandleClient(T client)
-        {
-            client.OnExecute(TurnID);
-
-            while (client != null && client.turnCompleted == false)
-            {
-                yield return new WaitForEndOfFrame();
-            }
-        }*/
     }
 }

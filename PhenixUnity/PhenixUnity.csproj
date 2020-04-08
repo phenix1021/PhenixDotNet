@@ -144,7 +144,7 @@
     <Compile Include="src\Collection\GameObjectPool.cs" />
     <Compile Include="src\Collection\LRU.cs" />
     <Compile Include="src\Collection\ComponentCache.cs" />
-    <Compile Include="src\Collection\MinHeap.cs" />
+    <Compile Include="src\Collection\BinaryHeap.cs" />
     <Compile Include="src\Collection\Pool.cs" />
     <Compile Include="src\Effect\Ragdoll.cs" />
     <Compile Include="src\Effect\MotionTrace.cs" />
