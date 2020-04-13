@@ -121,6 +121,16 @@ namespace Phenix.Unity.AI.GOAP
             copy._bits = (BitArray)_bits.Clone();
             return copy;
         }
+
+        public void CopyTo(ref WorldState other)
+        {
+            if (other == null)
+            {
+                other = Clone();
+                return;
+            }
+            other._bits = (BitArray)_bits.Clone();
+        }
     }
 
     /*

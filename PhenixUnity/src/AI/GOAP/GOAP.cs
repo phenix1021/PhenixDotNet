@@ -12,12 +12,12 @@ namespace Phenix.Unity.AI.GOAP
 
         public WorldState WorldState { get; private set; }
 
-        public GOAP(WorldState ws, List<GOAPGoal> goals, List<GOAPAction> actions, GOAPPlan plan)
+        public GOAP(WorldState ws, List<GOAPGoal> goals, List<GOAPAction> actions, GOAPAStarBase astar)
         {
             WorldState = ws;
             _goals = goals;
             _actions = actions;
-            _plan = plan;
+            _plan = new GOAPPlan(astar);
             _curGoal = null;
         }
 
@@ -100,12 +100,12 @@ namespace Phenix.Unity.AI.GOAP
                 {
                     action.BeforeBuildPlan(_curGoal);
                 }
-                _plan.Build(WorldState, _curGoal, _actions);
+                _plan.Build(WorldState, _curGoal);
                 _curGoal.OnEnter(WorldState);
             }
             else if (_plan.IsEmpty())
             {
-                _plan.Build(WorldState, _curGoal, _actions);
+                _plan.Build(WorldState, _curGoal);
             }
 
             _plan.OnUpdate();            

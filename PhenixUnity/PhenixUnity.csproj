@@ -107,6 +107,8 @@
     <Compile Include="src\AI\Fuzzy\FuzzyFunction.cs" />
     <Compile Include="src\AI\GOAP\GOAP.cs" />
     <Compile Include="src\AI\GOAP\GOAPAction.cs" />
+    <Compile Include="src\AI\GOAP\GOAPAStarBase.cs" />
+    <Compile Include="src\AI\GOAP\GOAPAStarNode.cs" />
     <Compile Include="src\AI\GOAP\GOAPGoal.cs" />
     <Compile Include="src\AI\GOAP\GOAPPlan.cs" />
     <Compile Include="src\AI\GOAP\WorldState.cs" />

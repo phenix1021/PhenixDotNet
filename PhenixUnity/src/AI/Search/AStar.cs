@@ -18,7 +18,7 @@ namespace Phenix.Unity.AI.SEARCH
     {
         T Parent { get; set; }                  // 父节点（由此构成最终路径）
         AStarNodeStatus Status { get; set; }    // 节点状态
-        float G { get; set; }                   // 路径累计消耗，对应启发函数 F = G + H 中的G     
+        float G { get; set; }                   // 路径累计消耗(包含node自身cost)，对应启发函数 F = G + H 中的G     
         int PathCacheIdx { get; set; }          // 路径缓存中的下标
     }
 
@@ -113,12 +113,24 @@ namespace Phenix.Unity.AI.SEARCH
 
         // 当前节点相对终点的H值，即启发函数 F = G + H 中的H，可以选择欧拉距离、曼哈顿距离等等
         protected abstract float GetH(T node, T finish);
+
+        protected virtual void OnNodePeek(T node) { }
+
+        // F = G + H
+        float GetF(T node)
+        {
+            return node.G + GetH(node, Finish);
+        }
+
         // 是否到达终点
         protected abstract bool Arrived(T node, T finish);
         // 获得相邻节点
         protected abstract void Neighbors(T node, ref List<T> neighbors);
 
-        public AStarResultCode FindPath(T start, T finish, ref List<T> path, 
+        protected virtual void OnOpenedNodeChanged(T node, T cur) { }
+        protected virtual void OnOpenedNodeAdded(T node, T cur) { }
+
+        public virtual AStarResultCode FindPath(T start, T finish, ref List<T> path, 
             int maxOverload = 0)
         {
             path.Clear();
@@ -143,6 +155,7 @@ namespace Phenix.Unity.AI.SEARCH
             List<T> neighbors = new List<T>();            
             T curNode = Start;            
             _openedNodes.Add(curNode);
+            OnOpenedNodeAdded(curNode, curNode);
             _allNodes.Add(curNode);
                         
             while (true)
@@ -164,7 +177,8 @@ namespace Phenix.Unity.AI.SEARCH
                             // 如果neighbor之前的G值比当前新路径更大, 重置其Parent和G（即将其归入新路径）
                             neighbor.Parent = curNode;
                             neighbor.G = GetCost(neighbor) + curNode.G;
-                            // binary heep mod
+                            OnOpenedNodeChanged(neighbor, curNode);
+                            // 调整二叉堆
                             _openedNodes.OnChanged(neighbor);
                         }
                     }
@@ -176,6 +190,7 @@ namespace Phenix.Unity.AI.SEARCH
                         neighbor.G = GetCost(neighbor) + curNode.G;
                         // 加入open列表
                         _openedNodes.Add(neighbor);
+                        OnOpenedNodeAdded(neighbor, curNode);
                         _allNodes.Add(neighbor);
 
                         if (Arrived(neighbor, Finish))
@@ -197,7 +212,8 @@ namespace Phenix.Unity.AI.SEARCH
                 // 遍历周边各节点之后，当前节点可以close
                 curNode.Status = AStarNodeStatus.CLOSED;
                 // 移出open列表
-                _openedNodes.Pop();
+                //_openedNodes.Pop();
+                _openedNodes.Remove(curNode);
 
                 if (_openedNodes.Empty)
                 {
@@ -206,9 +222,10 @@ namespace Phenix.Unity.AI.SEARCH
                     return AStarResultCode.FAIL_NO_WAY;                    
                 }
                 else
-                {
+                {                    
                     // 取最小F值node作为下一个cur节点                
                     _openedNodes.Peek(ref curNode);
+                    OnNodePeek(curNode);
 
                     // -----------如果有路径缓存--------------
                     if (InPathCache(curNode, Finish))
@@ -251,14 +268,11 @@ namespace Phenix.Unity.AI.SEARCH
             {
                 node.Status = AStarNodeStatus.NONE;
                 node.Parent = null;
+                OnNodeReset(node);
             }
         }
 
-        // F = G + H
-        float GetF(T node)
-        {
-            return node.G + GetH(node, Finish);
-        }
+        protected virtual void OnNodeReset(T node) { }
 
         // 逆向导出最终路径。注意：得到的path=(Start,Finsih]，但添加的路径缓存=[Start,Finish]
         void FillPath(T node, ref List<T> path)
