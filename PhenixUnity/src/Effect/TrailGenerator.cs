@@ -63,7 +63,7 @@ namespace Phenix.Unity.Effect
         Vector3 _baseTrailPos;              // trail起始位置
 
         Vector3 _lastTransformPos = Vector3.zero;
-        Vector3 _lastTransformAngle = Vector3.zero;
+        //Vector3 _lastTransformAngle = Vector3.zero;
 
         [SerializeField]
         float _minSampleDistance = 0.1f;
@@ -97,7 +97,7 @@ namespace Phenix.Unity.Effect
                 }
 
                 _lastTransformPos = transform.position = bakPos;
-                _lastTransformAngle = transform.eulerAngles = bakEulerAngle;
+                //_lastTransformAngle = transform.eulerAngles = bakEulerAngle;
             }            
 
             BuildTrailMesh();
@@ -105,26 +105,27 @@ namespace Phenix.Unity.Effect
 
         void Sample(float progress, float timer)
         {
-            transform.eulerAngles = new Vector3(Mathf.LerpAngle(_lastTransformAngle.x, transform.eulerAngles.x, progress), 
+            /*transform.eulerAngles = new Vector3(Mathf.LerpAngle(_lastTransformAngle.x, transform.eulerAngles.x, progress), 
                 Mathf.LerpAngle(_lastTransformAngle.y, transform.eulerAngles.y, progress), 
                 Mathf.LerpAngle(_lastTransformAngle.z, transform.eulerAngles.z, progress));
+                */
+            //transform.position = Vector3.Lerp(_lastTransformPos, transform.position, progress);            
+            Vector3 pos = Vector3.Lerp(_lastTransformPos, transform.position, progress);
 
-            transform.position = Vector3.Lerp(_lastTransformPos, transform.position, progress);            
-
-            if (_samples.Count > 0 && (_samples[0].pos - transform.position).sqrMagnitude < _minSampleDistance * _minSampleDistance)
+            if (_samples.Count > 0 && (_samples[0].pos - pos/*transform.position*/).sqrMagnitude < _minSampleDistance * _minSampleDistance)
             {
                 // 防止采样点过于紧密
                 return;
             }
 
-            /*if (_anim != null)
-            {
-                _anim.Sample();貌似要不要这行没差别
-            } */
+            //if (_anim != null)
+            //{
+                //GetComponentInParent<Animation>().Sample();//貌似要不要这行没差别
+            //}
 
             // 创建样本数据
             SampleData newSample = SampleData.pool.Get();
-            newSample.pos = transform.position;
+            newSample.pos = pos;// transform.position;
             newSample.sampleTimer = timer;
             if (_isStab == false)
             {
@@ -262,7 +263,7 @@ namespace Phenix.Unity.Effect
             }
 
             _lastTransformPos = transform.position;
-            _lastTransformAngle = transform.eulerAngles;
+            //_lastTransformAngle = transform.eulerAngles;
 
             _sampling = true;
             _sampleStartFrameCount = Time.frameCount;

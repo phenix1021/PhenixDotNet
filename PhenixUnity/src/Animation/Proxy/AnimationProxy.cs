@@ -52,5 +52,19 @@ namespace Phenix.Unity.Anim
             }
             return animation[clipName].time;
         }
+
+        public override bool IsPlaying(AnimationClip clip)
+        {
+            return animation.IsPlaying(clip.name);
+        }
+
+        public override float GetNormalizedTime(AnimationClip clip)
+        {
+            if (IsPlaying(clip) == false)
+            {
+                return float.NegativeInfinity;
+            }
+            return animation[clip.name].normalizedTime;
+        }
     }
 }

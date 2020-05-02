@@ -27,10 +27,10 @@ namespace Phenix.Unity.Utilities
             }                        
         }
 
-        public void MakeMesh(UnityEngine.Mesh mesh, Vector3[] verts, int[] triangles, Vector2[] uvs = null, Color[] colors = null)
+        public void MakeMesh(UnityEngine.Mesh mesh, Vector3[] verts,
+            int[] triangles, Vector2[] uvs = null, Color[] colors = null)
         {
-            MeshFilter mf = GetComponent<MeshFilter>();
-            if (mf == null)
+            if (mesh == null)
             {
                 return;
             }
@@ -44,7 +44,9 @@ namespace Phenix.Unity.Utilities
             {
                 return;
             }
-            
+
+            mesh.Clear();
+
             mesh.vertices = verts;
             mesh.triangles = triangles;
             mesh.uv = uvs;
@@ -53,8 +55,17 @@ namespace Phenix.Unity.Utilities
             mesh.RecalculateBounds();       // 重算bounds，bounds的size、extent、center常用
             mesh.RecalculateNormals();      // 重算法线
             mesh.RecalculateTangents();     // 重算切线
+        }
 
-            mf.mesh = mesh;
+        public void MakeMesh(MeshFilter meshFilter, Vector3[] verts, 
+            int[] triangles, Vector2[] uvs = null, Color[] colors = null)
+        {
+            if (meshFilter == null)
+            {
+                return;
+            }
+
+            MakeMesh(meshFilter.mesh, verts, triangles, uvs, colors);
         }
 
         public void DrawCurve(LineRenderer lineRenderer, List<Vector3> points,

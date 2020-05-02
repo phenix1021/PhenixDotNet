@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Phenix.Unity.Utilities
@@ -145,80 +146,78 @@ namespace Phenix.Unity.Utilities
             return retval;
         }
 
-        public static Vector3 BezierSpline(Vector3[] pts, float pm)
+        public static Vector3 BezierSplinePos(Vector3[] path, float progress/*[0,1]*/)
         {
-            float rawParam = pm * pts.Length;
-            int currLeg = Mathf.Clamp(Mathf.FloorToInt(rawParam), 0, pts.Length - 1);
-            float t = rawParam - currLeg;
+            float tmp = progress * path.Length;
+            int curPathIdx = Mathf.Clamp(Mathf.FloorToInt(tmp), 0, path.Length - 1);
+            float t = tmp - curPathIdx;
 
-            Vector3 st;
-            Vector3 en;
+            Vector3 start;
+            Vector3 end;
             Vector3 ctrl;
 
-            if (currLeg == 0)
+            if (curPathIdx == 0)
             {
-                st = pts[0];
-                en = (pts[1] + pts[0]) * 0.5f;
-                return Vector3.Lerp(st, en, t);
+                start = path[0];
+                end = (path[1] + path[0]) * 0.5f;
+                return Vector3.Lerp(start, end, t);
             }
-            else if (currLeg == (pts.Length - 1))
+            else if (curPathIdx == (path.Length - 1))
             {
-                int pBound = pts.Length - 1;
-                st = (pts[pBound - 1] + pts[pBound]) * 0.5f;
-                en = pts[pBound];
-                return Vector3.Lerp(st, en, t);
+                int pBound = path.Length - 1;
+                start = (path[pBound - 1] + path[pBound]) * 0.5f;
+                end = path[pBound];
+                return Vector3.Lerp(start, end, t);
             }
             else
             {
-                st = (pts[currLeg - 1] + pts[currLeg]) * 0.5f;
-                en = (pts[currLeg + 1] + pts[currLeg]) * 0.5f;
-                ctrl = pts[currLeg];
-                return BezInterp(st, en, ctrl, t);
+                start = (path[curPathIdx - 1] + path[curPathIdx]) * 0.5f;
+                end = (path[curPathIdx + 1] + path[curPathIdx]) * 0.5f;
+                ctrl = path[curPathIdx];
+                return BezierInterp(start, end, ctrl, t);
             }
         }
 
-        public static Vector3 SmoothCurveDirection(Vector3[] pts, float pm)
+        public static Vector3 BezierSplineDerivative(Vector3[] path, float progress)
         {
-            float rawParam = pm * pts.Length;
-            int currLeg = Mathf.Clamp(Mathf.FloorToInt(rawParam), 0, pts.Length - 1);
-            float t = rawParam - currLeg;
+            float tmp = progress * path.Length;
+            int curPathIdx = Mathf.Clamp(Mathf.FloorToInt(tmp), 0, path.Length - 1);
+            float t = tmp - curPathIdx;
 
-            Vector3 st;
-            Vector3 en;
+            Vector3 start;
+            Vector3 end;
             Vector3 ctrl;
 
-            if (currLeg == 0)
+            if (curPathIdx == 0)
             {
-                st = pts[0];
-                en = (pts[1] + pts[0]) * 0.5f;
-                return en - st;
+                start = path[0];
+                end = (path[1] + path[0]) * 0.5f;
+                return end - start;
             }
-            else if (currLeg == (pts.Length - 1))
+            else if (curPathIdx == (path.Length - 1))
             {
-                int pBound = pts.Length - 1;
-                st = (pts[pBound - 1] + pts[pBound]) * 0.5f;
-                en = pts[pBound];
-                return en - st;
+                int pBound = path.Length - 1;
+                start = (path[pBound - 1] + path[pBound]) * 0.5f;
+                end = path[pBound];
+                return end - start;
             }
             else
             {
-                st = (pts[currLeg - 1] + pts[currLeg]) * 0.5f;
-                en = (pts[currLeg + 1] + pts[currLeg]) * 0.5f;
-                ctrl = pts[currLeg];
-                return BezDirection(st, en, ctrl, t);
+                start = (path[curPathIdx - 1] + path[curPathIdx]) * 0.5f;
+                end = (path[curPathIdx + 1] + path[curPathIdx]) * 0.5f;
+                ctrl = path[curPathIdx];
+                return BezierDerivative(start, end, ctrl, t);
             }
         }
 
-        static Vector3 BezInterp(Vector3 st, Vector3 en, Vector3 ctrl, float t)
+        static Vector3 BezierInterp(Vector3 start, Vector3 end, Vector3 ctrl, float t)
         {
             float d = 1.0f - t;
-            return d * d * st + 2.0f * d * t * ctrl + t * t * en;
+            return d * d * start + 2.0f * d * t * ctrl + t * t * end;
         }
-
-
-        static Vector3 BezDirection(Vector3 st, Vector3 en, Vector3 ctrl, float t)
+        static Vector3 BezierDerivative(Vector3 start, Vector3 end, Vector3 ctrl, float t)
         {
-            return (2.0f * st - 4.0f * ctrl + 2.0f * en) * t + 2.0f * ctrl - 2.0f * st;
+            return (2.0f * start - 4.0f * ctrl + 2.0f * end) * t + 2.0f * ctrl - 2.0f * start;
         }
 
         public static float ClampAngle(float angle, float min, float max)
@@ -262,6 +261,283 @@ namespace Phenix.Unity.Utilities
         {
             float mult = Mathf.Pow(10.0f, (float)digits);
             return Mathf.Round(value * mult) / mult;
+        }
+
+        public static void GetCatmullRomSplineFullPathPoints(List<Vector3> path, bool loop, 
+            ref List<Vector3> fullPathPoints, int segmentCount = 100/*相邻路径节点之间的等分片段个数*/)
+        {
+            fullPathPoints.Clear();
+            if (path.Count < 2 || segmentCount == 0)
+            {
+                return;
+            }
+            
+            Vector3 retPos, retDir;
+            int max = (loop ? path.Count : path.Count - 1);
+            for (int i = 0; i < max; i++)
+            {
+                for (int ii = 0; ii < segmentCount; ii++)
+                {
+                    bool ret = CatmullRomSpline(path, loop, i, (ii * 1f) / segmentCount, out retPos, out retDir);
+                    if (ret)
+                    {
+                        fullPathPoints.Add(retPos);
+                    }
+                }
+            }
+        }
+
+        public static void DrawCatmullRomSpline(List<Vector3> path, bool loop, 
+            LineRenderer lineRenderer, int segmentCount = 100/*相邻路径节点之间的等分片段个数*/)
+        {
+            if (path.Count < 2 || segmentCount == 0)
+            {
+                return;
+            }
+
+            List<Vector3> points = new List<Vector3>();
+            Vector3 retPos, retDir;
+            int max = (loop ? path.Count : path.Count - 1);
+            for (int i = 0; i < max; i++)
+            {
+                for (int ii = 0; ii < segmentCount; ii++)
+                {
+                    bool ret = CatmullRomSpline(path, loop, i, (ii * 1f) / segmentCount, out retPos, out retDir);
+                    if (ret)
+                    {
+                        points.Add(retPos);
+                    }
+                }
+            }            
+
+            lineRenderer.positionCount = points.Count;
+            lineRenderer.SetPositions(points.ToArray());
+        }
+
+        /// <summary>
+        /// 获得CatmullRom样条各路径点之间的曲线长度和总长度
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="curveLength">各路径点之间的曲线长度</param>
+        /// <returns></returns>
+        public static float GetCatmullRomSplineLength(List<Vector3> path, bool loop, 
+            ref List<float> curveLengthList)
+        {            
+            if (path.Count < 2)
+            {
+                return 0;
+            }
+
+            int segmentCount = 100;/*相邻路径节点之间的等分片段个数*/
+            float totalLength = 0;
+            curveLengthList.Clear();
+            List<Vector3> points = new List<Vector3>();
+            Vector3 retPos, retDir;
+            int max = (loop ? path.Count : path.Count - 1);
+            for (int i = 0; i < max; i++)
+            {
+                // 遍历每个路径点
+                float curveLength = 0; // 每个curve的长度（由segmentCount个片段组成）
+                Vector3 prePos = Vector3.zero;
+                for (int ii = 0; ii <= segmentCount; ii++)
+                {
+                    // 遍历每个curve片段
+                    CatmullRomSpline(path, loop, i, (ii * 1f) / segmentCount, out retPos, out retDir);
+                    if (ii > 0)
+                    {
+                        curveLength += Vector3.Distance(prePos, retPos);
+                    }
+                    prePos = retPos;
+                }
+
+                curveLengthList.Add(curveLength);
+                totalLength += curveLength;
+            }
+
+            return totalLength;
+        }
+
+        /// <summary>
+        /// 求CatmullRom样条曲线上某点的位置和方向（即切线）
+        /// </summary>
+        /// <param name="path">路径</param>
+        /// <param name="loop">是否循环</param>
+        /// <param name="curPathIndex">当前所处节点序号</param>
+        /// <param name="progressStartEnd">要获取的点在当前节点和下一节点之间的进度</param>
+        public static bool CatmullRomSpline(List<Vector3> path, bool loop, int curPathIndex,
+            float progressStartEnd/*[0, 1]*/, out Vector3 retPos, out Vector3 retDerivative)
+        {
+            // Get correct spline points
+            Vector3 prev, start, end, next;
+            bool ret = GetCatmullRomSplinePoints(path, curPathIndex, loop, out prev,
+                out start, out end, out next);
+            if (ret == false)
+            {
+                retPos = retDerivative = Vector3.zero;
+                return false;
+            }
+
+            retPos = CatmullRomSplinePos(prev, start, end, next, progressStartEnd);
+            retDerivative = CatmullRomSplineDerivative(prev, start, end, next, progressStartEnd);
+
+            return true;
+        }
+
+        public static bool GetCatmullRomSplineProgress(List<Vector3> path, bool loop, float progress/*[0, 1]*/,
+            out int pathIdx, out float progressStartEnd/*[0, 1]*/)
+        {
+            pathIdx = 0;
+            progressStartEnd = 0;
+            if (progress < 0 || progress > 1)
+            {
+                return false;
+            }
+            List<float> curveLengthList = new List<float>();
+            float totalLength = GetCatmullRomSplineLength(path, loop, ref curveLengthList);
+            if (totalLength == 0)
+            {                
+                return false;
+            }
+
+            float elapse = totalLength * progress;
+            int i = 0;
+            while (i < curveLengthList.Count && elapse > curveLengthList[i])
+            {
+                elapse -= curveLengthList[i];
+                ++i;
+            }
+
+            if (i == curveLengthList.Count)
+            {
+                return false;
+            }
+
+            pathIdx = i;
+            progressStartEnd = elapse / curveLengthList[i];
+
+            return true;
+        }
+
+        /// <summary>
+        /// 求CatmullRom样条曲线上某点的位置和方向（即切线）
+        /// </summary>
+        /// <param name="path">路径</param>
+        /// <param name="loop">是否循环</param>
+        /// <param name="progress">要获取的点在整个path中所处的长度进度</param>
+        public static bool CatmullRomSpline(List<Vector3> path, bool loop, float progress/*[0, 1]*/, 
+            out Vector3 retPos, out Vector3 retDerivative)
+        {
+            retPos = retDerivative = Vector3.zero;
+            int pathIdx;
+            float progressStartEnd;
+            bool ret = GetCatmullRomSplineProgress(path, loop, progress, out pathIdx, out progressStartEnd);
+            if (ret == false)
+            {
+                return false;
+            }            
+            return CatmullRomSpline(path, loop, pathIdx, progressStartEnd, out retPos, out retDerivative);            
+        }
+
+        /// <summary>
+        /// 已知路径和当前所在路径节点序号，求计算CatmullRom需要的prev、start、end、next位置
+        /// </summary>
+        public static bool GetCatmullRomSplinePoints(List<Vector3> path, int curIndex, bool loop/*是否循环*/,
+            out Vector3 prev, out Vector3 start, out Vector3 end, out Vector3 next)
+        {
+            int numPoints = path.Count;
+            prev = start = end = next = Vector3.zero;
+            if (numPoints < 1 || curIndex < 0 || curIndex >= numPoints)
+            {
+                return false;
+            }
+
+            start = path[curIndex];
+            if (numPoints == 1)
+            {
+                // 如果只有一个路径点
+                prev = next = end = start;
+                return true;
+            }
+
+            if (loop) // ----------------- 循环曲线 -----------------------
+            {
+                prev = curIndex > 0/*当前不是第一个？*/ ? path[curIndex - 1] : path[numPoints - 1];
+                end = curIndex < numPoints - 1/*当前不是最后一个？*/ ? path[curIndex + 1] : path[0];
+                if (curIndex < numPoints - 2)
+                {
+                    // 如果当前小于倒数第二个
+                    next = path[curIndex + 2];
+                }
+                else if (curIndex < numPoints - 1)
+                {
+                    // 如果当前位于倒数第二个
+                    next = path[0];
+                }
+                else
+                {
+                    // 当前位于最后一个
+                    next = path[1];
+                }
+            }
+            else //---------------------- 非循环曲线 ----------------------------- 
+            {
+                if (curIndex == path.Count - 1)
+                {
+                    return false;
+                }
+
+                prev = (curIndex == 0 ? start : path[curIndex - 1]);                
+                end = path[curIndex + 1];
+                next = (curIndex < path.Count - 2 ? path[curIndex + 2] : end);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 获取CatmullRom样条曲线序列点中位于区间start、end之间、进度normalizedProgress的点位置
+        /// </summary>
+        /// <param name="previous">start之前的点</param>
+        /// <param name="start">区间起点</param>
+        /// <param name="end">区间终点，注意不一定是样条序列终点，可以是序列上任一点</param>
+        /// <param name="next">end之后的点</param>
+        /// <param name="progressStartEnd">start和end之间的进度，范围[0,1]</param>
+        /// <returns>位置点</returns>
+        public static Vector3 CatmullRomSplinePos(Vector3 previous, Vector3 start, Vector3 end, 
+            Vector3 next, float progressStartEnd/*[0,1]*/)
+        {
+            // r = 0.5
+            float progressSquared = progressStartEnd * progressStartEnd;
+            float progressCubed = progressSquared * progressStartEnd;
+
+            Vector3 result = previous * (-0.5f * progressCubed + progressSquared + -0.5f * progressStartEnd);
+            result += start * (1.5f * progressCubed + -2.5f * progressSquared + 1.0f);
+            result += end * (-1.5f * progressCubed + 2.0f * progressSquared + 0.5f * progressStartEnd);
+            result += next * (0.5f * progressCubed + -0.5f * progressSquared);
+
+            return result;
+        }
+
+        /// <summary>
+        /// 获取CatmullRom样条曲线序列点中位于区间start、end之间、进度normalizedProgress的点方向（即该点沿曲线的切线）
+        /// </summary>
+        /// <param name="previous">start之前的点</param>
+        /// <param name="start">区间起点</param>
+        /// <param name="end">区间终点，注意不一定是样条序列终点，可以是序列上任一点</param>
+        /// <param name="next">end之后的点</param>
+        /// <param name="progressStartEnd">start和end之间的进度，范围[0,1]</param>
+        /// <returns>位置点的方向（即切线方向）</returns>
+        public static Vector3 CatmullRomSplineDerivative(Vector3 previous, Vector3 start, Vector3 end, 
+            Vector3 next, float progressStartEnd/*[0,1]*/)
+        {
+            float progressSquared = progressStartEnd * progressStartEnd;
+
+            Vector3 result = previous * (-1.5f * progressSquared + 2.0f * progressStartEnd + -0.5f);
+            result += start * (4.5f * progressSquared + -5.0f * progressStartEnd);
+            result += end * (-4.5f * progressSquared + 4.0f * progressStartEnd + 0.5f);
+            result += next * (1.5f * progressSquared - progressStartEnd);
+
+            return result;
         }
     }
 }

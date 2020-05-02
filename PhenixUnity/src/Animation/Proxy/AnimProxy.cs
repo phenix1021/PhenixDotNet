@@ -25,5 +25,7 @@ namespace Phenix.Unity.Anim
 
             return GetLength(clipName) / speed;
         }
+        public abstract bool IsPlaying(AnimationClip clip);
+        public abstract float GetNormalizedTime(AnimationClip clip);
     }
 }

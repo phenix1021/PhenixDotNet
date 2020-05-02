@@ -127,5 +127,21 @@ namespace Phenix.Unity.Anim
             // todo: 待实现
             return 0;
         }
+
+        public override bool IsPlaying(AnimationClip clip)
+        {
+            return animator.GetCurrentAnimatorStateInfo(0).IsName(clip.name);
+        }
+
+        public override float GetNormalizedTime(AnimationClip clip)
+        {
+            var info = animator.GetCurrentAnimatorStateInfo(0);
+            if (info.IsName(clip.name) == false)
+            {
+                return float.NegativeInfinity;
+            }
+
+            return info.normalizedTime;
+        }
     }
 }
