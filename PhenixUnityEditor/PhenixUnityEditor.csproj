@@ -43,8 +43,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Editor\EditorControl.cs" />
-    <Compile Include="Editor\EditorHelper.cs" />
+    <Compile Include="Editor\GUIControl.cs" />
+    <Compile Include="Editor\Inspectors\BaseInspector.cs" />
+    <Compile Include="Editor\Tools.cs" />
+    <Compile Include="Editor\HandlesHelper.cs" />
     <Compile Include="Editor\Inspectors\PathMgrInspector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

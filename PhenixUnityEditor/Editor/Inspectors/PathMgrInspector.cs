@@ -11,7 +11,7 @@ namespace Phenix.Unity.Editor.Inspector
 
     [CanEditMultipleObjects]
     [CustomEditor(typeof(PathMgr))]
-    public class PathMgrInspector : UnityEditor.Editor
+    public class PathMgrInspector : BaseInspector
     {
         PathMgr _pathMgr;
         bool _switchForPath = true;     // 路径点foldout是否展开
@@ -19,51 +19,45 @@ namespace Phenix.Unity.Editor.Inspector
 
         List<Vector3> _fullPathPoints = new List<Vector3>();
 
-        private void OnEnable()
+        protected override void OnEnable()
         {
             _pathMgr = (PathMgr)target;
         }
 
-        public override void OnInspectorGUI()
+        protected override void ProcessControls()
         {
-            // 同步最新值
-            EditorHelper.UpdateValue(serializedObject);
-
             // 是否循环
-            EditorControl.BoolField("loop:", "", ref _pathMgr.loop);
+            GUIControl.BoolField("loop:", "", ref _pathMgr.loop);
 
-            EditorControl.Foldout("Path:", "", ref _switchForPath);
+            GUIControl.Foldout("Path:", "", ref _switchForPath);
             if (_switchForPath)
             {
                 // 各个路径点
                 for (int i = 0; i < _pathMgr.points.Count; ++i)
                 {
-                    _pathMgr.points[i] = EditorControl.Vector3Field(string.Format("point {0}:", i), "", _pathMgr.points[i]);
+                    _pathMgr.points[i] = GUIControl.Vector3Field(string.Format("point {0}:", i), "", _pathMgr.points[i]);
                 }
             }           
 
-            if (EditorControl.Button("Add Point", ""))
+            if (GUIControl.Button("Add Point", ""))
             {                
                 _pathMgr.AddPoint(_pathMgr.transform.position + Random.onUnitSphere);                             
             }
 
-            if (EditorControl.Button("Remove Point", ""))
+            if (GUIControl.Button("Remove Point", ""))
             {
                 _pathMgr.RemovePoint(_curPathPointSelected);
                 _curPathPointSelected = _pathMgr.points.Count-1;
             }
 
-            if (EditorControl.Button("Clear All", ""))
+            if (GUIControl.Button("Clear All", ""))
             {
                 _pathMgr.Clear();
                 _curPathPointSelected = -1;
             }
-
-            // 提交改变
-            EditorHelper.Submit(serializedObject);
         }
 
-        private void OnSceneGUI()
+        protected override void OnSceneGUI()
         {
             for (int i = 0; i < _pathMgr.points.Count; ++i)
             {
@@ -71,10 +65,10 @@ namespace Phenix.Unity.Editor.Inspector
                 bool selected = (_curPathPointSelected == i);
                 if (selected)
                 {
-                    EditorHelper.AddMoveAxis(ref pos);
+                    HandlesHelper.DrawXYZAxis(ref pos);
                 }
-                if (EditorHelper.Dot(pos, Color.white))
-                {                    
+                if (HandlesHelper.DrawDot(pos, Color.white))
+                {
                     _curPathPointSelected = i;                    
                 }                
                 _pathMgr.points[i] = _pathMgr.transform.InverseTransformPoint(pos);
