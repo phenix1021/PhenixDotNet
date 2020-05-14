@@ -243,7 +243,7 @@ namespace Phenix.Unity.Utilities
         /// </summary>
         public static float SignedAngle(Vector3 v1, Vector3 v2, Vector3 axis)
         {
-            return (float)Mathf.Atan2(Vector3.Dot(axis, Vector3.Cross(v1, v2)), Vector3.Dot(v1, v2)) * 57.29578f;
+            return (float)Mathf.Atan2(Vector3.Dot(axis, Vector3.Cross(v1, v2)), Vector3.Dot(v1, v2)) * Mathf.Rad2Deg/*即57.29578f*/;
         }
 
         /// <summary>
