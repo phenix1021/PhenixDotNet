@@ -6,6 +6,7 @@ namespace Phenix.Unity.Camera
     {
         public UnityEngine.Camera cam;
         public Transform target;
+        public Vector3 targetOffset;
 
         protected virtual void Awake()
         {

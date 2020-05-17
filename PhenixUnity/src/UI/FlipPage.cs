@@ -74,6 +74,7 @@ namespace Phenix.Unity.UI
         public UnityEventPageShow onPageShow;                     // 页面显示
 
         int CurPaper { get { return _curPage * 2 + 1; } }
+        public int CurPage { get { return _curPage; } set { _curPage = value; } }
 
         public Vector3 EndBottomLeft { get { return _ebl; } }
         public Vector3 EndBottomRight { get { return _ebr; } }
@@ -396,7 +397,7 @@ namespace Phenix.Unity.UI
             UpdateFlipLeft2RightToPoint(_f);
         }
 
-        void UpdatePage()
+        public void UpdatePage()
         {
             left.sprite = papers[_curPage * 2];
             right.sprite = papers[_curPage * 2 + 1];

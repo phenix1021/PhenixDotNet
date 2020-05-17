@@ -16,7 +16,7 @@ namespace Phenix.Unity.Camera
 
         Vector3 GetDestDir()
         {
-            return target.position - cam.transform.position;
+            return target.position + targetOffset - cam.transform.position;
         }
 
         Vector3 GetDestPos()
@@ -26,7 +26,7 @@ namespace Phenix.Unity.Camera
                 return cam.transform.position;
             }
 
-            return target.position + _offset;
+            return target.position + targetOffset + _offset;
         }
 
         protected override void Follow()
