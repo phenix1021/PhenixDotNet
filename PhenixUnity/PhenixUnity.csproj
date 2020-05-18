@@ -157,6 +157,7 @@
     <Compile Include="src\Extend\Vector2Extend.cs" />
     <Compile Include="src\Extend\Vector3Extend.cs" />
     <Compile Include="src\HexGrid\HexGridAStar.cs" />
+    <Compile Include="src\Movement\Floating.cs" />
     <Compile Include="src\Movement\PathMgr.cs" />
     <Compile Include="src\TurnBased\Command.cs" />
     <Compile Include="src\HexGrid\HexGridComponent.cs" />
