@@ -19,13 +19,15 @@ namespace Phenix.Unity.Sprite
             Reset();
         }
 
-        protected void Init(int spriteCode, float lifeTime, Material mat, Vector3 pos, Vector3 dir)
+        protected void Init(int spriteCode, float lifeTime, Material mat, Vector3 pos, Vector3 dir,
+            Transform parent = null)
         {
             _spriteCode = spriteCode;
             _lifeTime = lifeTime;
             Quad.GetComponent<MeshRenderer>().material = mat;
-            Quad.transform.localPosition = pos;
-            Quad.transform.localEulerAngles = dir;
+            Quad.transform.SetParent(parent);
+            Quad.transform.position = pos;
+            Quad.transform.eulerAngles = dir;
             Show();
         }
 
