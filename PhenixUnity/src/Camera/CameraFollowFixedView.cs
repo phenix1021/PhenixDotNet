@@ -5,8 +5,7 @@ namespace Phenix.Unity.Camera
     [AddComponentMenu("Phenix/Camera/CameraFollowFixedView")]
     public class CameraFollowFixedView : CameraFollow
     {
-        [SerializeField]
-        Vector3 _offset = new Vector3(0, 8, -6.4f);
+        public Vector3 offset = new Vector3(0, 8, -6.4f);
 
         [SerializeField]
         float _speed = 4;          // 平移速度
@@ -26,7 +25,7 @@ namespace Phenix.Unity.Camera
                 return cam.transform.position;
             }
 
-            return target.position + targetOffset + _offset;
+            return target.position + targetOffset + offset;
         }
 
         protected override void Follow()

@@ -27,7 +27,7 @@ namespace Phenix.Unity.Sprite
             Quad.GetComponent<MeshRenderer>().material = mat;
             Quad.transform.SetParent(parent);
             Quad.transform.position = pos;
-            Quad.transform.eulerAngles = dir;
+            Quad.transform.eulerAngles = dir;            
             Show();
         }
 

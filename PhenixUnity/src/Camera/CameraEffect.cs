@@ -14,7 +14,7 @@ namespace Phenix.Unity.Camera
         public Coroutine SlowMotion(UnityEngine.Camera camera, float timeScale, float fov, 
             float effectTime, float restoreDelayTime, float restoreTime)
         {
-            if (camera == null)
+            if (camera == null || Time.timeScale != 1)
             {
                 return null;
             }
