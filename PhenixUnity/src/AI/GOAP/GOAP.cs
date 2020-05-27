@@ -10,6 +10,8 @@ namespace Phenix.Unity.AI.GOAP
         GOAPGoal _curGoal;
         GOAPPlan _plan;
 
+        protected Dictionary<int, GOAPGoal> goalsMap = new Dictionary<int, GOAPGoal>();
+
         public WorldState WorldState { get; private set; }
 
         public GOAP(WorldState ws, List<GOAPGoal> goals, List<GOAPAction> actions, GOAPAStarBase astar)
@@ -19,6 +21,10 @@ namespace Phenix.Unity.AI.GOAP
             _actions = actions;
             _plan = new GOAPPlan(astar);
             _curGoal = null;
+            foreach (var goal in goals)
+            {
+                goalsMap.Add(goal.GOAPGoalType, goal);
+            }
         }
 
         public void Reset()
@@ -46,7 +52,7 @@ namespace Phenix.Unity.AI.GOAP
             }
         }
 
-        GOAPGoal FindTopGoal()
+        protected virtual GOAPGoal FindTopGoal()
         {
             float max = -1;
             GOAPGoal ret = null;
