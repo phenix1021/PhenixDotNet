@@ -59,7 +59,8 @@ namespace Phenix.Unity.Utilities
         IEnumerator FadeInImpl(Renderer renderer, string colorPropName, float fadeInTime,
             GameObject go, bool setActiveTrue, UnityAction onFinished)
         {
-            Color color = Color.black;
+            Color color = Color.white;
+            color.a = 0;
             renderer.material.SetColor(colorPropName, color);
 
             while (fadeInTime > 0 && color.a < 1)

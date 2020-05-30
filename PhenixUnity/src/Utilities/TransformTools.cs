@@ -135,6 +135,21 @@ namespace Phenix.Unity.Utilities
         }
 
         /// <summary>
+        /// forward相对forward的角度
+        /// </summary>        
+        public float ForwardAngleToForward(Transform self, Transform target)
+        {
+            if (self != null && target != null)
+            {
+                return Vector3.Angle(self.forward, target.forward);
+            }
+            else
+            {
+                return Mathf.Infinity;
+            }
+        }
+
+        /// <summary>
         /// self是否朝向target
         /// </summary>        
         public bool IsLookingAtTarget(Transform self, Transform target)
@@ -186,9 +201,9 @@ namespace Phenix.Unity.Utilities
             return (trans.position - center).sqrMagnitude < radius * radius;
         }
 
-        public bool IsGroundThere(Vector3 pos)
+        public bool IsGroundThere(Vector3 pos, string layerName)
         {
-            return Physics.Raycast(pos + Vector3.up, -Vector3.up, 5, 1 << 10);
+            return Physics.Raycast(pos + Vector3.up, -Vector3.up, 5, 1 << LayerMask.NameToLayer(layerName));
         }
 
         public bool IsNearToLine(Vector3 point, Vector3 lineStart, Vector3 lineEnd, float maxDist)

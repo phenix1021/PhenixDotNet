@@ -57,9 +57,9 @@ namespace Phenix.Unity.Effect
             }
         }
 
-        public GameObject target;
-        public Material traceMat;
-        public Shader traceShader;
+        public GameObject target = null;
+        public Material traceMat = null;
+        public Shader traceShader = null;
         public float sampleInterval;       // 采样间隔时长（秒）
         public float sampleLife;           // 样本存在时长（秒）
         public string shaderColorProp;     // shader中用来控制显示的color属性名
@@ -110,7 +110,7 @@ namespace Phenix.Unity.Effect
                 MotionSample sample = _pool.Get();
                 sample.Init(mesh, 
                     traceMat != null ? traceMat : renderer.material, 
-                    traceShader != null ? traceShader : traceMat.shader, 
+                    traceShader != null ? traceShader : (traceMat != null ? traceMat.shader : null), 
                     Time.timeSinceLevelLoad + sampleLife,
                     renderer.gameObject.transform.position, renderer.gameObject.transform.rotation);                                
                 MaterialTools.Instance.FadeOut(sample.slice.GetComponent<MeshRenderer>(), 
