@@ -73,7 +73,11 @@ namespace Phenix.Unity.Utilities
         }
 
         /// <summary>
-        /// 获得某点和线段的距离（即垂线长度）
+        /// 获得某点到线段的最小距离（可以是垂线段长度，也可以是到任意端点的距离）
+        /// 例如对于线段[Vector3.zero, Vector3.up]:
+        /// DistanceFromPointToVector(Vector3.zero, Vector3.up, new Vector3(0, 10, 0)) == 9
+        /// DistanceFromPointToVector(Vector3.zero, Vector3.up, new Vector3(0, -8, 0)) == 8
+        /// DistanceFromPointToVector(Vector3.zero, Vector3.up, new Vector3(0, 0.5f, 100)) == 100
         /// </summary>        
         public static float DistanceFromPointToVector(Vector3 lineStart, Vector3 lineEnd, Vector3 point)
         {
@@ -88,6 +92,7 @@ namespace Phenix.Unity.Utilities
             return (point - online).magnitude;
         }
 
+        // 获得point到指定线段上距离最近的点（线段任意端点或者垂点）
         public static Vector3 NearestPointStrict(Vector3 lineStart, Vector3 lineEnd, Vector3 point)
         {
             Vector3 fullDirection = lineEnd - lineStart;

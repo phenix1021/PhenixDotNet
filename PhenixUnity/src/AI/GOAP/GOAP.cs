@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine.Events;
 
 namespace Phenix.Unity.AI.GOAP
 {    
@@ -13,6 +14,9 @@ namespace Phenix.Unity.AI.GOAP
         protected Dictionary<int, GOAPGoal> goalsMap = new Dictionary<int, GOAPGoal>();
 
         public WorldState WorldState { get; private set; }
+        public GOAPGoal CurGoal { get { return _curGoal; } }
+        
+        public UnityAction<bool/*是否被新的goal顶替*/> onGoalExit;
 
         public GOAP(WorldState ws, List<GOAPGoal> goals, List<GOAPAction> actions, GOAPAStarBase astar)
         {
@@ -78,7 +82,11 @@ namespace Phenix.Unity.AI.GOAP
             {
                 if (_curGoal.IsAborted() || _curGoal.IsFinished(WorldState) || _plan.IsAborted())
                 {
-                    _curGoal.OnExit(WorldState);                    
+                    _curGoal.OnExit(WorldState);
+                    if (onGoalExit != null)
+                    {
+                        onGoalExit.Invoke(false);
+                    }
                     _curGoal = null;
                 }                
             }
@@ -94,12 +102,16 @@ namespace Phenix.Unity.AI.GOAP
                 return;
             }
 
-            // 如果topGoal合理
+            // 如果是新的topGoal
             if (_curGoal != topGoal)
             {
                 if (_curGoal != null)
                 {
                     _curGoal.OnExit(WorldState);
+                    if (onGoalExit != null)
+                    {
+                        onGoalExit.Invoke(true);
+                    }
                 }                     
                 _curGoal = topGoal;
                 foreach (var action in _actions)
@@ -109,8 +121,8 @@ namespace Phenix.Unity.AI.GOAP
                 _plan.Build(WorldState, _curGoal);
                 _curGoal.OnEnter(WorldState);
             }
-            else if (_plan.IsEmpty())
-            {
+            else if (_plan.IsEmpty()) // TopGoal不变
+            {                
                 _plan.Build(WorldState, _curGoal);
             }
 
