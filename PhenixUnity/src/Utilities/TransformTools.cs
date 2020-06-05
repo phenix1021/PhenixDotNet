@@ -122,7 +122,7 @@ namespace Phenix.Unity.Utilities
         /// <summary>
         /// target相对self朝向的角度
         /// </summary>        
-        public float ForwardAngleToTarget(Transform self, Transform target)
+        /*public float ForwardAngleToTarget(Transform self, Transform target)
         {
             if (self != null && target != null)
             {
@@ -132,7 +132,7 @@ namespace Phenix.Unity.Utilities
             {
                 return Mathf.Infinity;
             }
-        }
+        }*/
 
         /// <summary>
         /// forward相对forward的角度
@@ -152,15 +152,15 @@ namespace Phenix.Unity.Utilities
         /// <summary>
         /// self是否朝向target
         /// </summary>        
-        public bool IsLookingAtTarget(Transform self, Transform target)
+        /*public bool IsLookingAtTarget(Transform self, Transform target)
         {
             return ForwardAngleToTarget(self, target) <= 10;
-        }
+        }*/
 
         /// <summary>
         /// target朝向相对self的角度
         /// </summary>        
-        public float AngleToTargetForward(Transform self, Transform target)
+        /*public float AngleToTargetForward(Transform self, Transform target)
         {
             if (self != null && target != null)
             {
@@ -170,30 +170,69 @@ namespace Phenix.Unity.Utilities
             {
                 return Mathf.Infinity;
             }
+        }*/
+
+        /// <summary>
+        /// 是否面对面
+        /// </summary>        
+        public bool FaceToFace(Transform self, Transform target)
+        {
+            return IsAheadOfTarget(self, target) &&
+                Vector3.Angle(self.forward, target.forward) >= 120;
         }
 
         /// <summary>
-        /// target是否面向self（无论self朝向如何）
+        /// 是否面对背
+        /// </summary>        
+        public bool FaceToBack(Transform self, Transform target)
+        {
+            return IsBehindTarget(self, target) &&
+                Vector3.Angle(self.forward, target.forward) <= 60;
+        }
+
+        /// <summary>
+        /// 是否面对侧
+        /// </summary>        
+        public bool FaceToSide(Transform self, Transform target)
+        {
+            float angle = Vector3.Angle(self.forward, target.forward);
+            return IsBesideTarget(self, target) &&
+                angle > 60 && angle < 120;
+        }
+
+        /// <summary>
+        /// self是否位于target正面（无论self朝向如何）
         /// </summary>        
         public bool IsAheadOfTarget(Transform self, Transform target)
         {
-            if (self == null || target == null)
+            return Vector3.Angle(self.position - target.position, target.forward) <= 60;
+            /*if (self == null || target == null)
                 return false;
 
             float angle = AngleToTargetForward(self, target);
-            return angle > 135 && angle < 225;
+            return angle > 135 && angle < 225;*/
         }
 
         /// <summary>
-        /// target是否背对self（无论self朝向如何）
+        /// self是否位于target侧面（无论self朝向如何）
+        /// </summary>
+        public bool IsBesideTarget(Transform self, Transform target)
+        {
+            float angle = Vector3.Angle(self.position - target.position, target.forward);
+            return angle > 60 && angle < 120;
+        }
+
+        /// <summary>
+        /// self是否位于target背面（无论self朝向如何）
         /// </summary>        
         public bool IsBehindTarget(Transform self, Transform target)
         {
-            if (self == null || target == null)
+            return Vector3.Angle(self.position - target.position, target.forward) >= 120;
+            /*if (self == null || target == null)
                 return false;
 
             float angle = AngleToTargetForward(self, target);
-            return angle > 315 || angle < 45;
+            return angle > 315 || angle < 45;*/
         }
 
         public bool InRange(Transform trans, Vector3 center, float radius)

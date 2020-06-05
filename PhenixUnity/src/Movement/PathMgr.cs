@@ -60,6 +60,7 @@ namespace Phenix.Unity.Movement
                 moveDir = transform.TransformDirection(moveDir);
                 return true;
             }
+
             return false;
         }
     }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Phenix.Unity.Utilities
@@ -151,40 +150,33 @@ namespace Phenix.Unity.Utilities
             return retval;
         }
 
-        public static Vector3 BezierSplinePos(Vector3[] path, float progress/*[0,1]*/)
+        public static void GetBezierSplineFullPathPoints(List<Vector3> path, ref List<Vector3> fullPathPoints, int fullPathLength)
         {
-            float tmp = progress * path.Length;
-            int curPathIdx = Mathf.Clamp(Mathf.FloorToInt(tmp), 0, path.Length - 1);
-            float t = tmp - curPathIdx;
-
-            Vector3 start;
-            Vector3 end;
-            Vector3 ctrl;
-
-            if (curPathIdx == 0)
+            if (path.Count < 2)
             {
-                start = path[0];
-                end = (path[1] + path[0]) * 0.5f;
-                return Vector3.Lerp(start, end, t);
+                return;
             }
-            else if (curPathIdx == (path.Length - 1))
+
+            fullPathPoints.Clear();
+            Vector3[] pathArr = path.ToArray();
+            for (int i = 0; i < fullPathLength; i++)
             {
-                int pBound = path.Length - 1;
-                start = (path[pBound - 1] + path[pBound]) * 0.5f;
-                end = path[pBound];
-                return Vector3.Lerp(start, end, t);
-            }
-            else
-            {
-                start = (path[curPathIdx - 1] + path[curPathIdx]) * 0.5f;
-                end = (path[curPathIdx + 1] + path[curPathIdx]) * 0.5f;
-                ctrl = path[curPathIdx];
-                return BezierInterp(start, end, ctrl, t);
+                Vector3 pos;
+                if (BezierSplinePos(pathArr, i * 1f / (fullPathLength - 1), out pos))
+                {
+                    fullPathPoints.Add(pos);
+                }                
             }
         }
 
-        public static Vector3 BezierSplineDerivative(Vector3[] path, float progress)
+        public static bool BezierSplinePos(Vector3[] path, float progress/*[0,1]*/, out Vector3 ret)
         {
+            if (path.Length < 2)
+            {
+                ret = Vector3.zero;
+                return false;
+            }
+
             float tmp = progress * path.Length;
             int curPathIdx = Mathf.Clamp(Mathf.FloorToInt(tmp), 0, path.Length - 1);
             float t = tmp - curPathIdx;
@@ -197,22 +189,64 @@ namespace Phenix.Unity.Utilities
             {
                 start = path[0];
                 end = (path[1] + path[0]) * 0.5f;
-                return end - start;
+                ret = Vector3.Lerp(start, end, t);                
             }
             else if (curPathIdx == (path.Length - 1))
             {
                 int pBound = path.Length - 1;
                 start = (path[pBound - 1] + path[pBound]) * 0.5f;
                 end = path[pBound];
-                return end - start;
+                ret = Vector3.Lerp(start, end, t);                
             }
             else
             {
                 start = (path[curPathIdx - 1] + path[curPathIdx]) * 0.5f;
                 end = (path[curPathIdx + 1] + path[curPathIdx]) * 0.5f;
                 ctrl = path[curPathIdx];
-                return BezierDerivative(start, end, ctrl, t);
+                ret = BezierInterp(start, end, ctrl, t);                
             }
+
+            return true;
+        }
+
+        public static bool BezierSplineDerivative(Vector3[] path, float progress, out Vector3 ret)
+        {
+            if (path.Length < 2)
+            {
+                ret = Vector3.zero;
+                return false;
+            }
+
+            float tmp = progress * path.Length;
+            int curPathIdx = Mathf.Clamp(Mathf.FloorToInt(tmp), 0, path.Length - 1);
+            float t = tmp - curPathIdx;
+
+            Vector3 start;
+            Vector3 end;
+            Vector3 ctrl;
+
+            if (curPathIdx == 0)
+            {
+                start = path[0];
+                end = (path[1] + path[0]) * 0.5f;
+                ret = end - start;
+            }
+            else if (curPathIdx == (path.Length - 1))
+            {
+                int pBound = path.Length - 1;
+                start = (path[pBound - 1] + path[pBound]) * 0.5f;
+                end = path[pBound];
+                ret = end - start;
+            }
+            else
+            {
+                start = (path[curPathIdx - 1] + path[curPathIdx]) * 0.5f;
+                end = (path[curPathIdx + 1] + path[curPathIdx]) * 0.5f;
+                ctrl = path[curPathIdx];
+                ret = BezierDerivative(start, end, ctrl, t);
+            }
+
+            return true;
         }
 
         static Vector3 BezierInterp(Vector3 start, Vector3 end, Vector3 ctrl, float t)
@@ -268,6 +302,9 @@ namespace Phenix.Unity.Utilities
             return Mathf.Round(value * mult) / mult;
         }
 
+        /// <summary>
+        /// 获得CatmullRom样条完整路径点列表
+        /// </summary>        
         public static void GetCatmullRomSplineFullPathPoints(List<Vector3> path, bool loop, 
             ref List<Vector3> fullPathPoints, int segmentCount = 100/*相邻路径节点之间的等分片段个数*/)
         {
@@ -278,10 +315,10 @@ namespace Phenix.Unity.Utilities
             }
             
             Vector3 retPos, retDir;
-            int max = (loop ? path.Count : path.Count - 1);
+            int max = (loop ? path.Count + 1 : path.Count);
             for (int i = 0; i < max; i++)
             {
-                for (int ii = 0; ii < segmentCount; ii++)
+                for (int ii = 0; ii <= segmentCount; ii++)
                 {
                     bool ret = CatmullRomSpline(path, loop, i, (ii * 1f) / segmentCount, out retPos, out retDir);
                     if (ret)
@@ -292,6 +329,9 @@ namespace Phenix.Unity.Utilities
             }
         }
 
+        /// <summary>
+        /// 用LineRenderer绘制CatmullRom样条
+        /// </summary>        
         public static void DrawCatmullRomSpline(List<Vector3> path, bool loop, 
             LineRenderer lineRenderer, int segmentCount = 100/*相邻路径节点之间的等分片段个数*/)
         {
@@ -302,10 +342,10 @@ namespace Phenix.Unity.Utilities
 
             List<Vector3> points = new List<Vector3>();
             Vector3 retPos, retDir;
-            int max = (loop ? path.Count : path.Count - 1);
+            int max = (loop ? path.Count + 1 : path.Count);
             for (int i = 0; i < max; i++)
             {
-                for (int ii = 0; ii < segmentCount; ii++)
+                for (int ii = 0; ii <= segmentCount; ii++)
                 {
                     bool ret = CatmullRomSpline(path, loop, i, (ii * 1f) / segmentCount, out retPos, out retDir);
                     if (ret)
@@ -326,19 +366,18 @@ namespace Phenix.Unity.Utilities
         /// <param name="curveLength">各路径点之间的曲线长度</param>
         /// <returns></returns>
         public static float GetCatmullRomSplineLength(List<Vector3> path, bool loop, 
-            ref List<float> curveLengthList)
+            ref List<float> curveLengthList, int segmentCount = 100/*相邻路径节点之间的等分片段个数*/)
         {            
             if (path.Count < 2)
             {
                 return 0;
             }
-
-            int segmentCount = 100;/*相邻路径节点之间的等分片段个数*/
+            
             float totalLength = 0;
             curveLengthList.Clear();
             List<Vector3> points = new List<Vector3>();
             Vector3 retPos, retDir;
-            int max = (loop ? path.Count : path.Count - 1);
+            int max = (loop ? path.Count + 1 : path.Count);
             for (int i = 0; i < max; i++)
             {
                 // 遍历每个路径点
@@ -388,6 +427,9 @@ namespace Phenix.Unity.Utilities
             return true;
         }
 
+        /// <summary>
+        /// 已知样条总进度，获取对应的pathIdx和在[pathIdx, pathIdx+1]的进度
+        /// </summary>        
         public static bool GetCatmullRomSplineProgress(List<Vector3> path, bool loop, float progress/*[0, 1]*/,
             out int pathIdx, out float progressStartEnd/*[0, 1]*/)
         {

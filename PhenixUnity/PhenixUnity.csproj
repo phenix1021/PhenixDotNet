@@ -208,7 +208,7 @@
     <Compile Include="src\UI\MVC\View.cs" />
     <Compile Include="src\Utilities\AnimationTools.cs" />
     <Compile Include="src\Utilities\MathTools.cs" />
-    <Compile Include="src\ParticleMgr.cs" />
+    <Compile Include="src\Effect\ParticleMgr.cs" />
     <Compile Include="src\Pattern\StandAloneSingleton.cs" />
     <Compile Include="src\Pattern\RegisterGlobalSingleton.cs" />
     <Compile Include="src\Pattern\GlobalGameObject.cs" />

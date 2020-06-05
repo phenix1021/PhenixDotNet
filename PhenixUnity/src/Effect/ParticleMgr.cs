@@ -1,7 +1,7 @@
 ﻿using UnityEngine;using System.Collections.Generic;
 using Phenix.Unity.Collection;
 
-namespace Phenix.Unity.Particle
+namespace Phenix.Unity.Effect
 {
     public class ParticleMgr
     {
