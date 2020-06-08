@@ -169,6 +169,43 @@ namespace Phenix.Unity.Utilities
             }
         }
 
+        /// <summary>
+        /// 用LineRenderer绘制bezier样条
+        /// </summary>        
+        public static void DrawBezierSpline(List<Vector3> path, LineRenderer lineRenderer, int smooth = 100)
+        {
+            if (path.Count < 2 || smooth == 0)
+            {
+                return;
+            }
+
+            List<Vector3> points = new List<Vector3>();
+            Vector3 retPos, retDir;
+            int max = path.Count;// (loop ? path.Count + 1 : path.Count);
+            Vector3[] pathArr = path.ToArray();
+            for (int i = 0; i < max; i++)
+            {
+                for (int ii = 0; ii <= smooth; ii++)
+                {
+                    bool ret = BezierSpline(pathArr, (ii * 1f) / smooth, out retPos, out retDir);
+                    if (ret)
+                    {
+                        points.Add(retPos);
+                    }
+                }
+            }
+
+            lineRenderer.positionCount = points.Count;
+            lineRenderer.SetPositions(points.ToArray());
+        }
+
+        public static bool BezierSpline(Vector3[] path, float progress/*[0,1]*/, out Vector3 retPos, out Vector3 retDerivative)
+        {
+            retPos = retDerivative = Vector3.zero;
+            return BezierSplinePos(path, progress, out retPos) && 
+                   BezierSplineDerivative(path, progress, out retDerivative);
+        }
+
         public static bool BezierSplinePos(Vector3[] path, float progress/*[0,1]*/, out Vector3 ret)
         {
             if (path.Length < 2)
@@ -306,10 +343,10 @@ namespace Phenix.Unity.Utilities
         /// 获得CatmullRom样条完整路径点列表
         /// </summary>        
         public static void GetCatmullRomSplineFullPathPoints(List<Vector3> path, bool loop, 
-            ref List<Vector3> fullPathPoints, int segmentCount = 100/*相邻路径节点之间的等分片段个数*/)
+            ref List<Vector3> fullPathPoints, int smooth = 100/*相邻路径节点之间的等分片段个数*/)
         {
             fullPathPoints.Clear();
-            if (path.Count < 2 || segmentCount == 0)
+            if (path.Count < 2 || smooth == 0)
             {
                 return;
             }
@@ -318,9 +355,9 @@ namespace Phenix.Unity.Utilities
             int max = (loop ? path.Count + 1 : path.Count);
             for (int i = 0; i < max; i++)
             {
-                for (int ii = 0; ii <= segmentCount; ii++)
+                for (int ii = 0; ii <= smooth; ii++)
                 {
-                    bool ret = CatmullRomSpline(path, loop, i, (ii * 1f) / segmentCount, out retPos, out retDir);
+                    bool ret = CatmullRomSpline(path, loop, i, (ii * 1f) / smooth, out retPos, out retDir);
                     if (ret)
                     {
                         fullPathPoints.Add(retPos);
@@ -333,9 +370,9 @@ namespace Phenix.Unity.Utilities
         /// 用LineRenderer绘制CatmullRom样条
         /// </summary>        
         public static void DrawCatmullRomSpline(List<Vector3> path, bool loop, 
-            LineRenderer lineRenderer, int segmentCount = 100/*相邻路径节点之间的等分片段个数*/)
+            LineRenderer lineRenderer, int smooth = 100/*相邻路径节点之间的等分片段个数*/)
         {
-            if (path.Count < 2 || segmentCount == 0)
+            if (path.Count < 2 || smooth == 0)
             {
                 return;
             }
@@ -345,9 +382,9 @@ namespace Phenix.Unity.Utilities
             int max = (loop ? path.Count + 1 : path.Count);
             for (int i = 0; i < max; i++)
             {
-                for (int ii = 0; ii <= segmentCount; ii++)
+                for (int ii = 0; ii <= smooth; ii++)
                 {
-                    bool ret = CatmullRomSpline(path, loop, i, (ii * 1f) / segmentCount, out retPos, out retDir);
+                    bool ret = CatmullRomSpline(path, loop, i, (ii * 1f) / smooth, out retPos, out retDir);
                     if (ret)
                     {
                         points.Add(retPos);
@@ -366,7 +403,7 @@ namespace Phenix.Unity.Utilities
         /// <param name="curveLength">各路径点之间的曲线长度</param>
         /// <returns></returns>
         public static float GetCatmullRomSplineLength(List<Vector3> path, bool loop, 
-            ref List<float> curveLengthList, int segmentCount = 100/*相邻路径节点之间的等分片段个数*/)
+            ref List<float> curveLengthList, int smooth = 100/*相邻路径节点之间的等分片段个数*/)
         {            
             if (path.Count < 2)
             {
@@ -381,12 +418,12 @@ namespace Phenix.Unity.Utilities
             for (int i = 0; i < max; i++)
             {
                 // 遍历每个路径点
-                float curveLength = 0; // 每个curve的长度（由segmentCount个片段组成）
+                float curveLength = 0; // 每个curve的长度（由smooth个片段组成）
                 Vector3 prePos = Vector3.zero;
-                for (int ii = 0; ii <= segmentCount; ii++)
+                for (int ii = 0; ii <= smooth; ii++)
                 {
                     // 遍历每个curve片段
-                    CatmullRomSpline(path, loop, i, (ii * 1f) / segmentCount, out retPos, out retDir);
+                    CatmullRomSpline(path, loop, i, (ii * 1f) / smooth, out retPos, out retDir);
                     if (ii > 0)
                     {
                         curveLength += Vector3.Distance(prePos, retPos);
