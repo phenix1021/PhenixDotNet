@@ -29,10 +29,14 @@ namespace Phenix.Unity.UI
             Canvas = UIRoot.GetComponentInParent<Canvas>();
         }
 
-        public virtual void Open()
+        public virtual void Open(bool asLastSibling = false)
         {
             Visible = true;
             _closeTimer = 0;
+            if (asLastSibling)
+            {
+                UIRoot.transform.SetAsLastSibling();
+            }
         }
 
         public virtual void Close()
