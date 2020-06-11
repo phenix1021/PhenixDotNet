@@ -292,7 +292,7 @@ namespace Phenix.Unity.AI.Locomotion
         // Draws the line of sight representation
         public static void DrawViewOfSight(Transform transform, Vector3 positionOffset, float fieldOfViewAngle, 
             float angleOffset2D, float viewDistance, bool usePhysics2D)
-        {
+        {/*
             if (transform == null)
             {
                 return;
@@ -312,7 +312,7 @@ namespace Phenix.Unity.AI.Locomotion
 
             UnityEditor.Handles.color = oldColor;
 #endif
-        }
+        */}
 
     }
 }

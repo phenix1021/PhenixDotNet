@@ -85,8 +85,8 @@
     <Compile Include="src\AI\BT\Composites\Sequence.cs" />
     <Compile Include="src\AI\BT\Conditionals\Conditional.cs" />
     <Compile Include="src\AI\BT\Conditionals\CanSeeObject.cs" />
-    <Compile Include="src\AI\BT\Conditionals\Switch.cs" />
     <Compile Include="src\AI\BT\Conditionals\WithinDistance.cs" />
+    <Compile Include="src\AI\BT\Conditionals\Switch.cs" />
     <Compile Include="src\AI\BT\Decorators\Decorator.cs" />
     <Compile Include="src\AI\BT\Decorators\Inverter.cs" />
     <Compile Include="src\AI\BT\Decorators\Repeater.cs" />

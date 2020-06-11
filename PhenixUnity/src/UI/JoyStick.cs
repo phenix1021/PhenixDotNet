@@ -36,9 +36,9 @@ namespace Phenix.Unity.UI
 
             slider.parent = panel;
             panel.pivot = slider.pivot = new Vector2(0.5f, 0.5f);
-            slider.anchoredPosition = Vector2.zero;
+            _moveRadius = Mathf.Min(panel.rect.width, panel.rect.height) * 0.5f;
 
-            _moveRadius = Mathf.Min(panel.rect.width, panel.rect.height) * 0.5f;            
+            Reset();
         }
 
         void OnBeginDrag(Vector2 pointerPos)
@@ -57,7 +57,12 @@ namespace Phenix.Unity.UI
         }
 
         void OnEndDrag(GameObject pointerEnter, Vector2 pointerPos)
-        {            
+        {
+            Reset();
+        }
+
+        public void Reset()
+        {
             _horizontalValue = _horizontalRawValue = _verticalValue = _verticalRawValue = 0;
             slider.anchoredPosition = Vector2.zero;
         }
