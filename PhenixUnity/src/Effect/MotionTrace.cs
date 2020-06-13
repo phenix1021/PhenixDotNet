@@ -83,9 +83,10 @@ namespace Phenix.Unity.Effect
             // 采样
             if (_active && Time.timeSinceLevelLoad >= _nextSamepleTimer)
             {
-                DoSample();
+                DoSample(target);
                 _nextSamepleTimer = Time.timeSinceLevelLoad + sampleInterval;
             }
+
             foreach (var sample in _samples)
             {
                 if (sample.expireTimer <= Time.timeSinceLevelLoad)
@@ -93,16 +94,19 @@ namespace Phenix.Unity.Effect
                     _remove.Add(sample);
                 }
             }
+
             foreach (var item in _remove)
             {
                 _pool.Collect(item);
                 _samples.Remove(item);
             }
+
+            _remove.Clear();
         }
 
-        void DoSample()
+        public void DoSample(GameObject go)
         {
-            SkinnedMeshRenderer[] renderers = target.transform.GetComponentsInChildren<SkinnedMeshRenderer>();
+            SkinnedMeshRenderer[] renderers = go.transform.GetComponentsInChildren<SkinnedMeshRenderer>();
             foreach (var renderer in renderers)
             {
                 UnityEngine.Mesh mesh = _poolMesh.Get();
@@ -115,6 +119,7 @@ namespace Phenix.Unity.Effect
                     renderer.gameObject.transform.position, renderer.gameObject.transform.rotation);                                
                 MaterialTools.Instance.FadeOut(sample.slice.GetComponent<MeshRenderer>(), 
                     shaderColorProp, sampleLife, sample.slice);
+                _samples.Add(sample);
             }            
         }
 
