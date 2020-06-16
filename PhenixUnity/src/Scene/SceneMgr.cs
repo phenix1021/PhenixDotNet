@@ -2,7 +2,6 @@
 using UnityEngine;
 using Phenix.Unity.Pattern;
 using UnityEngine.SceneManagement;
-using UnityEngine.Events;
 
 namespace Phenix.Unity.Scene
 {
@@ -16,6 +15,8 @@ namespace Phenix.Unity.Scene
 
         [SerializeField]
         LoadSceneMode _mode = LoadSceneMode.Single;        
+
+        public float SceneLoadProgress { get { return _asyncOpt.progress; } }
 
         public void LoadScene(int sceneIdx, bool allowSceneActivation = true, 
             System.Action<float> onLoading = null, System.Action onReady = null, System.Action onCompleted = null)
@@ -75,7 +76,7 @@ namespace Phenix.Unity.Scene
             }
         }
 
-        bool IsSceneReady()
+        public bool IsSceneReady()
         {
             return _asyncOpt.progress >= 0.9f;
         }      

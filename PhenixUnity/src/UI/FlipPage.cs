@@ -46,7 +46,23 @@ namespace Phenix.Unity.UI
         public Image leftHotSpot;
         public Image rightHotSpot;
 
+        Vector2 _oriPosClippingPlane;
+        Quaternion _oriRotClippingPlane;
+        Vector2 _oriPosNextPageClip;
+        Quaternion _oriRotNextPageClip;
+        Vector2 _oriPosLeftOnFlip;
+        Quaternion _oriRotLeftOnFlip;
+        Vector2 _oriPosRightOnFlip;
+        Quaternion _oriRotRightOnFlip;
+
         float _radius1, _radius2;
+
+        bool _autoFlipReleased = true;  // 自动翻页是否已释放（end drag）
+        bool _isAutoFlipping;           // 是否自动翻页
+        float _elapseAutoFlipTime;      // 已经过的自动翻页时长（秒）
+        float _autoFlipTime;            // 自动翻页时长（秒）
+        Vector3 _autoFlipSrcPos;        // 自动翻页起始点（begin drag的位置）
+        Vector3 _autoFlipDstPos;        // 自动翻页目标点（end drag的位置）
 
         //Spine Bottom
         Vector3 _sb;
@@ -82,7 +98,7 @@ namespace Phenix.Unity.UI
 
         // papers集合是否符合要求
         bool CheckPapers()
-        {
+        {            
             return (papers.Count > 0 && papers.Count % 2 == 0);
         }
 
@@ -110,6 +126,35 @@ namespace Phenix.Unity.UI
             return true;
         }
 
+        public void Reset()
+        {
+            if (_currentCoroutine != null)
+            {
+                StopCoroutine(_currentCoroutine);
+            }            
+
+            leftOnFlip.gameObject.SetActive(false);
+            rightOnFlip.gameObject.SetActive(false);
+
+            _curPage = 0;
+            left.sprite = papers[_curPage * 2];
+            right.sprite = papers[_curPage * 2 + 1];
+
+            _isAutoFlipping = false;
+            _pageFlipping = false;
+            _autoFlipReleased = true;
+            _elapseAutoFlipTime = 0;
+
+            clippingPlane.transform.position = _oriPosClippingPlane;
+            clippingPlane.transform.rotation = _oriRotClippingPlane;
+            nextPageClip.transform.position = _oriPosNextPageClip;
+            nextPageClip.transform.rotation = _oriRotNextPageClip;
+            leftOnFlip.transform.position = _oriPosLeftOnFlip;
+            leftOnFlip.transform.rotation = _oriRotLeftOnFlip;
+            rightOnFlip.transform.position = _oriPosRightOnFlip;
+            rightOnFlip.transform.rotation = _oriRotRightOnFlip;
+        }
+
         void Start()
         {
             if (CheckPapers() == false)
@@ -127,6 +172,15 @@ namespace Phenix.Unity.UI
             _curPage = Mathf.Clamp(_curPage, 0, papers.Count / 2 - 1);            
 
             UpdatePage();
+
+            _oriPosClippingPlane = clippingPlane.transform.position;
+            _oriRotClippingPlane = clippingPlane.transform.rotation;
+            _oriPosNextPageClip = nextPageClip.transform.position;
+            _oriRotNextPageClip = nextPageClip.transform.rotation;
+            _oriPosLeftOnFlip = leftOnFlip.transform.position;
+            _oriRotLeftOnFlip = leftOnFlip.transform.rotation;
+            _oriPosRightOnFlip = rightOnFlip.transform.position;
+            _oriRotRightOnFlip = rightOnFlip.transform.rotation;
 
             _sb = new Vector3(0, -bookPanel.rect.height / 2);
             _ebr = new Vector3(bookPanel.rect.width / 2, -bookPanel.rect.height / 2);
@@ -179,15 +233,35 @@ namespace Phenix.Unity.UI
                 canvas = GetComponentInParent<Canvas>();
             }            
 
-            if (_pageFlipping && interactable)
+            if (_pageFlipping)
             {
-                UpdateFlipping();
+                if (_isAutoFlipping)
+                {
+                    // 自动翻页
+                    if (_elapseAutoFlipTime < _autoFlipTime)
+                    {
+                        _elapseAutoFlipTime += Time.deltaTime;
+                        float progress = Mathf.Min(1, _elapseAutoFlipTime / _autoFlipTime);
+                        Vector3 tarPos = Vector3.Lerp(_autoFlipSrcPos, _autoFlipDstPos, progress);                        
+                        UpdateFlipping(tarPos);
+                    }
+                    else if (_autoFlipReleased == false)
+                    {
+                        _autoFlipReleased = true;
+                        ReleasePage();                        
+                    }                    
+                }
+                else if (interactable)
+                {
+                    // 手动翻页
+                    UpdateFlipping(transformPointMousePosition(Input.mousePosition));
+                }                
             }
         }
 
-        void UpdateFlipping()
+        void UpdateFlipping(Vector3 tarPos)
         {
-            _f = Vector3.Lerp(_f, transformPointMousePosition(Input.mousePosition), Time.deltaTime * 10);
+            _f = Vector3.Lerp(_f, tarPos, Time.deltaTime * 10);
 
             if (_mode == FlipMode.RightToLeft)
                 UpdateFlipRight2LeftToPoint(_f);
@@ -321,7 +395,7 @@ namespace Phenix.Unity.UI
         }
 
         // 是否已经是最后一页
-        bool IsLastPage()
+        public bool IsLastPage()
         {
             return _curPage == (papers.Count / 2 - 1);
         }
@@ -330,6 +404,11 @@ namespace Phenix.Unity.UI
         {
             if (IsLastPage())
                 return;
+
+            if (_pageFlipping)
+            {
+                return;
+            }
 
             _pageFlipping = true;
             _mode = FlipMode.RightToLeft;
@@ -359,7 +438,7 @@ namespace Phenix.Unity.UI
             UpdateFlipRight2LeftToPoint(_f);
         }
 
-        bool IsFirstPage()
+        public bool IsFirstPage()
         {
             return _curPage == 0;
         }
@@ -368,6 +447,11 @@ namespace Phenix.Unity.UI
         {
             if (IsFirstPage())
                 return;
+
+            if (_pageFlipping)
+            {
+                return;
+            }
 
             _pageFlipping = true;
             _mode = FlipMode.LeftToRight;
@@ -482,6 +566,7 @@ namespace Phenix.Unity.UI
         void OnPageFlipped()
         {
             _pageFlipping = false;
+            _isAutoFlipping = false;
 
             if (_mode == FlipMode.RightToLeft)
             {
@@ -527,6 +612,7 @@ namespace Phenix.Unity.UI
             leftOnFlip.gameObject.SetActive(false);
             rightOnFlip.gameObject.SetActive(false);
             _pageFlipping = false;
+            _isAutoFlipping = false;
         }
 
         public IEnumerator TweenTo(Vector3 to, float duration, System.Action onFinish)
@@ -614,6 +700,104 @@ namespace Phenix.Unity.UI
                     }
                 }
             }
+        }*/
+
+        /// <summary>
+        /// 自动向左翻页
+        /// </summary>
+        public void AutoFlipRight(float flipTime)
+        {
+            if (_pageFlipping)
+            {
+                return;
+            }
+
+            if (IsLastPage())
+            {
+                return;
+            }
+
+            if (flipTime <= 0)
+            {
+                return;
+            }
+
+            _autoFlipReleased = false;
+            _isAutoFlipping = true;
+            _elapseAutoFlipTime = 0;
+            _autoFlipTime = flipTime;            
+            _autoFlipSrcPos = new Vector3(bookPanel.anchoredPosition.x, bookPanel.anchoredPosition.y, 0) + _ebr;
+            _autoFlipDstPos = new Vector3(bookPanel.anchoredPosition.x, bookPanel.anchoredPosition.y, 0) + _ebl;
+            DragRightPageToPoint(_autoFlipSrcPos);
+        }
+/*
+        IEnumerator AutoFlipRightImpl(Vector3 from, Vector3 to, float flipTime)
+        {
+            _isAuto = true;
+            float elapseTime = 0;
+            DragRightPageToPoint(from);
+            
+            do
+            {
+                yield return new WaitForEndOfFrame();
+                elapseTime += Time.deltaTime;
+                float progress = Mathf.Min(1, elapseTime / flipTime);
+                Vector3 tarPos = Vector3.Lerp(from, to, progress);
+                Debug.Log(tarPos);
+                UpdateFlipping(tarPos);
+            } while (elapseTime < flipTime);
+
+            ReleasePage();
+            _isAuto = false;
+        }*/
+
+        /// <summary>
+        /// 自动向右翻页
+        /// </summary>
+        public void AutoFlipLeft(float flipTime)
+        {
+            if (_pageFlipping)
+            {
+                return;
+            }
+
+            if (IsFirstPage())
+            {
+                return;
+            }
+
+            if (flipTime <= 0)
+            {
+                return;
+            }
+
+            _autoFlipReleased = false;
+            _isAutoFlipping = true;
+            _elapseAutoFlipTime = 0;
+            _autoFlipTime = flipTime;
+            _autoFlipSrcPos = new Vector3(bookPanel.anchoredPosition.x, bookPanel.anchoredPosition.y, 0) + _ebl;
+            _autoFlipDstPos = new Vector3(bookPanel.anchoredPosition.x, bookPanel.anchoredPosition.y, 0) + _ebr;
+            DragLeftPageToPoint(_autoFlipSrcPos);
+        }
+        /*
+        IEnumerator AutoFlipLeftImpl(Vector3 from, Vector3 to, float flipTime)
+        {
+            _isAuto = true;
+            float elapseTime = 0;
+            DragLeftPageToPoint(from);
+
+            do
+            {
+                yield return new WaitForEndOfFrame();
+                elapseTime += Time.deltaTime;
+                float progress = Mathf.Min(1, elapseTime / flipTime);
+                Vector3 tarPos = Vector3.Lerp(from, to, progress);
+                Debug.Log(tarPos);
+                UpdateFlipping(tarPos);
+            } while (elapseTime < flipTime);
+
+            ReleasePage();
+            _isAuto = false;
         }*/
     }
 }
