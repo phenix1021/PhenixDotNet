@@ -6,25 +6,38 @@ namespace Phenix.Unity.Audio
 {    
     public abstract class AudioMgr
     {   
-        Dictionary<int/*AudioType*/, AudioClip> _audios = new Dictionary<int, AudioClip>();
+        Dictionary<int/*AudioType*/, List<AudioClip>> _audios = new Dictionary<int, List<AudioClip>>();
 
         protected AudioSource audioSource;
 
         protected void Add(int audioType, AudioClip clip)
         {
-            _audios.Add(audioType, clip);
+            if (_audios.ContainsKey(audioType))
+            {
+                _audios[audioType].Add(clip);
+                return;
+            }
+
+            _audios.Add(audioType, new List<AudioClip>() { clip });
+        }
+
+        AudioClip GetClip(int soundType)
+        {
+            if (_audios.ContainsKey(soundType) == false)
+            {
+                return null;
+            }
+
+            List<AudioClip> clips = _audios[soundType];
+            return clips[Random.Range(0, clips.Count)];
         }
 
         /// <summary>
         /// 简单播一发
         /// </summary>    
         public Coroutine PlayOneShot(int soundType, float delay = 0)
-        {
-            if (_audios.ContainsKey(soundType) == false)
-            {
-                return null;
-            }
-            return AudioTools.Instance.PlayOneShot(audioSource, _audios[soundType], delay);
+        {            
+            return AudioTools.Instance.PlayOneShot(audioSource, GetClip(soundType), delay);
         }
 
         /// <summary>
@@ -32,12 +45,7 @@ namespace Phenix.Unity.Audio
         /// </summary>    
         public void PlayIn(int soundType, float fadeInTime)
         {
-            if (_audios.ContainsKey(soundType) == false)
-            {
-                return;
-            }
-
-            AudioTools.Instance.PlayIn(audioSource, _audios[soundType], fadeInTime);
+            AudioTools.Instance.PlayIn(audioSource, GetClip(soundType), fadeInTime);
         }
 
         /// <summary>
@@ -45,12 +53,7 @@ namespace Phenix.Unity.Audio
         /// </summary>    
         public void PlayOut(int soundType, float fadeOutTime)
         {
-            if (_audios.ContainsKey(soundType) == false)
-            {
-                return;
-            }
-
-            AudioTools.Instance.PlayOut(audioSource, _audios[soundType], fadeOutTime);
+            AudioTools.Instance.PlayOut(audioSource, GetClip(soundType), fadeOutTime);
         }
 
         /// <summary>
@@ -58,11 +61,7 @@ namespace Phenix.Unity.Audio
         /// </summary>    
         public void PlayLoop(int soundType)
         {
-            if (_audios.ContainsKey(soundType) == false)
-            {
-                return;
-            }
-            AudioTools.Instance.PlayLoop(audioSource, _audios[soundType]);
+            AudioTools.Instance.PlayLoop(audioSource, GetClip(soundType));
         }
 
         /// <summary>
@@ -71,11 +70,7 @@ namespace Phenix.Unity.Audio
         public void PlayLoop(int soundType, float time,
             float fadeInTime = 0, float fadeOutTime = 0)
         {
-            if (_audios.ContainsKey(soundType) == false)
-            {
-                return;
-            }
-            AudioTools.Instance.PlayLoop(audioSource, _audios[soundType], time, fadeInTime, fadeOutTime);
+            AudioTools.Instance.PlayLoop(audioSource, GetClip(soundType), time, fadeInTime, fadeOutTime);
         }
 
         /// <summary>
@@ -83,11 +78,7 @@ namespace Phenix.Unity.Audio
         /// </summary>    
         public void PlayCross(int soundType, float fadeOutTime, float fadeInTime)
         {
-            if (_audios.ContainsKey(soundType) == false)
-            {
-                return;
-            }
-            AudioTools.Instance.PlayCross(audioSource, _audios[soundType], fadeOutTime, fadeInTime);
+            AudioTools.Instance.PlayCross(audioSource, GetClip(soundType), fadeOutTime, fadeInTime);
         }
     }
 }

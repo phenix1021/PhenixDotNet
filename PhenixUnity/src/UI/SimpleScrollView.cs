@@ -95,7 +95,7 @@ namespace Phenix.Unity.UI
                     continue;
                 }
                 item.GetComponent<RectTransform>().sizeDelta = _cellSize;
-                item.transform.parent = content;                
+                item.transform.SetParent(content);
             }
 
             Refresh();
@@ -127,7 +127,7 @@ namespace Phenix.Unity.UI
             
             RectTransform rt = cell.GetComponent<RectTransform>();
             rt.sizeDelta = _cellSize;            
-            cell.transform.parent = content;
+            cell.transform.SetParent(content);
             cell.transform.localPosition = new Vector3(cell.transform.localPosition.x, cell.transform.localPosition.y, 0);
             cell.transform.localScale = Vector3.one;
 
@@ -157,7 +157,7 @@ namespace Phenix.Unity.UI
         public void Del(GameObject cell)
         {
             _cells.Remove(cell);
-            cell.transform.parent = null;
+            cell.transform.SetParent(null);
             //cell.SetActive(false);
 
             if (_destroyOnRemove)

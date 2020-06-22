@@ -34,7 +34,7 @@ namespace Phenix.Unity.UI
             dragable.onDragging.AddListener(OnDragging);
             dragable.onDragEnd.AddListener(OnEndDrag);
 
-            slider.parent = panel;
+            slider.SetParent(panel);
             panel.pivot = slider.pivot = new Vector2(0.5f, 0.5f);
             _moveRadius = Mathf.Min(panel.rect.width, panel.rect.height) * 0.5f;
 

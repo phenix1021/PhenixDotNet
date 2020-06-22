@@ -111,7 +111,7 @@ namespace Phenix.Unity.Grid
             T tileComp = tileObj.AddComponent<T>();
             tileComp.tile = tile;                   
             tileObj.transform.position = tile.Center;
-            tileObj.transform.parent = _tilesParent.transform;
+            tileObj.transform.SetParent(_tilesParent.transform);
             _tileComps.Add(tile.Coords, tileComp);
 
             OnTileCreated(tileComp);

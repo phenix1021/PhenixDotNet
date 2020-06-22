@@ -10,7 +10,12 @@ namespace Phenix.Unity.Utilities
         /// 简单播一发
         /// </summary>    
         public Coroutine PlayOneShot(AudioSource audioSource, AudioClip clip, float delay = 0)
-        {            
+        {
+            if (audioSource == null || clip == null)
+            {
+                return null;
+            }
+
             audioSource.volume = 1;
             if (delay == 0)
             {
@@ -33,7 +38,12 @@ namespace Phenix.Unity.Utilities
         /// 音量渐起
         /// </summary>    
         public Coroutine PlayIn(AudioSource audioSource, AudioClip clip, float fadeInTime)
-        {            
+        {
+            if (audioSource == null || clip == null)
+            {
+                return null;
+            }
+
             audioSource.clip = clip;
             audioSource.loop = false;
             audioSource.volume = 0;
@@ -58,6 +68,11 @@ namespace Phenix.Unity.Utilities
         /// </summary>    
         public Coroutine PlayOut(AudioSource audioSource, AudioClip clip, float fadeOutTime)
         {
+            if (audioSource == null || clip == null)
+            {
+                return null;
+            }
+
             audioSource.clip = clip;
             audioSource.loop = false;
             audioSource.volume = 1;
@@ -85,6 +100,11 @@ namespace Phenix.Unity.Utilities
         /// </summary>    
         public void PlayLoop(AudioSource audioSource, AudioClip clip)
         {
+            if (audioSource == null || clip == null)
+            {
+                return;
+            }
+
             audioSource.clip = clip;
             audioSource.volume = 1;
             audioSource.loop = true;
@@ -97,6 +117,11 @@ namespace Phenix.Unity.Utilities
         public Coroutine PlayLoop(AudioSource audioSource, AudioClip clip, float time,
             float fadeInTime = 0, float fadeOutTime = 0)
         {
+            if (audioSource == null || clip == null)
+            {
+                return null;
+            }
+
             if (time > 0 && time < fadeInTime + fadeOutTime)
             {
                 return null;
@@ -139,6 +164,11 @@ namespace Phenix.Unity.Utilities
         /// </summary>    
         public Coroutine PlayCross(AudioSource audioSource, AudioClip clip, float fadeOutTime, float fadeInTime)
         {
+            if (audioSource == null || clip == null)
+            {
+                return null;
+            }
+
             return StartCoroutine(PlayCrossImpl(audioSource, clip, fadeOutTime, fadeInTime));
         }
 

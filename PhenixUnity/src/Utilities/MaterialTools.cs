@@ -24,8 +24,10 @@ namespace Phenix.Unity.Utilities
         IEnumerator FadeOutImpl(Renderer renderer, string colorPropName, float fadeInTime,
             GameObject go, bool setActiveFalse, UnityAction onFinished)
         {
-            Color color = Color.white;
-            renderer.material.SetColor(colorPropName, color);
+            //Color color = Color.white;
+            //renderer.material.SetColor(colorPropName, color);
+            Color color = renderer.material.color;
+            color.a = 1;
 
             while (fadeInTime > 0 && color.a > 0)
             {
@@ -59,7 +61,8 @@ namespace Phenix.Unity.Utilities
         IEnumerator FadeInImpl(Renderer renderer, string colorPropName, float fadeInTime,
             GameObject go, bool setActiveTrue, UnityAction onFinished)
         {
-            Color color = Color.white;
+            //Color color = Color.white;
+            Color color = renderer.material.color;
             color.a = 0;
             renderer.material.SetColor(colorPropName, color);
 

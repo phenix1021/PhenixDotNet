@@ -42,7 +42,7 @@ namespace Phenix.Unity.UI
                 GameObject cur = _tabs[i];
                 if (cur != null && cur != pre)
                 {
-                    cur.transform.parent = contents;
+                    cur.transform.SetParent(contents);
                     pre = cur;                    
                     continue;
                 }
@@ -58,14 +58,14 @@ namespace Phenix.Unity.UI
             Image targetGraphic = tabOff.AddComponent<Image>();
             GameObject tabOn = new GameObject("SwitchOn");
             Image graphic = tabOn.AddComponent<Image>();            
-            tabOn.transform.parent = tabOff.transform;
+            tabOn.transform.SetParent(tabOff.transform);
 
             toggle.targetGraphic = targetGraphic;
             toggle.graphic = graphic;
             toggle.group = _toggleGroup;
             toggle.onValueChanged.AddListener(OnValueChanged);
 
-            tabOff.transform.parent = contents;
+            tabOff.transform.SetParent(contents);
 
             (tabOn.transform as RectTransform).pivot = new Vector2(0.5f, 0.5f);
             (tabOn.transform as RectTransform).anchorMin = Vector2.zero;
@@ -86,14 +86,14 @@ namespace Phenix.Unity.UI
             GameObject tabOn = new GameObject("SwitchOn");
             Image graphic = tabOn.AddComponent<Image>();
             graphic.sprite = switchOn;
-            tabOn.transform.parent = tabOff.transform;
+            tabOn.transform.SetParent(tabOff.transform);
 
             toggle.targetGraphic = targetGraphic;
             toggle.graphic = graphic;
             toggle.group = _toggleGroup;
             toggle.onValueChanged.AddListener(OnValueChanged);
 
-            tabOff.transform.parent = contents;
+            tabOff.transform.SetParent(contents);
 
             (tabOff.transform as RectTransform).pivot = new Vector2(0.5f, 0.5f);
             (tabOff.transform as RectTransform).anchorMin = Vector2.zero;
@@ -117,7 +117,7 @@ namespace Phenix.Unity.UI
         public void RemoveTab(GameObject tab)
         {
             _tabs.Remove(tab);
-            tab.transform.parent = null;
+            tab.transform.SetParent(null);
             if (_destroyOnRemove)
             {
                 DestroyImmediate(tab);

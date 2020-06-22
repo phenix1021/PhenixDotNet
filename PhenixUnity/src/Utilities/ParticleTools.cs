@@ -37,12 +37,18 @@ namespace Phenix.Unity.Utilities
             particleSystem.Play();            
         }
 
-        public void Stop(ParticleSystem particleSystem, bool hide = true)
+        public void Stop(ParticleSystem particleSystem, Coroutine coroutine, bool hide = true)
         {
             if (particleSystem == null)
             {
                 return;
             }
+
+            if (coroutine != null)
+            {
+                StopCoroutine(coroutine);
+            }
+
             particleSystem.Stop();
             if (hide)
             {
