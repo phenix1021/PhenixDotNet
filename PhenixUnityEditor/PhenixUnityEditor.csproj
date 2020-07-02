@@ -41,13 +41,25 @@
     <Reference Include="UnityEngine">
       <HintPath>D:\Unity\Editor\Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\Unity\Editor\Data\UnityExtensions\Unity\GUISystem\UnityEngine.UI.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Editor\GUIControl.cs" />
+    <Compile Include="Editor\GUIControlHelper.cs" />
     <Compile Include="Editor\Inspectors\BaseInspector.cs" />
+    <Compile Include="Editor\Inspectors\ArcViewInspector.cs" />
+    <Compile Include="Editor\Inspectors\GridViewInspector.cs" />
+    <Compile Include="Editor\Inspectors\SimpleScrollViewInspector.cs" />
+    <Compile Include="Editor\Inspectors\TabViewInspector.cs" />
+    <Compile Include="Editor\Inspectors\NumFontInspector.cs" />
     <Compile Include="Editor\Tools.cs" />
     <Compile Include="Editor\HandlesHelper.cs" />
     <Compile Include="Editor\Inspectors\PathMgrInspector.cs" />
+    <Compile Include="Editor\RegisterUIControls\RegisterUIControls.cs" />
+    <Compile Include="Editor\RegisterUIControls\UIDefaultControls.cs" />
+    <Compile Include="Editor\RegisterUIControls\UIMenuTools.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

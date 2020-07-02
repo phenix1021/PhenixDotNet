@@ -6,7 +6,7 @@ namespace Phenix.Unity.Editor.Control
     /// <summary>
     /// 各种GUI控件
     /// </summary>
-    public static class GUIControl
+    public static class GUIControlHelper
     {
         // ---------------------------逻辑类控件------------------------------
 

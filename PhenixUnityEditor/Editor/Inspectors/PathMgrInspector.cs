@@ -24,37 +24,41 @@ namespace Phenix.Unity.Editor.Inspector
             _pathMgr = (PathMgr)target;
         }
 
-        protected override void ProcessControls()
+        protected override void OnInspectorGUI()
         {
-            // 是否循环
-            GUIControl.BoolField("loop:", "", ref _pathMgr.loop);
+            Prepare();
 
-            GUIControl.Foldout("Path:", "", ref _switchForPath);
+            // 是否循环
+            GUIControlHelper.BoolField("loop:", "", ref _pathMgr.loop);
+
+            GUIControlHelper.Foldout("Path:", "", ref _switchForPath);
             if (_switchForPath)
             {
                 // 各个路径点
                 for (int i = 0; i < _pathMgr.points.Count; ++i)
                 {
-                    _pathMgr.points[i] = GUIControl.Vector3Field(string.Format("point {0}:", i), "", _pathMgr.points[i]);
+                    _pathMgr.points[i] = GUIControlHelper.Vector3Field(string.Format("point {0}:", i), "", _pathMgr.points[i]);
                 }
             }           
 
-            if (GUIControl.Button("Add Point", ""))
+            if (GUIControlHelper.Button("Add Point", ""))
             {                
                 _pathMgr.AddPoint(_pathMgr.transform.position + Random.onUnitSphere);                             
             }
 
-            if (GUIControl.Button("Remove Point", ""))
+            if (GUIControlHelper.Button("Remove Point", ""))
             {
                 _pathMgr.RemovePoint(_curPathPointSelected);
                 _curPathPointSelected = _pathMgr.points.Count-1;
             }
 
-            if (GUIControl.Button("Clear All", ""))
+            if (GUIControlHelper.Button("Clear All", ""))
             {
                 _pathMgr.Clear();
                 _curPathPointSelected = -1;
             }
+
+            Submit();
         }
 
         protected override void OnSceneGUI()
