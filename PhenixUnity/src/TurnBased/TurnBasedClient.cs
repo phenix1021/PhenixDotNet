@@ -15,9 +15,9 @@ namespace Phenix.Unity.TurnBased
         bool _isQuit;
 
         [SerializeField]
-        bool _isAI;
+        protected bool isAI;
 
-        public bool IsAI { get { return _isAI; } set { _isAI = value; OnIsAIChanged(); } }
+        public bool IsAI { get { return isAI; } set { isAI = value; OnIsAIChanged(); } }
 
         Queue<ITurnBasedCommand> _commands = new Queue<ITurnBasedCommand>(); // 本回合command集合
 
@@ -91,7 +91,7 @@ namespace Phenix.Unity.TurnBased
 
         public void OnExecute(int turnID)
         {
-            if (_isAI)
+            if (isAI)
             {
                 ExecuteAI(turnID);
             }
