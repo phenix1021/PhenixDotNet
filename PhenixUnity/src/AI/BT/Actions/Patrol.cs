@@ -39,7 +39,8 @@ namespace Phenix.Unity.AI.BT
                 _patrol.waypoints.Add(waypoint.Value.gameObject);
             }
             _patrol.onRest = OnRest;
-            _patrol.onMove = OnMove;
+            _patrol.onMove = OnMove;            
+
             _patrol.OnStart();
         }
 

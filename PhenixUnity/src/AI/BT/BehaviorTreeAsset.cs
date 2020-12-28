@@ -59,7 +59,7 @@ namespace Phenix.Unity.AI.BT
 
         private void OnEnable()
         {
-            Debug.Log("OnEnable", this);
+            //Debug.Log("OnEnable", this);
             /*if (string.IsNullOrEmpty(_serializedXMLText))
             {
                 Init();         // 新建文件时触发
@@ -73,7 +73,7 @@ namespace Phenix.Unity.AI.BT
 
         private void OnDisable()
         {
-            Debug.Log("OnDisable", this);
+            //Debug.Log("OnDisable", this);
         }
 
         void Init()
@@ -85,7 +85,7 @@ namespace Phenix.Unity.AI.BT
 
         private void OnDestroy()
         {
-            Debug.Log("OnDestroy", this);
+            //Debug.Log("OnDestroy", this);
             DestroyImmediate(_bt);           
         }
 

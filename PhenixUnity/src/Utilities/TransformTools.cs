@@ -292,13 +292,13 @@ namespace Phenix.Unity.Utilities
                 yield return new WaitForEndOfFrame();
             }
 
-            trans.position = oriPos;
+            trans.localPosition = oriPos;
         }
 
         public void StopShake(Transform trans, Coroutine coroutine, Vector3 retorePos)
         {
             StopCoroutine(coroutine);
-            trans.position = retorePos;
+            trans.localPosition = retorePos;
         }
 
         public Coroutine Blink(Transform trans, Vector3 deltaScalePercent, float speed, float delay = 0)
@@ -474,12 +474,19 @@ namespace Phenix.Unity.Utilities
         /// </summary>
         public GameObject GetPointerObject(LayerMask layerMask)
         {
-            Ray ray = UnityEngine.Camera.main.ScreenPointToRay(Input.mousePosition);
+            UnityEngine.Camera mainCam = UnityEngine.Camera.main;
+            if (mainCam == null)
+            {
+                return null;
+            }
+
+            Ray ray = mainCam.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitInfo;
             if (Physics.Raycast(ray, out hitInfo, float.PositiveInfinity, layerMask))
             {
                 return hitInfo.collider.gameObject;
             }
+
             return null;
         }
 

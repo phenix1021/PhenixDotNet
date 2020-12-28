@@ -10,7 +10,7 @@ namespace Phenix.Unity.UI
         public GameObject UIRoot { get; set; }
         public int UIID { get; private set; }
         //public MessageMgr Controllers { get; set; }
-        public bool Visible { get; set; }
+        public bool Active { get; set; }
         protected Canvas Canvas { get; private set; }
 
         float _closeTimer = 0;
@@ -31,7 +31,7 @@ namespace Phenix.Unity.UI
 
         public virtual void Open(bool asLastSibling = false)
         {
-            Visible = true;
+            Active = true;
             _closeTimer = 0;
             if (asLastSibling)
             {
@@ -41,7 +41,7 @@ namespace Phenix.Unity.UI
 
         public virtual void Close()
         {
-            Visible = false;
+            Active = false;
             _closeTimer = Time.timeSinceLevelLoad;
         }
 
@@ -89,7 +89,10 @@ namespace Phenix.Unity.UI
         {
             foreach (var item in _views)
             {
-                item.Value.OnUpdate();
+                if (item.Value.Active)
+                {
+                    item.Value.OnUpdate();
+                }
             }
         }
     }

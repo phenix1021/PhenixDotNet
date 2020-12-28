@@ -5,10 +5,10 @@
     {
         public override TaskStatus Decorate(TaskStatus status)
         {
-            if (status == TaskStatus.RUNNING)
-            {
-                return TaskStatus.RUNNING;
-            }
+            //if (status == TaskStatus.RUNNING)
+            //{
+            //    return TaskStatus.RUNNING;
+            //}
             return TaskStatus.FAILURE;
         }
     }

@@ -19,7 +19,7 @@ namespace Phenix.Unity.UI
 
         public bool IsViewVisible()
         {
-            return View.Get(UIID).Visible;
+            return View.Get(UIID).Active;
         }
 
         /// <summary>

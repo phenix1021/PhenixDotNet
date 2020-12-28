@@ -34,11 +34,13 @@ namespace Phenix.Unity.AI.BT
             _seek.targetPosition = targetPosition;
             _seek.onMove = OnMove;
             _seek.onMoving = OnMoving;
+            _seek.onArrived = OnArrived;
             _seek.OnStart();
         }
 
         protected virtual void OnMove() { }
         protected virtual void OnMoving() { }
+        protected virtual void OnArrived() { }
 
         public override TaskStatus Run()
         {

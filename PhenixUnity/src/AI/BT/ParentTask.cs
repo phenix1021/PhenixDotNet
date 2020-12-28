@@ -50,6 +50,7 @@ namespace Phenix.Unity.AI.BT
                 }
                 Status = TaskStatus.FAILURE;
                 OnEnd();
+                turnOver = true;
             }
         }
 

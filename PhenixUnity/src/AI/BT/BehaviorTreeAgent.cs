@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace Phenix.Unity.AI.BT
 {
-    [AddComponentMenu("Phenix/Behavior Tree Agent")]
+    [AddComponentMenu("Phenix/BehaviorTreeAgent")]
     [DisallowMultipleComponent]
     public class BehaviorTreeAgent : MonoBehaviour
     {

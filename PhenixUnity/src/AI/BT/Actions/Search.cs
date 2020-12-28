@@ -28,6 +28,8 @@ namespace Phenix.Unity.AI.BT
         [SerializeField]
         protected LayerMask ignoreLayerMask;// = 1 << LayerMask.NameToLayer("Ignore Raycast");
         [SerializeField]
+        protected bool senseSight = true;
+        [SerializeField]
         protected bool senseAudio = true;
         [SerializeField]
         protected float hearingRadius = 30;
@@ -47,7 +49,7 @@ namespace Phenix.Unity.AI.BT
         protected float audibilityThreshold = 0.05f;
 
         [SerializeField]
-        protected SharedGameObject returnedObject;
+        protected SharedGameObject returnedObject;        
 
         protected virtual void OnRest() { }
         protected virtual void OnMove() { }
@@ -75,6 +77,7 @@ namespace Phenix.Unity.AI.BT
             _search.fieldOfViewAngle = fieldOfViewAngle;
             _search.viewDistance = viewDistance;
             _search.ignoreLayerMask = ignoreLayerMask;
+            _search.senseSight = senseSight;
             _search.senseAudio = senseAudio;
             _search.hearingRadius = hearingRadius;
             _search.positionOffset = positionOffset;
@@ -83,7 +86,7 @@ namespace Phenix.Unity.AI.BT
             _search.maxCollisionCount = maxCollisionCount;
             _search.useTargetBone = useTargetBone;
             _search.targetBone = targetBone;
-            _search.audibilityThreshold = audibilityThreshold;
+            _search.audibilityThreshold = audibilityThreshold;            
 
             _search.onRest = OnRest;
             _search.onMove = OnMove;

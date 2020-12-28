@@ -26,10 +26,18 @@ namespace Phenix.Unity.AI.BT
         [SerializeField]
         protected int targetRetries = 1;
 
-        Locomotion.Wander _wander = new Locomotion.Wander();
+        public bool fixedCenter;    // 是否固定wander中心点位置，即wander范围限于agent初始位置为中心，wanderDistance为半径的圆内
+
+        Locomotion.Wander _wander;
 
         protected virtual void OnRest() { }
         protected virtual void OnMove() { }
+
+        public override void OnAwake()
+        {
+            base.OnAwake();
+            _wander = new Locomotion.Wander(Transform.position);
+        }
 
         public override void OnStart()
         {
@@ -53,6 +61,8 @@ namespace Phenix.Unity.AI.BT
             _wander.onRest = OnRest;
             _wander.onMove = OnMove;
 
+            _wander.fixedCenter = fixedCenter;
+            
             _wander.OnStart();
         }
 

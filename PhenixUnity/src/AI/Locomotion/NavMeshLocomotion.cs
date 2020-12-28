@@ -89,10 +89,19 @@ namespace Phenix.Unity.AI.Locomotion
         /// </summary>
         /// <param name="position">The position to sample.</param>
         /// <returns>True if the position is a valid pathfinding position.</returns>
-        protected bool SamplePosition(Vector3 position)
+        protected bool SamplePosition(ref Vector3 position)
         {
+            //NavMeshHit hit;
+            //return NavMesh.SamplePosition(position, out hit, navMeshAgent.height * 2, NavMesh.AllAreas); 
+
             NavMeshHit hit;
-            return NavMesh.SamplePosition(position, out hit, navMeshAgent.height * 2, NavMesh.AllAreas);
+            // hit中将获得距离position指定范围内可以到达的最近点            
+            bool rlt = NavMesh.SamplePosition(position, out hit, navMeshAgent.height * 2/*unity官方手册推荐的maxDistance*/, navMeshAgent.areaMask);
+            if (rlt)
+            {
+                position = hit.position;
+            }
+            return rlt;
         }
 
         /// <summary>

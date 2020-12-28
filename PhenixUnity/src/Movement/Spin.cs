@@ -8,9 +8,8 @@ namespace Phenix.Unity.Movement
     /// </summary>
     [AddComponentMenu("Phenix/Movement/Spin")]
     public class Spin : MonoBehaviour
-    {
-        [SerializeField]
-        Vector3 _axis = Vector3.up;      // 旋转轴
+    {        
+        public Vector3 axis = Vector3.up;      // 旋转轴
         
         [SerializeField]
         float _speed = 10;   // 旋转速度
@@ -18,7 +17,7 @@ namespace Phenix.Unity.Movement
         // Update is called once per frame
         void Update()
         {
-            transform.Rotate(_axis, Time.deltaTime * _speed);
+            transform.Rotate(axis, Time.deltaTime * _speed);
         }
     }
 }

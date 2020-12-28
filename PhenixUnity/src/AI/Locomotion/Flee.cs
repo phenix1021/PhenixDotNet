@@ -64,7 +64,7 @@ namespace Phenix.Unity.AI.Locomotion
         // Return false if the position isn't valid on the NavMesh.
         protected override bool SetDestination(Vector3 destination)
         {
-            if (!SamplePosition(destination))
+            if (!SamplePosition(ref destination))
             {
                 return false;
             }

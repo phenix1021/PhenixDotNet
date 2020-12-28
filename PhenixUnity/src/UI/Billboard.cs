@@ -17,6 +17,11 @@ namespace Phenix.Unity.UI
                 return;
             }
 
+            if (UnityEngine.Camera.main == null)
+            {
+                return;
+            }
+
             Vector3 screenPos = UnityEngine.Camera.main.WorldToScreenPoint(trans.position);
             screenPos.z = 0; // 也可以是其它任何值
             trans.LookAt(UnityEngine.Camera.main.ScreenToWorldPoint(screenPos));

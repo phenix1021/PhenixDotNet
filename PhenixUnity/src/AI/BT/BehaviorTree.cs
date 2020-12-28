@@ -38,16 +38,30 @@ namespace Phenix.Unity.AI.BT
 
         public bool IsUnactive { get { return _isTurnCompleted && btParams.restartOnTurnCompleted == false; } }
 
+        // 创建和加载ScriptableObject时触发
         private void OnEnable()
         {
             _tasks = new List<Task>();
             _blackboard = new Blackboard();
-            btParams = new BehaviorTreeParams();                     
+            btParams = new BehaviorTreeParams();
         }
 
-        private void OnDisable()
+        // 创建ScriptableObject对象时会自动触发Reset方法
+        void Reset()
         {
-            
+            if (_tasks == null)
+            {
+                return;
+            }
+
+            foreach (var task in _tasks)
+            {
+                task.Status = TaskStatus.NONE;
+                if (task is BehaviorTreeReference)
+                {
+                    (task as BehaviorTreeReference).externalBTAsset.BT.Reset();
+                }
+            }
         }
 
         private void OnDestroy()
@@ -149,19 +163,7 @@ namespace Phenix.Unity.AI.BT
             {
                 OnTurnCompleted();                
             }
-        }
-
-        void Reset()
-        {
-            foreach (var task in _tasks)
-            {
-                task.Status = TaskStatus.NONE;
-                if (task is BehaviorTreeReference)
-                {
-                    (task as BehaviorTreeReference).externalBTAsset.BT.Reset();
-                }
-            }
-        }
+        }        
 
         void OnTurnCompleted()
         {

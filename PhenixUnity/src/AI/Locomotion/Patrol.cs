@@ -27,7 +27,7 @@ namespace Phenix.Unity.AI.Locomotion
         {
             base.OnStart();
 
-            // initially move towards the closest waypoint
+            // 初始点为距离最近的点（initially move towards the closest waypoint）
             float distance = Mathf.Infinity;
             float localDistance;
             for (int i = 0; i < waypoints.Count; ++i)
@@ -38,6 +38,7 @@ namespace Phenix.Unity.AI.Locomotion
                     _waypointIndex = i;
                 }
             }
+
             _waypointReachedTime = -1;
             SetDestination(Target());
             if (onMove != null)

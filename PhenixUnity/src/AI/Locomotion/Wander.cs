@@ -23,17 +23,33 @@ namespace Phenix.Unity.AI.Locomotion
         // The maximum number of retries per tick (set higher if using a slow tick time)
         public int targetRetries = 1;
 
+        public bool fixedCenter;    // 是否固定wander中心点位置，即wander范围限于agent初始位置为中心，wanderDistance为半径的圆内
+
         float _pauseTime;
         float _destinationReachTime;
         bool _targetSetting = false;
 
+        Vector3 _oriPos;
+
         public UnityAction onRest;
         public UnityAction onMove;
+
+        public Wander(Vector3 oriPos)
+        {
+            _oriPos = oriPos;
+        }
+
+        public override void OnStart()
+        {
+            base.OnStart();
+            Stop();
+            //_oriPos = agent.position;
+        }
 
         // There is no success or fail state with wander - the agent will just keep wandering
         public override LocomotionStatus OnUpdate()
         {
-            if (HasArrived())
+            if (HasArrived() || navMeshAgent.isStopped)
             {
                 // The agent should pause at the destination only if the max pause duration is greater than 0
                 if (maxPauseDuration > 0)
@@ -69,7 +85,7 @@ namespace Phenix.Unity.AI.Locomotion
                 _destinationReachTime = -1;
                 _targetSetting = false;
                 if (onMove != null)
-                {
+                {                    
                     onMove.Invoke();
                 }
             }
@@ -77,7 +93,7 @@ namespace Phenix.Unity.AI.Locomotion
             {
                 _targetSetting = true;
                 if (onRest != null)
-                {
+                {                    
                     onRest.Invoke();
                 }
             }
@@ -89,17 +105,28 @@ namespace Phenix.Unity.AI.Locomotion
             var validDestination = false;
             var attempts = targetRetries;
             var destination = agent.position;
+
             while (!validDestination && attempts > 0)
             {
-                direction = direction + Random.insideUnitSphere * wanderRate;
-                destination = agent.position + direction.normalized * Random.Range(minWanderDistance, maxWanderDistance);
-                validDestination = SamplePosition(destination);
+                if (fixedCenter)
+                {
+                    destination = _oriPos + Random.insideUnitSphere * Random.Range(minWanderDistance, maxWanderDistance);
+                }
+                else
+                {
+                    direction = direction + Random.insideUnitSphere * wanderRate;
+                    destination = agent.position + direction.normalized * Random.Range(minWanderDistance, maxWanderDistance);
+                }
+                
+                validDestination = SamplePosition(ref destination);
                 attempts--;
             }
+
             if (validDestination)
             {
                 SetDestination(destination);
             }
+
             return validDestination;
         }
 

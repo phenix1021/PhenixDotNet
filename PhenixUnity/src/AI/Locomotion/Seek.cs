@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Events;
 
 namespace Phenix.Unity.AI.Locomotion
@@ -13,6 +14,7 @@ namespace Phenix.Unity.AI.Locomotion
 
         public UnityAction onMove;
         public UnityAction onMoving;
+        public UnityAction onArrived;
 
         public override void OnStart()
         {
@@ -30,13 +32,20 @@ namespace Phenix.Unity.AI.Locomotion
         {
             if (HasArrived())
             {
+                if (onArrived != null)
+                {
+                    onArrived.Invoke();
+                }
+
                 return LocomotionStatus.SUCCESS;
             }
+
             SetDestination(Target());
             if (onMoving != null)
             {
                 onMoving.Invoke();
             }
+
             UpdateNavMeshObstacle();
             return LocomotionStatus.RUNNING;
         }
@@ -44,11 +53,28 @@ namespace Phenix.Unity.AI.Locomotion
         // Return targetPosition if target is null
         private Vector3 Target()
         {
+            Vector3 rlt = Vector3.zero;
             if (target != null)
             {
-                return target.position;
+                rlt = target.position;
             }
-            return targetPosition;
+            else
+            {
+                rlt = targetPosition;
+            }
+
+            NavMeshPath path = new NavMeshPath();
+            navMeshAgent.CalculatePath(rlt, path);
+            if (path.status == NavMeshPathStatus.PathInvalid)
+            {
+                rlt = navMeshAgent.transform.position;
+            }
+            else
+            {
+                rlt = path.corners[path.corners.Length - 1];
+            }
+
+            return rlt;
         }
 
         public override void OnReset()

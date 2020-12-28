@@ -18,18 +18,32 @@ namespace Phenix.Unity.Movement
         [SerializeField]
         float _speed = 1;   // 浮动速度
 
-        Vector3 _basePos;   // 基准位置
+        public Vector3 basePos;   // 基准位置
+        public Transform baseObj; // 基准方位
 
         // Use this for initialization
         void Start()
         {
-            _basePos = transform.position;
+            if (baseObj == null)
+            {
+                basePos = transform.position;
+            }            
         }
 
         // Update is called once per frame
         void Update()
         {
-            Vector3 tarPos = Mathf.Sin(Time.time) * _floatRange * _axis.normalized + _basePos;
+            Vector3 tarPos;
+
+            if (baseObj)
+            {
+                tarPos = Mathf.Sin(Time.time) * _floatRange * _axis.normalized + baseObj.position;
+            }
+            else
+            {
+                tarPos = Mathf.Sin(Time.time) * _floatRange * _axis.normalized + basePos;
+            }
+
             transform.position = MathTools.Hermite(transform.position, tarPos, Time.deltaTime * _speed);
         }
     }

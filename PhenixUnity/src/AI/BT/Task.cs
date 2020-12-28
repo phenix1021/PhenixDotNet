@@ -27,7 +27,7 @@ namespace Phenix.Unity.AI.BT
         TaskStatus _status = TaskStatus.NONE;
         Task _parent = null;
         //bool _firstRun = true;
-        bool _turnOver = true;        
+        protected bool turnOver = true;        
                 
         [HideInInspector]
         public NodeData nodeData = new NodeData();
@@ -50,16 +50,16 @@ namespace Phenix.Unity.AI.BT
                     OnAwake();
                     _firstRun = false;
                 }*/
-                if (_turnOver)
+                if (turnOver)
                 {
-                    _turnOver = false;
+                    turnOver = false;
                     OnStart();
                 }
                 _status = Run();
                 if (_status != TaskStatus.RUNNING)
                 {
                     OnEnd();
-                    _turnOver = true;
+                    turnOver = true;
                 }
             }
             
@@ -72,6 +72,7 @@ namespace Phenix.Unity.AI.BT
             {
                 _status = TaskStatus.FAILURE;
                 OnEnd();
+                turnOver = true;
             }
         }
 

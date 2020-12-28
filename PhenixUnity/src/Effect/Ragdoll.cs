@@ -8,36 +8,33 @@ namespace Phenix.Unity.Effect
     /// </summary>
     [AddComponentMenu("Phenix/Effect/RagDoll")]
     public class RagDoll : MonoBehaviour
-    {
-        [SerializeField]
-        bool _playOnAwake = false;
-
-        [SerializeField]
-        float _minSpeed = 1;
-
-        [SerializeField]
-        Transform _pelvisBone; // 根骨骼
+    {        
         [SerializeField]
         Animator _animator;
+
         [SerializeField]
-        Collider _collider;    // 本身的collider，并非ragdoll里的collider 
+        Transform _pelvisBone; // 根骨骼        
 
-        List<Rigidbody> _ragdollRigidbodys = new List<Rigidbody>();
-        List<Collider> _ragdollColliders = new List<Collider>();
+        [SerializeField]
+        float _ragDollTime = 2;         // 持续时间（秒）, 小于等于0表示持续生效
 
-        bool _active = false;
+        List<Rigidbody> _ragdollRigidbodys = new List<Rigidbody>(); // 所有骨骼对应的刚体
+
+        //[SerializeField]
+        //bool _keepPelVisOffset = true;   // 根骨骼是否保持和host的相对位置
+
+        //Vector3 _pelvisOffset;
+
+        public bool Enabled { get; private set; }
 
         private void Awake()
         {
             if (_animator == null)
             {
-                _animator = GetComponent<Animator>();
+                _animator = GetComponentInChildren<Animator>();
             }
-            if (_collider == null)
-            {
-                _collider = GetComponent<Collider>();
-            }
-            if (_pelvisBone == null && _animator)
+
+            if (_pelvisBone == null)
             {
                 _pelvisBone = _animator.GetBoneTransform(HumanBodyBones.Hips);
             }
@@ -48,81 +45,67 @@ namespace Phenix.Unity.Effect
             foreach (var rigidbody in _pelvisBone.GetComponentsInChildren<Rigidbody>())
             {
                 _ragdollRigidbodys.Add(rigidbody);
-                _ragdollColliders.Add(rigidbody.gameObject.GetComponent<Collider>());
             }
 
-            if (_playOnAwake)
+            DisableRagDoll();
+
+            /*if (_keepPelVisOffset)
             {
-                Open();
-            }
-            else
-            {
-                Close();
-            }
+                _pelvisOffset = gameObject.transform.position - GetRagdollBone(HumanBodyBones.Hips).transform.position;
+            } */           
         }
 
-        public void Open()
+        public void EnableRagDoll()
+        {
+            DoRagDoll();
+            if (_ragDollTime > 0)
+            {
+                Invoke("DisableRagDoll", _ragDollTime);
+            }            
+        }
+
+        void DoRagDoll()
         {
             // 开启布娃娃中所有Rigidbody和Collider
             for (int i = 0; i < _ragdollRigidbodys.Count; i++)
             {
-                _ragdollRigidbodys[i].isKinematic = false;
-                _ragdollColliders[i].isTrigger = false;
+                _ragdollRigidbodys[i].isKinematic/*是否动力学*/ = false; // 即关闭运动学（如动画、脚本），而使用物理模拟控制刚体
+                //_ragdollRigidbodys[i].detectCollisions = true;
             }
 
-            if (_collider)
-            {
-                // 关闭自身Collider
-                _collider.enabled = false;
-            }            
-
-            if (_animator)
-            {
-                // 关闭Animator
-                _animator.enabled = false;
-            }
-
-            _active = true;
+            Enabled = true;
         }
 
-        public void Close()
+        public void DisableRagDoll()
         {
             // 关闭布娃娃中所有Rigidbody和Collider
             for (int i = 0; i < _ragdollRigidbodys.Count; i++)
             {
-                _ragdollRigidbodys[i].isKinematic = true;
-                _ragdollColliders[i].isTrigger = true;
+                /* 此时Forces, collisions or joints will not affect the rigidbody anymore. 
+                 The rigidbody will be under full control of animation or script control 
+                by changing transform.position*/
+                _ragdollRigidbodys[i].isKinematic/*是否动力学*/ = true;// 即开启运动学（如动画、脚本）控制刚体，从而关闭物理模拟
+                //_ragdollRigidbodys[i].detectCollisions = false;
             }
 
-            if (_collider)
+            Enabled = false;
+            /*if (_keepPelVisOffset)
             {
-                // 开启自身Collider
-                _collider.enabled = true;
-            }
-
-            if (_animator)
-            {
-                // 开启自身Animator
-                _animator.enabled = true;
-            }
-
-            _active = false;
+                Vector3 pos = GetRagdollBone(HumanBodyBones.Hips).transform.position;
+                GetRagdollBone(HumanBodyBones.Hips).transform.position = gameObject.transform.position - _pelvisOffset;
+                gameObject.transform.position = pos;
+            }*/
         }
 
         public Rigidbody GetRagdollBone(HumanBodyBones bone)
         {
-            if (_animator == null)
+            Transform boneTransform = _animator.GetBoneTransform(bone);
+            if (boneTransform == null)
             {
                 return null;
             }
 
-            Transform boneTran = _animator.GetBoneTransform(bone);
-            if (boneTran == null)
-            {
-                return null;
-            }
-
-            return boneTran.GetComponent<Rigidbody>();
-        }
+            return boneTransform.GetComponent<Rigidbody>();
+        }        
     }
 }

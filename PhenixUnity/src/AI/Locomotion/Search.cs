@@ -33,6 +33,9 @@ namespace Phenix.Unity.AI.Locomotion
         // The LayerMask of the objects to ignore when performing the line of sight check
         public LayerMask ignoreLayerMask;// = 1 << LayerMask.NameToLayer("Ignore Raycast");
 
+        // 是否视觉感知
+        public bool senseSight = true;
+
         // Should the search end if audio was heard?
         public bool senseAudio = true;
 
@@ -71,8 +74,17 @@ namespace Phenix.Unity.AI.Locomotion
 
         bool _targetSetting = false;
 
+        Vector3 _oriPos;
+
         public UnityAction onRest;
         public UnityAction onMove;
+
+        public override void OnStart()
+        {
+            base.OnStart();
+            Stop();
+            _oriPos = agent.position;
+        }
 
         // Keep searching until an object is seen or heard (if senseAudio is enabled)
         public override LocomotionStatus OnUpdate()
@@ -108,26 +120,31 @@ namespace Phenix.Unity.AI.Locomotion
                 _overlapColliders = new Collider[maxCollisionCount];
             }
 
-            returnedObject = LocomotionUtility.WithinSight(agent, positionOffset, fieldOfViewAngle, viewDistance, _overlapColliders, 
-                objectLayerMask, targetOffset, ignoreLayerMask, useTargetBone, targetBone);
-            
-            // If an object was seen then return success
-            if (returnedObject != null)
+            if (senseSight)
             {
-                return LocomotionStatus.SUCCESS;
-            }
+                returnedObject = LocomotionUtility.WithinSight(agent, positionOffset, fieldOfViewAngle, viewDistance, _overlapColliders,
+                    objectLayerMask, targetOffset, ignoreLayerMask, useTargetBone, targetBone);
+
+                // If an object was seen then return success
+                if (returnedObject != null)
+                {
+                    return LocomotionStatus.SUCCESS;
+                }
+            }            
             
             // Detect if any object are within audio range (if enabled)
             if (senseAudio)
             {
                 returnedObject = LocomotionUtility.WithinHearingRange(agent, positionOffset, audibilityThreshold, hearingRadius, 
                     _overlapColliders, objectLayerMask);
+
                 // If an object was heard then return success
                 if (returnedObject != null)
                 {
                     return LocomotionStatus.SUCCESS;
                 }
             }
+
             UpdateNavMeshObstacle();
             // No object has been seen or heard so keep searching
             return LocomotionStatus.RUNNING;
@@ -162,9 +179,10 @@ namespace Phenix.Unity.AI.Locomotion
             var destination = agent.position;
             while (!validDestination && attempts > 0)
             {
-                direction = direction + Random.insideUnitSphere * wanderRate;
-                destination = agent.position + direction.normalized * Random.Range(minWanderDistance, maxWanderDistance);
-                validDestination = SamplePosition(destination);
+                destination = _oriPos + Random.insideUnitSphere * Random.Range(minWanderDistance, maxWanderDistance);
+                //direction = direction + Random.insideUnitSphere * wanderRate;
+                //destination = agent.position + direction.normalized * Random.Range(minWanderDistance, maxWanderDistance);
+                validDestination = SamplePosition(ref destination);
                 attempts--;
             }
             if (validDestination)
