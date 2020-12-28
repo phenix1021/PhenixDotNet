@@ -11,7 +11,7 @@ namespace Phenix.Unity.Editor.Control
         // ---------------------------逻辑类控件------------------------------
 
         /// <summary>
-        /// 开始监控控件数据变化
+        /// 开始监控控件数据变化（只监控BeginCheckControlChange和EndCheckControlChange之间的控件）
         /// 和EndCheckControlChange配合使用
         /// </summary>
         public static void BeginCheckControlChange()
@@ -20,12 +20,21 @@ namespace Phenix.Unity.Editor.Control
         }
 
         /// <summary>
-        /// 停止监控控件数据变化，返回是否变化
+        /// 停止监控控件数据变化，返回是否变化（只监控BeginCheckControlChange和EndCheckControlChange之间的控件）
         /// 和BeginCheckControlChange配合使用
         /// </summary>
         public static bool EndCheckControlChange()
         {
             return EditorGUI.EndChangeCheck();
+        }
+
+        /// <summary>
+        /// 全体GUI控件输入值是否改变
+        /// </summary>
+        /// <returns></returns>
+        public static bool ControlChanged()
+        {
+            return GUI.changed;
         }
 
         /// <summary>

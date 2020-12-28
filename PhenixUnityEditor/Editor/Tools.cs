@@ -62,5 +62,33 @@ namespace Phenix.Unity.Editor.Utilities
                 以及创建自己的GUISkin时也常作为模板，如 GUIStyle style = new GUIStyle(GUI.skin.box)）
             2.5 EditorStyles.*** 包含许多只读的属性，如内置Font、GUIStyle等
          */
+
+        /// <summary>
+        /// 打开“保存文件”对话框
+        /// </summary>
+        /// <param name="titile">标题</param>
+        /// <param name="defaultFileName">默认保存文件名</param>
+        /// <param name="fileExtName">文件扩展名</param>
+        /// <param name="message"></param>
+        /// <param name="path">保存路径</param>
+        /// <returns>完整路径+文件名+扩展名字符串</returns>
+        /// 例如OpenSaveDialog("Save Asset", "New Behavior Tree.asset", "asset", "", optionInfo.btAssetsPath);
+        public static string OpenSaveDialog(string title, string defaultFileName, string fileExtName, string message, string path)
+        {
+            return EditorUtility.SaveFilePanelInProject(title, defaultFileName, fileExtName, message, path);
+        }
+
+        /// <summary>
+        /// 打开“设置文件夹”对话框
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="folderPath"></param>
+        /// <param name="defaultName"></param>
+        /// <returns>完整文件夹路径字符串</returns>
+        /// 例如newPath = OpenFolderDialog("Select BTAssets Folder", newPath, "");
+        public static string OpenFolderDialog(string title, string folderPath, string defaultName)
+        {
+            return EditorUtility.OpenFolderPanel(title, folderPath, defaultName);
+        }
     }
 }
