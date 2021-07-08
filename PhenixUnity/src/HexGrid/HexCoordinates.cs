@@ -9,20 +9,21 @@ namespace Phenix.Unity.Grid
     /// 正六边形坐标系(立方体坐标系)
     /// 原理参见文章：
     /// 1.https://www.redblobgames.com/grids/hexagons/#conversions
+    ///   https://www.redblobgames.com/grids/hexagons/implementation.html
     /// 2.https://catlikecoding.com/unity/tutorials/hex-map/
-    /// 3.本代码使用的cube coordinates(立方体坐标系)和上述文章有所不同。
-    ///   当Pointy形状时q轴↗,r轴↖，s轴↓；
-    ///   当Flat形状时q轴→，r轴↖，s轴↙；
+    /// 3.本代码使用cube coordinates(立方体坐标系)。
+    ///   当Pointy形状时x轴↗,y轴↖，z轴↓；
+    ///   当Flat形状时x轴→，y轴↖，z轴↙；
     /// </summary>
     [System.Serializable]
     public struct HexCoordinates
     {        
         [SerializeField]
-        int _q, _r, _s;
+        int _x, _y, _z;
 
-        public int Q { get { return _q; } }
-        public int R { get { return _r; } }
-        public int S { get { return _s; } }
+        public int X { get { return _x; } }
+        public int Y { get { return _y; } }
+        public int Z { get { return _z; } }
 
         // 六个方向
         public static List<HexCoordinates> Directions = new List<HexCoordinates>()
@@ -35,15 +36,15 @@ namespace Phenix.Unity.Grid
             new HexCoordinates(0, 1, -1)
         };
 
-        public HexCoordinates(int q, int r, int s)
+        public HexCoordinates(int x, int y, int z)
         {
-            if (q + r + s != 0)
+            if (x + y + z != 0)
             {
-                throw new ArgumentException("q + r + s must be 0");
+                throw new ArgumentException("x + y + z must be 0");
             }
-            this._q = q;
-            this._r = r;
-            this._s = s;
+            this._x = x;
+            this._y = y;
+            this._z = z;
         }
 
         /// <summary>
@@ -51,7 +52,7 @@ namespace Phenix.Unity.Grid
         /// </summary>    
         public HexCoordinates RotateLeft()
         {
-            return new HexCoordinates(-S, -Q, -R);
+            return new HexCoordinates(-Z, -X, -Y);
         }
 
         /// <summary>
@@ -59,12 +60,12 @@ namespace Phenix.Unity.Grid
         /// </summary>    
         public HexCoordinates RotateRight()
         {
-            return new HexCoordinates(-R, -S, -Q);
+            return new HexCoordinates(-Y, -Z, -X);
         }
 
         public int Length()
         {
-            return (int)((Mathf.Abs(Q) + Mathf.Abs(R) + Mathf.Abs(S)) / 2);
+            return (int)((Mathf.Abs(X) + Mathf.Abs(Y) + Mathf.Abs(Z)) / 2);
         }
 
         public override bool Equals(object other)
@@ -74,7 +75,7 @@ namespace Phenix.Unity.Grid
             HexCoordinates o = (HexCoordinates)other;
             if ((System.Object)o == null)
                 return false;
-            return ((_q == o._q) && (_r == o._r));
+            return ((_x == o._x) && (_y == o._y));
         }
 
         public override int GetHashCode()
@@ -84,53 +85,53 @@ namespace Phenix.Unity.Grid
 
         public override string ToString()
         {
-            return string.Format("HexCoords({0},{1},{2})", Q.ToString(), R.ToString(), S.ToString());
+            return string.Format("HexCoords({0},{1},{2})", X.ToString(), Y.ToString(), Z.ToString());
         }
 
-        public static HexCoordinates HexRound(float q, float r, float s)
+        public static HexCoordinates HexRound(float x, float y, float z)
         {
-            int qi = Mathf.RoundToInt(q);
-            int ri = Mathf.RoundToInt(r);
-            int si = Mathf.RoundToInt(s);
-            double q_diff = Mathf.Abs(qi - q);
-            double r_diff = Mathf.Abs(ri - r);
-            double s_diff = Mathf.Abs(si - s);
+            int xi = Mathf.RoundToInt(x);
+            int yi = Mathf.RoundToInt(y);
+            int zi = Mathf.RoundToInt(z);
+            double x_diff = Mathf.Abs(xi - x);
+            double y_diff = Mathf.Abs(yi - y);
+            double z_diff = Mathf.Abs(zi - z);
 
-            if (q_diff > r_diff && q_diff > s_diff)
+            if (x_diff > y_diff && x_diff > z_diff)
             {
-                qi = -ri - si;
+                xi = -yi - zi;
             }
-            else if (r_diff > s_diff)
+            else if (y_diff > z_diff)
             {
-                ri = -qi - si;
+                yi = -xi - zi;
             }
             else
             {
-                si = -qi - ri;
+                zi = -xi - yi;
             }
 
-            return new HexCoordinates(qi, ri, si);
+            return new HexCoordinates(xi, yi, zi);
         }
 
         public static int Distance(HexCoordinates a, HexCoordinates b)
         {
-            return (Mathf.Abs(a._q - b._q) + Mathf.Abs(a.S - b.S) + Mathf.Abs(a._r - b._r)) / 2;
+            return (Mathf.Abs(a._x - b._x) + Mathf.Abs(a.Z - b.Z) + Mathf.Abs(a._y - b._y)) / 2;
             // 或者 return Mathf.Max(Mathf.Abs(a.x - b.x), Mathf.Abs(a.Y - b.Y), Mathf.Abs(a.z - b.z));
         }
 
         public static HexCoordinates operator + (HexCoordinates one, HexCoordinates two)
         {
-            return new HexCoordinates(one._q + two._q, one._r + two._r, one._s + two._s);
+            return new HexCoordinates(one._x + two._x, one._y + two._y, one._z + two._z);
         }
 
         public static HexCoordinates operator -(HexCoordinates one, HexCoordinates two)
         {
-            return new HexCoordinates(one._q - two._q, one._r - two._r, one._s - two._s);
+            return new HexCoordinates(one._x - two._x, one._y - two._y, one._z - two._z);
         }
 
         public static HexCoordinates operator *(HexCoordinates hexCoord, int scale)
         {
-            return new HexCoordinates(hexCoord._q * scale, hexCoord._r * scale, hexCoord._s * scale);
+            return new HexCoordinates(hexCoord._x * scale, hexCoord._y * scale, hexCoord._z * scale);
         }
 
     }

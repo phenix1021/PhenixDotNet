@@ -7,8 +7,8 @@ using Phenix.Unity.Mesh;
 
 namespace Phenix.Unity.Movement
 {
-    [AddComponentMenu("Phenix/Movement/Movement Controller")]
-    public class MovementController : MonoBehaviour
+    [AddComponentMenu("Phenix/Movement/MotorController")]
+    public class MotorController : MonoBehaviour
     {
         public class Force
         {
@@ -17,13 +17,15 @@ namespace Phenix.Unity.Movement
             public Action<Force> onDone;
             public Vector3 moveFrom;
             public Vector3 moveTo;
+            //public bool forShift;
         }
 
+        // 和target的接触面（不一定是狭义上的地面）
         public class Ground
         {
             public RaycastHit hit;
             public bool isTouching;
-            public Vector3 offset;
+            public Vector3 targetOffset;  // target相对于Ground的偏移值
 
             public Vector3 Point { get { return hit.point; } }
             public Vector3 Normal { get { return hit.normal; } }
@@ -44,10 +46,7 @@ namespace Phenix.Unity.Movement
             public bool isFeet;
             public bool isHead;
 
-            public BoundSphere()
-            {
-
-            }
+            public BoundSphere() { }
 
             public BoundSphere(float offset, float radius, bool isFeet, bool isHead)
             {
@@ -60,13 +59,13 @@ namespace Phenix.Unity.Movement
 
         [SerializeField]
         Transform _target = null;
-                
+
         public BoundSphere[] boundSpheres =
             new BoundSphere[3]
             {
-            new BoundSphere(0.4f, 0.4f, true, false),
-            new BoundSphere(0.75f, 0.4f, false, false),
-            new BoundSphere(1.15f, 0.4f, false, true),
+                new BoundSphere(0.4f, 0.4f, true, false),
+                new BoundSphere(0.75f, 0.4f, false, false),
+                new BoundSphere(1.15f, 0.4f, false, true),
             };
 
 
@@ -76,17 +75,16 @@ namespace Phenix.Unity.Movement
         [SerializeField]
         float _stepOffset = 0.2f;
 
+        // 每帧运动模拟的间隔时长
         [SerializeField]
-        float _maxSimulationTime = 0.01f;
+        float _simulationTimeOneFrame = 0.01f;
 
         [SerializeField]
-        LayerMask _collidable = 0;
+        LayerMask _collidable = 0;        
 
+        // 重力大小
         [SerializeField]
-        bool _gravityEnabled = true;
-
-        [SerializeField]
-        Vector3 _gravity = new Vector3(0, -10, 0);
+        Vector3 _gravityForce = new Vector3(0, -10, 0);
 
         [SerializeField]
         Vector3 _jumpForce = new Vector3(0, 20, 0);
@@ -94,33 +92,49 @@ namespace Phenix.Unity.Movement
         [SerializeField]
         float _jumpTime = 0.75f;
 
+        // 是否允许二段跳
         [SerializeField]
-        float _slideAngle = 45f;
+        bool _doubleJumpEnabled = false;
+
+        // 二段跳触发进度（即jump动作进度达到多少以上时才允许触发二段跳）
+        [SerializeField]
+        float _doubleJumpTriggerProgress = 0.8f;
+
+        // 产生滑动的坡度（大于该值时target产生滑动）
+        [SerializeField]
+        float _slideSlopeAngle = 45f;
 
         [SerializeField]
         float _slideSpeedModifier = 0.5f;
 
+        // 最小滑动距离
         [SerializeField]
-        float _slideMagnitude = 0.5f;
+        float _minSlideDistance = 0.5f;
 
+        // 是否接受刚体碰撞反作用力
         [SerializeField]
-        bool _rigidbodyTransferEnabled = true;
+        bool _rigidbodyForceEnabled = true;
 
+        // 刚体碰撞反作用力时长
         [SerializeField]
-        float _rigidbodyTransferTime = 1f;
+        float _rigidbodyForceTime = 1f;
 
+        // 刚体碰撞反作用力数值大小
         [SerializeField]
-        float _rigidbodyTransferAmount = 1f;
+        float _rigidbodyForceValue = 1f;
+
+        // 每帧输入的位移
+        Vector3 _move;
 
         [HideInInspector]
-        public Vector3 moveInput;
+        public float speed = 4f;
 
-        [HideInInspector]
-        public float moveSpeed = 4f;
+        float _lastGroundTouchTimer = 0f;   // 上一次触地时间点
+        float _heightOnFall = 0;            // 坠落时的高度值
 
-        float _lastGroundTouchTimer = 0f;
-
+        // 过期的force列表
         HashSet<string> _expiredForces = new HashSet<string>();
+        // force列表
         Dictionary<string, Force> _forces = new Dictionary<string, Force>();
 
         [SerializeField]
@@ -132,42 +146,189 @@ namespace Phenix.Unity.Movement
         [SerializeField]
         bool displayExtendedDebugInfo = true;
 
-        public Action OnJump { get; set; }
-        public Action OnLand { get; set; }
+        public Action OnJump { get; set; }                          // 开始跳回调
+        public Action OnDoubleJump { get; set; }                    // 开始二段跳回调
+        public Action OnFall { get; set; }                          // 开始坠落回调
+        public Action OnFalling { get; set; }                       // 坠落中回调
+        public Action OnLand { get; set; }                          // 着陆回调
         public Action OnIdle { get; set; }
         public Action OnMove { get; set; }
-        public Action OnFall { get; set; }
         public Action OnSlide { get; set; }
 
         public bool IsJumping { get; private set; }
-        public float DeltaTime { get; private set; }
+        public bool InDoubleJump { get; private set; }
         public Ground CurrentGround { get; private set; }
         public bool HasGround { get { return CurrentGround != null; } }
         public bool IsSliding { get; private set; }
-        public float GroundDelta { get { return Time.time - _lastGroundTouchTimer; } }
-        public bool IsTouchingGround { get { return HasGround && CurrentGround.isTouching; } }
 
-        public void Yaw(float angles)
+        // 离开地面时长
+        public float OffGroundTime { get { return Time.time - _lastGroundTouchTimer; } }
+        // 已坠落的高度
+        public float FallHeight { get { return _heightOnFall - _target.position.y; } }
+
+        // 是否触地
+        public bool IsOnGround { get { return HasGround && CurrentGround.isTouching; } }
+        // 是否离地
+        public bool IsOffGround { get { return HasGround && CurrentGround.isTouching == false; } }
+        // 离地距离
+        public float DistanceToGround { get { return HasGround ? Vector3.Distance(_target.position, CurrentGround.Point) : Mathf.Infinity; } }
+
+        void Start()
         {
-            _target.RotateAround(Vector3.up, angles);
+            if (_target == null)
+            {
+                _target = transform;
+            }
+
+            if (boundSpheres == null || boundSpheres.Length == 0)
+            {
+                enabled = false;
+                Debug.LogError("[Moter] No spheres found, disabling");
+            }
+
+            bool foundFeet = false;
+            bool foundHead = false;
+
+            for (int i = 0; i < boundSpheres.Length; ++i)
+            {
+                if (boundSpheres[i] != null && boundSpheres[i].isFeet)
+                {
+                    if (foundFeet)
+                    {
+                        enabled = false;
+                        Debug.LogError("[Moter] More then one feet sphere found, disabling");
+                        return;
+                    }
+
+                    foundFeet = true;
+                }
+
+                if (boundSpheres[i] != null && boundSpheres[i].isHead)
+                {
+                    if (foundHead)
+                    {
+                        enabled = false;
+                        Debug.LogError("[Moter] More then one head sphere found, disabling");
+                        return;
+                    }
+
+                    foundHead = true;
+                }
+            }
+
+            if (!foundFeet)
+            {
+                enabled = false;
+                Debug.LogError("[Moter] No feet sphere found, disabling");
+            }
+
+            if (!foundHead)
+            {
+                enabled = false;
+                Debug.LogError("[Moter] No head sphere found, disabling");
+            }
+
+            
+            // 初始校正到地面上
+            FindGround(_fallClampEpsilon);
+            if (IsOnGround) // 如果现在在接触面
+            {
+                ClampToGround();             
+                _lastGroundTouchTimer = Time.time;
+            }
+            else
+            {
+                //enabled = false;
+                //Debug.LogError("[Moter] Fail to find ground, disabling");
+                Debug.LogError("[Moter] Fail to find ground");
+            }
         }
 
-        public void SetYaw(float angles)
+        void LateUpdate()
         {
-            _target.rotation = Quaternion.Euler(0f, angles, 0f);
+            // If we have a ground and touching it, we should make sure to always follow it when it moves
+            if (IsOnGround && CurrentGround.targetOffset != Vector3.zero)
+            {
+                // 使目标跟随接触面移动
+                _target.position = CurrentGround.Transform.position + CurrentGround.targetOffset;
+            }
+
+            float remainSimulationTime = Time.deltaTime;
+
+            // If delta is larger then maxSimulation time
+            while (remainSimulationTime > _simulationTimeOneFrame)
+            {                
+                // Step simulation 根据模拟间隔单步模拟
+                Step(_simulationTimeOneFrame);
+
+                // Reduce total delta
+                remainSimulationTime -= _simulationTimeOneFrame;
+            }
+
+            // If we have any remainig delta time
+            if (remainSimulationTime > 0f)
+            {
+                // Step simulation
+                Step(remainSimulationTime);
+            }
+
+            // Again, if we have a ground and we're touching it, store our offset
+            if (IsOnGround)
+            {
+                // 重新计算目标对接触面的偏移
+                CurrentGround.targetOffset = _target.position - CurrentGround.Transform.position;
+            }
+
+            // Clear input
+            _move = Vector3.zero;
         }
 
-        public void AddForce(string name, Vector3 from, Vector3 to, float time)
+        public void Move(Vector3 move)
         {
-            AddForce(name, from, to, time, null);
+            _move = move;
         }
 
-        public void AddForce(string name, Vector3 from, Vector3 to, float time, Action<Force> onDone)
+        public void Move(float x, float y, float z)
+        {
+            _move.x = x;
+            _move.y = y;
+            _move.z = z;
+        }
+
+        // 在XZ平面上绕Y轴旋转angle角度
+        public void Rotate(float angle)
+        {
+            _target.Rotate(Vector3.up, angle);
+        }
+
+        // 设置XZ平面绕Y轴的旋转角度为angle
+        public void SetRotationAngle(float angle)
+        {
+            _target.rotation = Quaternion.Euler(0f, angle, 0f);
+        }
+
+        //public void Shift(Vector3 dstPos/*目标位置*/, float time/*移动时间*/)
+        //{
+        //    AddForce("Shift", _target.position, dstPos, time, true);
+        //}
+
+        //public void Shift(Vector3 dir/*移动方向*/, float distance/*移动距离*/, float time/*移动时间*/)
+        //{
+        //    AddForce("Shift", _target.position, _target.position + dir.normalized * distance, time, true);
+        //}
+
+        // 施加力
+        public void AddForce(string name, Vector3 from/*初始大小*/, Vector3 to/*结束大小*/, float time/*力持续时长*//*, bool forShift = false*/)
+        {
+            AddForce(name, from, to, time, null/*, forShift*/);
+        }
+
+        // 施加力
+        public void AddForce(string name, Vector3 from, Vector3 to, float time, Action<Force> onDone/*, bool forShift = false*/)
         {
             if (!String.IsNullOrEmpty(name))
             {
-                _forces[name] = new Force { moveFrom = from, moveTo = to, moveTime = time, elapsedTime = 0, onDone = onDone };
-
+                _forces[name] = new Force { moveFrom = from, moveTo = to, moveTime = time, elapsedTime = 0, onDone = onDone/*, forShift = forShift*/ };
                 // We need to remove any pending expires on this force
                 _expiredForces.Remove(name);
             }
@@ -183,11 +344,11 @@ namespace Phenix.Unity.Movement
 
         public Force GetForce(string name)
         {
-            Force f;
+            Force force;
 
-            if (_forces.TryGetValue(name, out f))
+            if (_forces.TryGetValue(name, out force))
             {
-                return f;
+                return force;
             }
 
             return null;
@@ -195,7 +356,7 @@ namespace Phenix.Unity.Movement
 
         public bool Jump()
         {
-            if (IsTouchingGround && !IsJumping && !IsSliding)
+            if (IsOnGround && IsJumping == false/* && IsSliding == false*/)
             {
                 // So we can't jump untill we're done
                 IsJumping = true;
@@ -204,17 +365,65 @@ namespace Phenix.Unity.Movement
                 AddForce("Jump", _jumpForce, Vector3.zero, _jumpTime, JumpDone);
 
                 // If we are moving, we should add a movement force also
-                if (moveInput != Vector3.zero)
+                if (_move != Vector3.zero)
                 {
-                    AddForce("JumpMomentum", moveInput.normalized * 4f, moveInput.normalized * 4f, _jumpTime);
+                    AddForce("JumpMomentum", _move.normalized * speed, _move.normalized * speed, _jumpTime);
                 }
 
                 Callback(OnJump);
 
                 return true;
             }
+            else if (_doubleJumpEnabled && IsJumping && InDoubleJump == false)
+            {                
+                Force jump = GetForce("Jump");
+                float progress = jump.elapsedTime / jump.moveTime;                
+                if (progress >= _doubleJumpTriggerProgress)
+                {
+                    InDoubleJump = true;
+
+                    // 二段跳
+                    AddForce("Jump", _jumpForce, Vector3.zero, _jumpTime, JumpDone);
+
+                    Force jumpMomentum = GetForce("JumpMomentum");
+                    if (jumpMomentum != null)
+                    {
+                        AddForce("JumpMomentum", jumpMomentum.moveFrom, jumpMomentum.moveFrom, _jumpTime);
+                    }                    
+
+                    Callback(OnDoubleJump);
+
+                    return true;
+                }
+            }
 
             return false;
+        }
+
+        // 跳到最高点时的回调
+        void JumpDone(Force force)
+        {
+            //Debug.LogWarning("JumpDone");
+            Force jumpMomentum = GetForce("JumpMomentum");
+
+            IsJumping = false;
+            InDoubleJump = false;
+            RemoveForce("Jump");
+            RemoveForce("JumpMomentum");
+            
+            if (IsOnGround == false)
+            {
+                // 记录开始fall时的高度
+                _heightOnFall = _target.position.y;
+                //Debug.LogWarning("OnFall");
+                Callback(OnFall);
+
+                if (jumpMomentum != null)
+                {
+                    // 跳到最高点后的坠落前冲力
+                    AddForce("FallMomentum", jumpMomentum.moveFrom, Vector3.zero, 1f);
+                }
+            }            
         }
 
         void Callback(Action action)
@@ -225,7 +434,7 @@ namespace Phenix.Unity.Movement
             }
         }
 
-        void InvokeCallback<T>(Action<T> action, T param)
+        void Callback<T>(Action<T> action, T param)
         {
             if (action != null)
             {
@@ -239,157 +448,53 @@ namespace Phenix.Unity.Movement
             {
                 if (_forces.Remove(name) && displayDebugInfo)
                 {
-                    Debug.Log("[RPGMotor] Removing Force: " + name);
+                    Debug.Log("[Moter] Removing Force: " + name);
                 }
             }
 
             _expiredForces.Clear();
         }
 
-        void JumpDone(Force f)
+        void OnTriggerEnter(Collider collider)
         {
-            Force jumpMomentum = GetForce("JumpMomentum");
+            HandleRigidForce(collider);
+        }
 
-            IsJumping = false;
-            RemoveForce("Jump");
-            RemoveForce("JumpMomentum");
+        void OnTriggerStay(Collider collider)
+        {
+            HandleRigidForce(collider);
+        }
 
-            if ((!HasGround || !CurrentGround.isTouching) && jumpMomentum != null)
+        void HandleRigidForce(Collider collider)
+        {
+            if (_rigidbodyForceEnabled == false)
             {
-                AddForce("FallMomentum", jumpMomentum.moveFrom, Vector3.zero, 1f);
+                return;
             }
-        }
 
-        void OnTriggerStay(Collider c)
-        {
-            OnTriggerEnter(c);
-        }
-
-        void OnTriggerEnter(Collider c)
-        {
-            if (_rigidbodyTransferEnabled)
+            if (collider.GetComponent<Rigidbody>() == null)
             {
-                if (c.GetComponent<Rigidbody>() == null)
+                return;
+            }
+
+            if (((1 << collider.gameObject.layer) & (int)_collidable) != 0)
+            {
+                Vector3 rigidBodyVel = collider.GetComponent<Rigidbody>().velocity.normalized;
+                Vector3 relativePos = (_target.position - collider.transform.position).normalized;
+
+                // 碰撞的角度
+                float colliderAngle = Vector3.Angle(rigidBodyVel, relativePos);
+
+                if (colliderAngle < 90f)
                 {
-                    return;
-                }
+                    float t = (90f - colliderAngle) / 90f;
+                    float m = collider.GetComponent<Rigidbody>().velocity.magnitude;
 
-                if (((1 << c.gameObject.layer) & (int)_collidable) != 0)
-                {
-                    Vector3 v = c.GetComponent<Rigidbody>().velocity.normalized;
-                    Vector3 d = (_target.position - c.transform.position).normalized;
-
-                    float a = Vector3.Angle(v, d);
-
-                    if (a < 90f)
-                    {
-                        float t = (90f - a) / 90f;
-                        float m = c.GetComponent<Rigidbody>().velocity.magnitude;
-
-                        AddForce("Rigidbody#" + c.GetComponent<Rigidbody>().GetInstanceID(), m * d * _rigidbodyTransferAmount * t, Vector3.zero, _rigidbodyTransferTime);
-                    }
+                    // 产生刚体碰撞反作用力
+                    AddForce("Rigidbody#" + collider.GetComponent<Rigidbody>().GetInstanceID(), m * relativePos * _rigidbodyForceValue * t, Vector3.zero, _rigidbodyForceTime);
                 }
             }
-        }
-
-        void Start()
-        {
-            if (_target == null)
-            {
-                _target = transform;
-            }
-
-            if (boundSpheres == null || boundSpheres.Length == 0)
-            {
-                enabled = false;
-                Debug.LogError("[RPGMotor] No spheres found, disabling");
-            }
-
-            bool foundFeet = false;
-            bool foundHead = false;
-
-            for (int i = 0; i < boundSpheres.Length; ++i)
-            {
-                if (boundSpheres[i] != null && boundSpheres[i].isFeet)
-                {
-                    if (foundFeet)
-                    {
-                        enabled = false;
-                        Debug.LogError("[RPGMotor] More then one feet sphere found, disabling");
-                        return;
-                    }
-
-                    foundFeet = true;
-                }
-
-                if (boundSpheres[i] != null && boundSpheres[i].isHead)
-                {
-                    if (foundHead)
-                    {
-                        enabled = false;
-                        Debug.LogError("[RPGMotor] More then one head sphere found, disabling");
-                        return;
-                    }
-
-                    foundHead = true;
-                }
-            }
-
-            if (!foundFeet)
-            {
-                enabled = false;
-                Debug.LogError("[RPGMotor] No feet sphere found, disabling");
-            }
-
-            if (!foundHead)
-            {
-                enabled = false;
-                Debug.LogError("[RPGMotor] No head sphere found, disabling");
-            }
-        }
-
-        void LateUpdate()
-        {
-            // If we have a ground and touching it, we should make sure to always follow it when it moves
-            if (IsTouchingGround && CurrentGround.offset != Vector3.zero)
-            {
-                _target.position = CurrentGround.Transform.position + CurrentGround.offset;
-            }
-
-            float deltaTime = Time.deltaTime;
-
-            // If delta is larger then maxSimulation time
-            while (deltaTime > _maxSimulationTime)
-            {
-                // Set delta to max step
-                DeltaTime = _maxSimulationTime;
-
-                // Step simulation
-                Step();
-
-                // Reduce total delta
-                deltaTime -= _maxSimulationTime;
-            }
-
-            // If we have any remainig delta time
-            if (deltaTime > 0f)
-            {
-                // Set delta to remainder
-                DeltaTime = deltaTime;
-
-                // Step simulation
-                Step();
-            }
-
-            // Again, if we have a ground and we're touching it, store our offset
-            if (IsTouchingGround)
-            {
-                CurrentGround.offset = _target.position - CurrentGround.Transform.position;
-            }
-
-            // Clear input
-            moveInput = Vector3.zero;
-        }
+        }                    
 
         void OnDrawGizmos()
         {
@@ -414,43 +519,45 @@ namespace Phenix.Unity.Movement
 
                 if (displayDebugInfo)
                 {
-                    Debug.Log("[RPGMotor] Sliding Stopped");
+                    Debug.Log("[Moter] Sliding Stopped");
                 }
             }
         }
 
-        bool HandleSlide()
+        // 处理沿接触面滑动，返回是否滑动
+        bool HandleSlide(float time)
         {
             Vector3 normal = CurrentGround.Normal; // 接触面法线
-            float angle = Vector3.Angle(normal, Vector3.up); // 和up轴的夹角
-            bool slide = true;
+            float angle = Vector3.Angle(normal, Vector3.up); // 和up轴的夹角            
 
             // If we're standing on a surface with an angle of more then 
             // slideAngle compared to the up vector we should slide downwards
-            if (angle > _slideAngle)
-            {
-                // 夹角大于滑动角度，引起滑动
-                Vector3 v = Vector3.Cross(normal, Vector3.down);
-                v = Vector3.Cross(v, normal);
+            // 夹角大于滑动角度，引起滑动
+            if (angle > _slideSlopeAngle)
+            {                
+                Vector3 tangent = Vector3.Cross(normal, Vector3.down);
+                tangent = Vector3.Cross(tangent, normal);
+
+                bool slide = true;
 
                 RaycastHit hit;
-
-                if (Physics.Raycast(_target.position, v, out hit) && !IsSliding)
+                // 非滑动时，沿着接触点切线方向发射射线（滑动时则不再发射）
+                if (IsSliding == false && Physics.Raycast(_target.position, tangent, out hit))
                 {
-                    if ((_target.position - hit.point).magnitude <= _slideMagnitude)
+                    if ((_target.position - hit.point).magnitude <= _minSlideDistance)
                     {
-                        // 距离太短，不滑动
+                        // 滑动距离太短，不滑动
                         StopSliding();
                         slide = false;
                     }
                 }
-
+                
                 if (slide)
                 {
                     // 计算滑动引起的位移
-                    _target.position += (v * _gravity.magnitude * DeltaTime * _slideSpeedModifier);
+                    _target.position += (tangent * _gravityForce.magnitude * time * _slideSpeedModifier);
 
-                    FindGround(_stepOffset);
+                    ClampToGround(_stepOffset);
                     Callback(OnSlide);
 
                     if (!IsSliding)
@@ -459,7 +566,7 @@ namespace Phenix.Unity.Movement
 
                         if (displayDebugInfo)
                         {
-                            Debug.Log("[RPGMotor] Sliding Started");
+                            Debug.Log("[Moter] Sliding Started");
                         }
                     }
                 }
@@ -472,44 +579,56 @@ namespace Phenix.Unity.Movement
             return IsSliding;
         }
 
-        void Step()
+        void Step(float time)
         {
-            HandleForces(); // 计算施加在对象上的所有“力”使物体产生的位移
+            HandleForces(time); // 计算施加在对象上的所有“力”使物体产生的位移
 
-            if (IsTouchingGround)
+            if (IsOnGround) // 在接触面上
             {
-                if (!HandleSlide())
+                if (HandleSlide(time) == false) // 如果不在滑动状态
                 {
-                    if (!IsJumping && moveInput != Vector3.zero)
+                    if (IsJumping == false && _move != Vector3.zero)
                     {
-                        CalculateMovement(); // 移动
+                        HandleMove(time); // 处理移动（走、跑等输入）
                         Callback(OnMove);
-
-                        if (IsFalling())
+                        // 如果Move后离地
+                        if (IsOffGround)
                         {
-                            // 坠落
-                            AddForce("FallMomentum", moveInput.normalized * moveSpeed, Vector3.zero, 1f);
+                            // 移动中的坠落前冲力（比如从高地凌空走出）
+                            AddForce("FallMomentum", _move.normalized * speed, Vector3.zero, 1f);
+                            _heightOnFall = _target.position.y;
+                            //Debug.LogWarning("OnFall");
+                            Callback(OnFall);
                         }
                     }
                     else
                     {
-                        Callback(OnIdle);
-                        FindGround(_fallClampEpsilon);
-                    }
+                        if (IsJumping == false)
+                        {
+                            // 待机
+                            Callback(OnIdle);
+                        }
+
+                        ClampToGround(_fallClampEpsilon);
+                    }                    
                 }
             }
             else // 离开接触面
             {
-                if (_gravityEnabled)
-                {
-                    HandleGravity();
-                }
+                // 处理重力影响
+                //HandleGravity(time);
 
-                FindGround(_fallClampEpsilon);
-
-                if (!HasGround || !CurrentGround.isTouching)
+                //ClampToGround(_fallClampEpsilon);
+                // 如果依旧无法触地
+                if (IsOnGround == false)
                 {
-                    Callback(OnFall);
+                    if (IsJumping == false)
+                    {
+                        // 处理重力影响
+                        HandleGravity(time);                        
+                        ClampToGround(_fallClampEpsilon);                        
+                        Callback(OnFalling);
+                    }                    
                 }
             }
 
@@ -577,8 +696,7 @@ namespace Phenix.Unity.Movement
                             }
                         }
                         else if (collider is CapsuleCollider)
-                        {
-                            //Debug.LogWarning("[RPGMotor] CapsuleCollider not supported");
+                        {                            
                             contactPoint = TransformTools.Instance.ClosestPoint((CapsuleCollider)collider, position);
                         }
                         else if (collider is TerrainCollider)
@@ -587,7 +705,7 @@ namespace Phenix.Unity.Movement
                         }
                         else if (collider is WheelCollider)
                         {
-                            Debug.LogWarning("[RPGMotor] WheelColliders not supported");
+                            Debug.LogWarning("[Moter] WheelColliders not supported");
                         }
                         else
                         {
@@ -600,7 +718,7 @@ namespace Phenix.Unity.Movement
                             // We have a ground and we're touching
                             // And the sphere position is above the contact position
                             // We should ignore it
-                            if (sphere.isFeet && IsTouchingGround && position.y > contactPoint.y)
+                            if (sphere.isFeet && IsOnGround && position.y > contactPoint.y)
                             {
                                 continue;
                             }
@@ -625,7 +743,7 @@ namespace Phenix.Unity.Movement
                             // Display extend debug info
                             if (displayExtendedDebugInfo)
                             {
-                                Debug.Log("[RPGMotor] Contact point " + contactPoint);
+                                Debug.Log("[Moter] Contact point " + contactPoint);
                             }
 
                             // Move object away from collision
@@ -636,53 +754,57 @@ namespace Phenix.Unity.Movement
             }
         }
 
-        void HandleForces()
+        void HandleForces(float time)
         {
             RemoveExpiredForces();
 
             foreach (KeyValuePair<string, Force> kvp in _forces.Select(x => x).ToList())
             {
                 // 
-                Force f = kvp.Value;
+                Force force = kvp.Value;
 
                 // Increase elapsed time
-                f.elapsedTime += DeltaTime;
+                force.elapsedTime += time;
 
                 // If more then .Time has passed, we're done
-                if (f.elapsedTime / f.moveTime >= 1f)
+                if (force.elapsedTime / force.moveTime >= 1f)
                 {
-                    if (f.onDone != null)
+                    if (force.onDone != null)
                     {
-                        f.onDone(f);
+                        force.onDone(force);
                     }
 
                     _expiredForces.Add(kvp.Key);
                 }
+                //else if (force.forShift)
+                //{
+                //    _target.position = Vector3.Lerp(force.moveFrom, force.moveTo, force.elapsedTime / force.moveTime); // 会造成穿墙，why？？？
+                //}
                 else
                 {
                     // Move our target
-                    _target.Translate(Vector3.Lerp(f.moveFrom, f.moveTo, f.elapsedTime / f.moveTime) * DeltaTime);
+                    _target.Translate(Vector3.Lerp(force.moveFrom, force.moveTo, force.elapsedTime / force.moveTime) * time, Space.World);
                 }
             }
         }
 
-        void HandleGravity()
+        void HandleGravity(float time)
         {
-            _target.Translate(_gravity * DeltaTime);
+            _target.Translate(_gravityForce * time, Space.World);
         }
 
-        void CalculateMovement()
+        void HandleMove(float time)
         {
             Vector3 oldPosition = _target.position;
 
             // Movement distance
-            float moveDist = DeltaTime * moveSpeed;
+            float moveDist = time * speed;
 
             // Move our character
-            _target.Translate(moveInput.normalized * moveDist);
+            _target.Translate(_move.normalized * moveDist, Space.World);
 
             // Find a new ground
-            FindGround(_stepOffset);
+            ClampToGround(_stepOffset);
 
             // Make sure we still have a ground
             if (!HasGround)
@@ -703,7 +825,7 @@ namespace Phenix.Unity.Movement
                 _target.position = oldPosition + realMovement;
 
                 // Fiind new ground
-                FindGround(_stepOffset);
+                ClampToGround(_stepOffset);
             }
         }
 
@@ -711,21 +833,14 @@ namespace Phenix.Unity.Movement
         {
             if (displayDebugInfo && displayExtendedDebugInfo && (_target.position.y - CurrentGround.Point.y) > 0)
             {
-                Debug.Log("[RPGMotor] Clamping to ground, distance: " + (_target.position.y - CurrentGround.Point.y));
+                Debug.Log("[Moter] Clamping to ground, distance: " + (_target.position.y - CurrentGround.Point.y));
             }
 
             _target.position = new Vector3(_target.position.x, CurrentGround.Point.y, _target.position.z);
         }
 
-        bool IsFalling()
+        bool FindGround(float clampEpsilon)
         {
-            return HasGround && !CurrentGround.isTouching;
-        }
-
-        void FindGround(float clampEpsilon)
-        {
-            bool wasFalling = IsFalling();
-
             RaycastHit[] above;
             RaycastHit[] below;
 
@@ -741,7 +856,7 @@ namespace Phenix.Unity.Movement
                     {
                         // 只需要找到第一个足够近的碰撞物就跳出
                         CurrentGround = new Ground(above[i], true);
-                        goto done;
+                        return true;
                     }
                 }
 
@@ -751,7 +866,7 @@ namespace Phenix.Unity.Movement
                     if (ReferenceEquals(above[i].transform, CurrentGround.Transform) && (_target.position - above[i].point).magnitude < 0.5)
                     {
                         CurrentGround = new Ground(above[i], true);
-                        goto done;
+                        return true;
                     }
                 }
             }
@@ -760,23 +875,32 @@ namespace Phenix.Unity.Movement
             if (below.Length > 0)
             {
                 CurrentGround = new Ground(below[0], (_target.position - below[0].point).magnitude <= clampEpsilon);
+                return true;
             }
             else
             {
                 CurrentGround = null;
+                return false;
             }
+        }
 
-            done:
+        void ClampToGround(float clampEpsilon)
+        {
+            bool wasOffGround = IsOffGround;
 
-            if (IsTouchingGround)
+            FindGround(clampEpsilon);
+
+            if (IsOnGround) // 如果现在在接触面
             {
-                if (wasFalling && OnLand != null)
+                if (wasOffGround) // 如果刚才在空中
                 {
-                    OnLand();
+                    //Debug.LogWarning("OnLand");
+                    Callback(OnLand);
                 }
 
                 if (IsJumping)
                 {
+                    // 如果还在跳跃阶段，强制完成
                     JumpDone(null);
                 }
 
@@ -880,7 +1004,7 @@ namespace Phenix.Unity.Movement
         {
             _forces.Clear();
             CurrentGround = null;
-            moveInput = Vector3.zero;
+            _move = Vector3.zero;
         }
     }
 }

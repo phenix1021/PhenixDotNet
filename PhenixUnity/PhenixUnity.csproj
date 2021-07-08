@@ -161,6 +161,8 @@
     <Compile Include="src\Extend\Vector3Extend.cs" />
     <Compile Include="src\HexGrid\HexGridAStar.cs" />
     <Compile Include="src\Input\FingerTouch.cs" />
+    <Compile Include="src\Movement\Floating2.cs" />
+    <Compile Include="src\Movement\MotorController.cs" />
     <Compile Include="src\Movement\Spin.cs" />
     <Compile Include="src\Movement\Floating.cs" />
     <Compile Include="src\Movement\PathMgr.cs" />

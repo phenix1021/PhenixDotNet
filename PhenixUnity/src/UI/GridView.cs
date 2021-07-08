@@ -19,6 +19,17 @@ namespace Phenix.Unity.UI
         private void Start()
         {
             _layout = GetComponentInChildren<GridLayoutGroup>();
+
+            content.DetachChildren();
+            for (int i = 0; i < _cells.Count; ++i)
+            {
+                GameObject cur = _cells[i];
+                if (cur != null)
+                {
+                    cur.transform.SetParent(content);
+                }
+            }
+            RefreshContentHeight();
         }
 
         public void InitCellsOnInspector()

@@ -39,9 +39,6 @@ namespace Phenix.Unity.UI
         List<float> _normalizedPosInScroll = new List<float>(); // 各个格子中心经过_viewPort中心时的scrollRect.horizontalNormalizedPosition值列表
 
         [SerializeField]
-        bool _destroyOnRemove = true;
-
-        [SerializeField]
         GameObject _cellSelected = null;
         public UnityEventCellSelected onCellSelected;
         public GameObject CellSelected
@@ -67,25 +64,28 @@ namespace Phenix.Unity.UI
 
         public int ContentChildrenCount { get { return content.childCount; } }
 
-        // Use this for initialization
-        void Start()
+        private void Awake()
         {
             if (scrollDirection == ScrollDirection.VERTICAL)
             {
                 content.anchorMin = new Vector2(0, 1);
                 content.anchorMax = new Vector2(1, 1);
-                _layout = content.GetComponent<VerticalLayoutGroup>();                
+                _layout = content.GetComponent<VerticalLayoutGroup>();
             }
             else
             {
                 content.anchorMin = new Vector2(0, 0);
                 content.anchorMax = new Vector2(0, 1);
-                _layout = content.GetComponent<HorizontalLayoutGroup>();                
+                _layout = content.GetComponent<HorizontalLayoutGroup>();
             }
 
-            _layout.childAlignment = TextAnchor.MiddleCenter;            
+            _layout.childAlignment = TextAnchor.MiddleCenter;
             _layout.childForceExpandHeight = _layout.childForceExpandWidth = true;
+        }
 
+        // Use this for initialization
+        void Start()
+        {
             content.DetachChildren();            
 
             foreach (var item in _cells)
@@ -160,10 +160,7 @@ namespace Phenix.Unity.UI
             cell.transform.SetParent(null);
             //cell.SetActive(false);
 
-            if (_destroyOnRemove)
-            {
-                DestroyImmediate(cell);
-            }
+            DestroyImmediate(cell);
 
             if (CellSelected == cell)
             {
@@ -173,13 +170,24 @@ namespace Phenix.Unity.UI
             Refresh();            
         }
 
-        /*public void Clear()
+        public void Clear()
         {
-            _cells.Clear();
+            if (_cells.Count == 0)
+            {
+                return;
+            }
+
             content.DetachChildren();
-            _normalizedPosInScroll.Clear();
+
+            while (_cells.Count > 0)
+            {
+                GameObject go = _cells[0];
+                _cells.Remove(go);
+                DestroyImmediate(go);
+            }
+
             Refresh();
-        }*/
+        }
 
         void Refresh()
         {

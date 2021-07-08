@@ -11,9 +11,8 @@ namespace Phenix.Unity.Grid
         HexGrid _hexGrid;   // 网格数据
         
         public HexGridParams gridParams;    // 创建grid需要的各种参数       
-        public string tilesParentTag = "TilesParent";
-
-        GameObject _tilesParent;
+        //public string tilesParentTag = "TilesParent";
+        public GameObject gridParent;
 
         // tile组件列表        
         Dictionary<HexCoordinates, T> _tileComps = 
@@ -51,10 +50,10 @@ namespace Phenix.Unity.Grid
         public void CreateGrid()
         {            
             CleraGrid();
-            _tilesParent = GameObject.FindGameObjectWithTag(tilesParentTag);
-            if (_tilesParent)
+            //gridParent = GameObject.FindGameObjectWithTag(tilesParentTag);
+            if (gridParent)
             {
-                gridParams.basePos = _tilesParent.transform.position;
+                gridParams.basePos = gridParent.transform.position;
             }
             else
             {
@@ -111,7 +110,7 @@ namespace Phenix.Unity.Grid
             T tileComp = tileObj.AddComponent<T>();
             tileComp.tile = tile;                   
             tileObj.transform.position = tile.Center;
-            tileObj.transform.SetParent(_tilesParent.transform);
+            tileObj.transform.SetParent(gridParent.transform);
             _tileComps.Add(tile.Coords, tileComp);
 
             OnTileCreated(tileComp);

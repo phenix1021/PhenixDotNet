@@ -386,8 +386,8 @@ namespace Phenix.Unity.Grid
 
         public int Distance(HexCoordinates a, HexCoordinates b)
         {
-            return (Mathf.Abs(a.Q - b.Q) + Mathf.Abs(a.R - b.R) +
-                Mathf.Abs(a.S - b.S)) / 2;
+            return (Mathf.Abs(a.X - b.X) + Mathf.Abs(a.Y - b.Y) +
+                Mathf.Abs(a.Z - b.Z)) / 2;
         }
 
         public int Distance(HexTile a, HexTile b)
@@ -413,9 +413,9 @@ namespace Phenix.Unity.Grid
                 {
                     float progress = i / dist;
                     HexCoordinates coords = HexCoordinates.HexRound(
-                        Mathf.Lerp(start.Q, end.Q, progress),
-                        Mathf.Lerp(start.R, end.R, progress),
-                        Mathf.Lerp(start.S, end.S, progress));
+                        Mathf.Lerp(start.X, end.X, progress),
+                        Mathf.Lerp(start.Y, end.Y, progress),
+                        Mathf.Lerp(start.Z, end.Z, progress));
                     if (_tiles.ContainsKey(coords))
                     {
                         ret.Add(_tiles[coords]);

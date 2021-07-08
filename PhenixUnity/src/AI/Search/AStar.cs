@@ -5,7 +5,7 @@ namespace Phenix.Unity.AI.SEARCH
 {
     /*
      * 原理参考 https://www.jianshu.com/p/e52d856e7d48 （《我见过的最容易读懂的 a*算法(A*寻路初探)》）
-     * 优化点：
+     * 已采用的优化点：
      *   1.open列表采用最小堆而非普通list
      *   2.不使用close列表而是采用状态字段。寻路单元（T）必须实现AStarNode接口，因为AStar需要访问接口
      * 中的数据。这样的方式虽然对单元本身有一定侵入性，但能大大提高获取Parent、Status和G的效率。

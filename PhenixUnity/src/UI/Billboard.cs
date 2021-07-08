@@ -8,23 +8,38 @@ namespace Phenix.Unity.UI
     [AddComponentMenu("Phenix/UI/Billboard")]
     public class Billboard : MonoBehaviour
     {
-        public Transform trans;
+        UnityEngine.Camera _mainCam;
+
+        private void Awake()
+        {
+            _mainCam = UnityEngine.Camera.main;
+        }
 
         private void Update()
         {
-            if (trans == null || trans.gameObject.activeInHierarchy == false)
+            Rot2();
+        }
+
+        // 方法1：获得对应屏幕上（z = 0）或屏幕后（z < 0）的点，然后LookAt该点
+        void Rot1()
+        {
+            Vector3 screenPos = _mainCam.WorldToScreenPoint(transform.position);
+            screenPos.z = -1000; // 必须小于等于0
+            transform.LookAt(_mainCam.ScreenToWorldPoint(screenPos));
+        }
+
+        // 方法2：往camera所在平面投射，LookAt和该平面的交点
+        void Rot2()
+        {
+            Plane camPlane = new Plane(_mainCam.transform.forward, _mainCam.transform.position);
+            float dis;
+            Vector3 tar = _mainCam.transform.position;
+            if (camPlane.Raycast(new Ray(transform.position, -_mainCam.transform.forward), out dis) == true)
             {
-                return;
+                tar = transform.position + (-_mainCam.transform.forward * dis);
             }
 
-            if (UnityEngine.Camera.main == null)
-            {
-                return;
-            }
-
-            Vector3 screenPos = UnityEngine.Camera.main.WorldToScreenPoint(trans.position);
-            screenPos.z = 0; // 也可以是其它任何值
-            trans.LookAt(UnityEngine.Camera.main.ScreenToWorldPoint(screenPos));
+            transform.LookAt(tar, Vector3.up);
         }
     }
 }

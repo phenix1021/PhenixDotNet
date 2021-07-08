@@ -13,7 +13,13 @@ namespace Phenix.Unity.AI.BT
         [SerializeField]
         protected float targetDistPredictionMult = 20;
         [SerializeField]
-        protected SharedGameObject target;        
+        protected SharedGameObject target;
+
+        protected bool usePrediction = true;   // 是否预测目标行进位置
+
+        protected virtual void OnMove() { }
+        protected virtual void OnMoving() { }
+        protected virtual void OnArrived() { }
 
         Locomotion.Pursue _pursue = new Locomotion.Pursue();
 
@@ -28,9 +34,15 @@ namespace Phenix.Unity.AI.BT
             _pursue.arriveDistance = arriveDistance;
             _pursue.stopOnEnd = stopOnEnd;
             _pursue.updateRotation = updateRotation;
+            _pursue.usePrediction = usePrediction;
 
             _pursue.targetDistPrediction = targetDistPrediction;
             _pursue.targetDistPredictionMult = targetDistPredictionMult;
+
+
+            _pursue.onMove = OnMove;
+            _pursue.onMoving = OnMoving;
+            _pursue.onArrived = OnArrived;
 
             if (target.Value != null)
             {

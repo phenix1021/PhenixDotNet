@@ -44,7 +44,8 @@ namespace Phenix.Unity.Movement
                 tarPos = Mathf.Sin(Time.time) * _floatRange * _axis.normalized + basePos;
             }
 
-            transform.position = MathTools.Hermite(transform.position, tarPos, Time.deltaTime * _speed);
+            //transform.position = MathTools.Hermite(transform.position, tarPos, Time.deltaTime * _speed);
+            transform.position = Vector3.Lerp(transform.position, tarPos, Time.deltaTime * _speed);
         }
     }
 }
