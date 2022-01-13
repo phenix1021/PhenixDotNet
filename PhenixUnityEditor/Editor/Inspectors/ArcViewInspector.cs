@@ -29,7 +29,7 @@ namespace Phenix.Unity.Editor.Inspector
                 _oriCellSpaceDegree != serializedObject.FindProperty("_cellSpaceDegree").floatValue;
         }*/
 
-        protected override void OnInspectorGUI()
+        public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
 

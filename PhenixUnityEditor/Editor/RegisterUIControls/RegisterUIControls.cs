@@ -449,7 +449,7 @@ namespace Phenix.Unity.Editor
             layout.childForceExpandWidth = true;
             layout.childForceExpandHeight = true;
             Billboard billboard = headHud.AddComponent<Billboard>();
-            billboard.trans = headHud.transform;
+            //billboard.trans = headHud.transform;
 
             GameObject hp = DefaultControls.CreateSlider(UIDefaultControls.ConvertToDefaultResources(resources));
             hp.name = "HP";

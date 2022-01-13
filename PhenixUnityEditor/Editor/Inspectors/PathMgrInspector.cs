@@ -17,6 +17,8 @@ namespace Phenix.Unity.Editor.Inspector
         bool _switchForPath = true;     // 路径点foldout是否展开
         int _curPathPointSelected = -1;  // 当前选中的路径点
 
+        public Object source;
+
         List<Vector3> _fullPathPoints = new List<Vector3>();
 
         protected override void OnEnable()
@@ -24,7 +26,7 @@ namespace Phenix.Unity.Editor.Inspector
             _pathMgr = (PathMgr)target;
         }
 
-        protected override void OnInspectorGUI()
+        public override void OnInspectorGUI()
         {
             Prepare();
 
@@ -56,6 +58,17 @@ namespace Phenix.Unity.Editor.Inspector
             {
                 _pathMgr.Clear();
                 _curPathPointSelected = -1;
+            }
+
+            GUIControlHelper.Space(30);
+            GUIControlHelper.Label("Road:");            
+            _pathMgr.roadMeshData.meshFilter = GUIControlHelper.ObjectField("meshFilter", "", _pathMgr.roadMeshData.meshFilter, typeof(MeshFilter)) as MeshFilter;
+            _pathMgr.roadMeshData.meshRenderer = GUIControlHelper.ObjectField("meshRenderer", "", _pathMgr.roadMeshData.meshRenderer, typeof(MeshRenderer)) as MeshRenderer;
+            _pathMgr.roadMeshData.roadWidth = GUIControlHelper.FloatField("roadWidth", "", _pathMgr.roadMeshData.roadWidth);
+            _pathMgr.roadMeshData.roadSegmentCount = GUIControlHelper.IntField("roadSegmentCount", "", _pathMgr.roadMeshData.roadSegmentCount);
+            if (GUIControlHelper.Button("Build Road", ""))
+            {
+                _pathMgr.BuildRoad();
             }
 
             Submit();

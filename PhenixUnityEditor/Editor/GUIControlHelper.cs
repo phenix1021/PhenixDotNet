@@ -537,19 +537,20 @@ namespace Phenix.Unity.Editor.Control
             }            
         }
 
-        public static void ObjectField(string head, string tip, Object val, bool allowSceneObjects = true, float headWidth = 0)
+        public static Object ObjectField(string head, string tip, Object val, System.Type valType, bool allowSceneObjects = true, float headWidth = 0)
         {
             float preWidth = 0;
             if (headWidth > 0)
             {
                 preWidth = EditorGUIUtility.labelWidth;
                 EditorGUIUtility.labelWidth = headWidth;
-                EditorGUILayout.ObjectField(new GUIContent(head, tip), val, typeof(Object), allowSceneObjects);
+                var ret = EditorGUILayout.ObjectField(new GUIContent(head, tip), val, valType, allowSceneObjects);
                 EditorGUIUtility.labelWidth = preWidth;
+                return ret;
             }
             else
             {
-                EditorGUILayout.ObjectField(new GUIContent(head, tip), val, typeof(Object), allowSceneObjects);
+                return EditorGUILayout.ObjectField(new GUIContent(head, tip), val, valType, allowSceneObjects);
             }            
         }
 

@@ -13,7 +13,7 @@ namespace Phenix.Unity.Editor.Inspector
             _gridView = target as GridView;
         }
 
-        protected override void OnInspectorGUI()
+        public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
 

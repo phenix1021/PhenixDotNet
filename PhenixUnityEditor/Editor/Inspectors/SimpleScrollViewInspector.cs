@@ -13,7 +13,7 @@ namespace Phenix.Unity.Editor.Inspector
             _simpleScrollView = target as SimpleScrollView;
         }
 
-        protected override void OnInspectorGUI()
+        public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
 

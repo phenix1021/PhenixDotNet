@@ -28,7 +28,7 @@ namespace Phenix.Unity.Editor.Inspector
         }
         
         protected virtual void OnEnable() { }
-        protected virtual void OnInspectorGUI() { }
+        public override void OnInspectorGUI() { }
         protected virtual void OnSceneGUI() { }
     }
 }

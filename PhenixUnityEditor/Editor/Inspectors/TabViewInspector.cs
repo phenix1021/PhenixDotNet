@@ -13,7 +13,7 @@ namespace Phenix.Unity.Editor.Inspector
             _tabView = target as TabView;
         }
 
-        protected override void OnInspectorGUI()
+        public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
 
