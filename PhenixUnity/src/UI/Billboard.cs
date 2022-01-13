@@ -31,6 +31,15 @@ namespace Phenix.Unity.UI
         // 方法2：往camera所在平面投射，LookAt和该平面的交点
         void Rot2()
         {
+            if (_mainCam == null)
+            {
+                _mainCam = UnityEngine.Camera.main;
+                if (_mainCam == null)
+                {
+                    return;
+                }
+            }
+
             Plane camPlane = new Plane(_mainCam.transform.forward, _mainCam.transform.position);
             float dis;
             Vector3 tar = _mainCam.transform.position;

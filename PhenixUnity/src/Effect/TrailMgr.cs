@@ -688,7 +688,7 @@ namespace Phenix.Unity.Effect
                 }
             }
 
-            MeshTools.Instance.MakeMesh(_meshFilter, vertices, triangles, uv);
+            MeshTools.MakeMesh(_meshFilter, vertices, triangles, uv);
         }
     }
 

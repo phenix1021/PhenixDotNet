@@ -24,8 +24,8 @@ namespace Phenix.Unity.Movement
                 
         void Awake()
         {
-            _top = transform.position + _axis.normalized * _floatRange;
-            _bottom = transform.position - _axis.normalized * _floatRange;            
+            _top = transform.localPosition + _axis.normalized * _floatRange;
+            _bottom = transform.localPosition - _axis.normalized * _floatRange;            
         }
 
         private void OnEnable()
@@ -37,11 +37,11 @@ namespace Phenix.Unity.Movement
         IEnumerator DoFloating()
         {
             Vector3 _tarPos = _bottom;
-            Vector3 _srcPos = transform.position;
+            Vector3 _srcPos = transform.localPosition;
             bool toUp = false;
             while (true)
             {
-                if (Vector3.Distance(transform.position, _tarPos) < 0.1f) // 到达
+                if (Vector3.Distance(transform.localPosition, _tarPos) < 0.1f) // 到达
                 {
                     if (toUp == false)
                     {
@@ -60,7 +60,7 @@ namespace Phenix.Unity.Movement
                 }
 
                 //transform.position = Vector3.Lerp(_srcPos, _tarPos, Time.deltaTime * _speed); 为什么这样写一动不动？
-                transform.position = Vector3.Lerp(transform.position, _tarPos, Time.deltaTime * _speed);
+                transform.localPosition = Vector3.Lerp(transform.localPosition, _tarPos, Time.deltaTime * _speed);
                 yield return new WaitForEndOfFrame();
             }
         }

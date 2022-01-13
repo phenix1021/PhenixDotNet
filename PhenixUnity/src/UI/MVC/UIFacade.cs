@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Phenix.Unity.Message;
+using UnityEngine.UI;
 
 namespace Phenix.Unity.UI
 {
@@ -13,7 +14,7 @@ namespace Phenix.Unity.UI
             _canvas = canvas;
         }
 
-        public void RegisterViewUI(GameObject viewUIPrefab, Model model, View view)
+        public void RegisterViewUI(GameObject viewUIPrefab, Model model, View view, bool subCanvas = false)
         {
             if (viewUIPrefab == null)
             {
@@ -41,8 +42,15 @@ namespace Phenix.Unity.UI
                 (inst.transform as RectTransform).sizeDelta = Vector2.zero;
             }
 
-            view.UIRoot = inst;            
+            view.UIRoot = inst;
             //view.Controllers = _msgMgr;
+            
+            if (subCanvas)
+            {
+                view.UIRoot.AddComponent<Canvas>();
+                view.UIRoot.AddComponent<GraphicRaycaster>();
+            }
+
             view.Init();
 
             if (model != null)

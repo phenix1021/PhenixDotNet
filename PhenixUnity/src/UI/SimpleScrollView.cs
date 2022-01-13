@@ -108,6 +108,16 @@ namespace Phenix.Unity.UI
             Debug.Log(arg);
         }*/
 
+        public GameObject GetCell(int idx)
+        {
+            if (idx < 0 || idx >= _cells.Count)
+            {
+                return null;
+            }
+
+            return _cells[idx];
+        }
+
         public void Add(List<GameObject> cells)
         {
             foreach (var cell in cells)
@@ -128,6 +138,32 @@ namespace Phenix.Unity.UI
             RectTransform rt = cell.GetComponent<RectTransform>();
             rt.sizeDelta = _cellSize;            
             cell.transform.SetParent(content);
+            cell.transform.localPosition = new Vector3(cell.transform.localPosition.x, cell.transform.localPosition.y, 0);
+            cell.transform.localScale = Vector3.one;
+
+            if (cell.activeSelf == false)
+            {
+                cell.SetActive(true);
+            }
+
+            if (refresh)
+            {
+                Refresh();
+            }
+        }
+
+        public void AddFront(GameObject cell, bool refresh = true)
+        {
+            if (cell == null)
+            {
+                return;
+            }
+            _cells.Insert(0, cell);
+
+            RectTransform rt = cell.GetComponent<RectTransform>();
+            rt.sizeDelta = _cellSize;
+            cell.transform.SetParent(content);
+            cell.transform.SetAsFirstSibling();
             cell.transform.localPosition = new Vector3(cell.transform.localPosition.x, cell.transform.localPosition.y, 0);
             cell.transform.localScale = Vector3.one;
 

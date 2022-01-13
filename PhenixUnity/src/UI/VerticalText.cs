@@ -8,7 +8,7 @@ namespace Phenix.Unity.UI
     /// 支持文字纵向排版
     /// </summary>
     [ExecuteInEditMode]
-    [AddComponentMenu("Phenix/UI/VerticalText")]
+    [AddComponentMenu("Phenix/UI/VerticalText"), RequireComponent(typeof(Text))]
     public class VerticalText : BaseMeshEffect
     {
         public enum VerticalTextDirection
@@ -61,51 +61,52 @@ namespace Phenix.Unity.UI
 
             _textGenerator = _text.cachedTextGenerator;
             _lines.Clear();
-            _textGenerator.GetLines(_lines);
+            _textGenerator.GetLines(_lines);  // 从内嵌的Text组件获得所有行数据
 
+            // 遍历Text组件的每一行，将每一行每个字符mesh迁移到指定竖排位置
             for (int i = 0; i < _lines.Count; i++)
             {
-                // 遍历每一行文字
-                UILineInfo line = _lines[i];
+                // 当前行信息
+                UILineInfo lineInfo = _lines[i];
 
                 int rowIdx = i;
                 int rowCharIdx = 0;
-                int totalCharIdx = line.startCharIdx;
+                int totalCharIdx = lineInfo.startCharIdx;  // 当前行首字符在整个Text字符数组（包括\n）里的序号
 
-                if (i + 1 < _lines.Count)
-                {
-                    // 如果不是最后一行
+                if (i + 1 < _lines.Count) // 如果不是最后一行
+                {                    
                     UILineInfo nextLine = _lines[i + 1];
-
                     for (; totalCharIdx < nextLine.startCharIdx - 1; totalCharIdx++)
                     {
-                        modifyText(helper, totalCharIdx, rowCharIdx++, rowIdx);
+                        modifyText(helper, totalCharIdx - i/*VertexHelper中的position数组元素不包括\n，所以这里字符数组下标要减去行号才能对应VertexHelper中的position数组下标*/, 
+                            rowCharIdx++, rowIdx);
                     }
                 }
-                else if (i + 1 == _lines.Count)
-                {
-                    // 最后一行                
+                else if (i + 1 == _lines.Count) // 最后一行                
+                {                    
                     for (; totalCharIdx < _textGenerator.characterCountVisible; totalCharIdx++)
                     {
-                        modifyText(helper, totalCharIdx, rowCharIdx++, rowIdx);
+                        modifyText(helper, totalCharIdx - i/*VertexHelper中的position数组元素不包括\n，所以这里字符数组下标要减去行号才能对应VertexHelper中的position数组下标*/, 
+                            rowCharIdx++, rowIdx);
                     }
                 }
             }
         }
 
-        void modifyText(VertexHelper helper, int totalCharIdx, int rowCharIdx, int rowIdx)
+        void modifyText(VertexHelper helper, int positionIdx/*VertexHelper对象中position数组的下标*/, int rowCharIdx, int rowIdx)
         {
+            // 获得字符左下角顶点
             UIVertex lb = new UIVertex();
-            helper.PopulateUIVertex(ref lb, totalCharIdx * 4);
-
+            helper.PopulateUIVertex(ref lb, positionIdx * 4);
+            // 获得字符左上角顶点
             UIVertex lt = new UIVertex();
-            helper.PopulateUIVertex(ref lt, totalCharIdx * 4 + 1);
-
+            helper.PopulateUIVertex(ref lt, positionIdx * 4 + 1);
+            // 获得字符右上角顶点
             UIVertex rt = new UIVertex();
-            helper.PopulateUIVertex(ref rt, totalCharIdx * 4 + 2);
-
+            helper.PopulateUIVertex(ref rt, positionIdx * 4 + 2);
+            // 获得字符右下角顶点
             UIVertex rb = new UIVertex();
-            helper.PopulateUIVertex(ref rb, totalCharIdx * 4 + 3);
+            helper.PopulateUIVertex(ref rb, positionIdx * 4 + 3);
 
             Vector3 center = Vector3.Lerp(lb.position, rt.position, 0.5f);
             Matrix4x4 move = Matrix4x4.TRS(-center, Quaternion.identity, Vector3.one);
@@ -116,15 +117,16 @@ namespace Phenix.Unity.UI
             Matrix4x4 place = Matrix4x4.TRS(pos, Quaternion.identity, Vector3.one);
             Matrix4x4 transform = place * move;
 
+            // 各顶点新位置
             lb.position = transform.MultiplyPoint(lb.position);
             lt.position = transform.MultiplyPoint(lt.position);
             rt.position = transform.MultiplyPoint(rt.position);
             rb.position = transform.MultiplyPoint(rb.position);
 
-            helper.SetUIVertex(lb, totalCharIdx * 4);
-            helper.SetUIVertex(lt, totalCharIdx * 4 + 1);
-            helper.SetUIVertex(rt, totalCharIdx * 4 + 2);
-            helper.SetUIVertex(rb, totalCharIdx * 4 + 3);
+            helper.SetUIVertex(lb, positionIdx * 4);
+            helper.SetUIVertex(lt, positionIdx * 4 + 1);
+            helper.SetUIVertex(rt, positionIdx * 4 + 2);
+            helper.SetUIVertex(rb, positionIdx * 4 + 3);
         }
 
 

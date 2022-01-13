@@ -623,5 +623,31 @@ namespace Phenix.Unity.Utilities
 
             return result;
         }
+
+        /// <summary>
+        /// 获得斐波那契数列的第N个值。
+        /// F(0)=0，F(1)=1, F(n)=F(n - 1)+F(n - 2)（n ≥ 2，n ∈ N*）。即
+        /// 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233，377，610，987，1597，2584，4181，6765，10946，17711，28657，46368.......
+        /// </summary>
+        /// <param name="n"></param>
+        /// <returns></returns>
+        public static long GetFibonacci(int n)
+        {
+            long preVal = 1;
+            long prePreVal = 0;
+            if (n < 2)
+                return n;
+            long loop = 1;
+            long returnVal = 0;
+            while (loop < n)
+            {
+                returnVal = preVal + prePreVal;
+                prePreVal = preVal;
+                preVal = returnVal;
+                loop++;
+            }
+            return returnVal;
+        }
+
     }
 }

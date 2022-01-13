@@ -10,7 +10,7 @@ namespace Phenix.Unity.Sprite
         //Material _mat;                // 面片材质
 
         protected float PassTime { get; private set; }       // 已经过时间（秒）
-        protected GameObject Quad { get; private set; }      // 面片
+        public GameObject Quad { get; private set; }      // 面片
 
         protected SpriteBase()
         {

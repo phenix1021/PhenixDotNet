@@ -27,11 +27,11 @@ namespace Phenix.Unity.Utilities
             }                        
         }
 
-        public void MakeMesh(UnityEngine.Mesh mesh, Vector3[] verts,
+        public static void MakeMesh(UnityEngine.Mesh mesh, Vector3[] verts,
             int[] triangles, Vector2[] uvs = null, Color[] colors = null)
         {
             if (mesh == null)
-            {
+            {                
                 return;
             }
 
@@ -57,7 +57,7 @@ namespace Phenix.Unity.Utilities
             mesh.RecalculateTangents();     // 重算切线
         }
 
-        public void MakeMesh(MeshFilter meshFilter, Vector3[] verts, 
+        public static void MakeMesh(MeshFilter meshFilter, Vector3[] verts, 
             int[] triangles, Vector2[] uvs = null, Color[] colors = null)
         {
             if (meshFilter == null)
@@ -65,7 +65,22 @@ namespace Phenix.Unity.Utilities
                 return;
             }
 
-            MakeMesh(meshFilter.mesh, verts, triangles, uvs, colors);
+            if (Application.isPlaying)
+            {
+                if (meshFilter.mesh == null)
+                {
+                    meshFilter.mesh = new UnityEngine.Mesh();
+                }
+                MakeMesh(meshFilter.mesh, verts, triangles, uvs, colors);
+            }
+            else
+            {
+                if (meshFilter.sharedMesh == null)
+                {
+                    meshFilter.sharedMesh = new UnityEngine.Mesh();
+                }
+                MakeMesh(meshFilter.sharedMesh, verts, triangles, uvs, colors);
+            }
         }
 
         /// <summary>

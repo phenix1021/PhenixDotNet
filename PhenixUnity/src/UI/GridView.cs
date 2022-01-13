@@ -16,6 +16,8 @@ namespace Phenix.Unity.UI
 
         GridLayoutGroup _layout;
 
+        public int CellCount { get { return _cells.Count; } }
+
         private void Start()
         {
             _layout = GetComponentInChildren<GridLayoutGroup>();
