@@ -9,13 +9,14 @@ namespace Phenix.Unity.AI.BT
     public class PursueImpl : NavMeshLocomotionImpl
     {
         [SerializeField]
+        protected bool usePrediction = false;   // 是否预测目标行进位置
+        [SerializeField]
         protected float targetDistPrediction = 20;
         [SerializeField]
         protected float targetDistPredictionMult = 20;
+
         [SerializeField]
         protected SharedGameObject target;
-
-        protected bool usePrediction = true;   // 是否预测目标行进位置
 
         protected virtual void OnMove() { }
         protected virtual void OnMoving() { }
@@ -37,8 +38,7 @@ namespace Phenix.Unity.AI.BT
             _pursue.usePrediction = usePrediction;
 
             _pursue.targetDistPrediction = targetDistPrediction;
-            _pursue.targetDistPredictionMult = targetDistPredictionMult;
-
+            _pursue.targetDistPredictionMult = targetDistPredictionMult;            
 
             _pursue.onMove = OnMove;
             _pursue.onMoving = OnMoving;

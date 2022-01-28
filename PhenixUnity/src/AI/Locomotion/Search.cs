@@ -72,7 +72,7 @@ namespace Phenix.Unity.AI.Locomotion
 
         Collider[] _overlapColliders;
 
-        bool _targetSetting = false;
+        bool _moving = false; // 保证onRest、onMove不重复触发
 
         Vector3 _oriPos;
 
@@ -91,8 +91,9 @@ namespace Phenix.Unity.AI.Locomotion
         {
             if (HasArrived())
             {
+                _moving = false;
                 // The agent should pause at the destination only if the max pause duration is greater than 0
-                if (maxPauseDuration > 0)
+                if (maxPauseDuration > 0) // 设置了待机时间
                 {
                     if (_destinationReachTime == -1)
                     {
@@ -108,9 +109,31 @@ namespace Phenix.Unity.AI.Locomotion
                         SetTarget();
                     }
                 }
-                else
+                else // 没设置待机时间，继续前进
                 {
                     SetTarget();
+                }
+            }
+            else if (navMeshAgent.pathPending) // 寻路中
+            {
+                if (_moving)
+                {
+                    _moving = false;
+                    if (onRest != null)
+                    {
+                        onRest.Invoke();
+                    }
+                }
+            }
+            else // 行进中
+            {
+                if (_moving == false)
+                {
+                    _moving = true;
+                    if (onMove != null)
+                    {
+                        onMove.Invoke();
+                    }
                 }
             }
 
@@ -155,15 +178,10 @@ namespace Phenix.Unity.AI.Locomotion
             if (TrySetTarget())
             {
                 _destinationReachTime = -1;
-                _targetSetting = false;
-                if (onMove != null)
-                {
-                    onMove.Invoke();
-                }
             }
-            else if (_targetSetting == false)
+            else if (_moving)
             {
-                _targetSetting = true;
+                _moving = false;
                 if (onRest != null)
                 {
                     onRest.Invoke();

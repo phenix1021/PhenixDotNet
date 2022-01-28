@@ -27,7 +27,8 @@ namespace Phenix.Unity.AI.Locomotion
 
         float _pauseTime;
         float _destinationReachTime;
-        bool _targetSetting = false;
+        
+        bool _moveTriggered = false; // 保证onRest、onMove不重复触发
 
         Vector3 _oriPos;
 
@@ -51,29 +52,53 @@ namespace Phenix.Unity.AI.Locomotion
         {
             if (HasArrived() || navMeshAgent.isStopped)
             {
+                _moveTriggered = false;
                 // The agent should pause at the destination only if the max pause duration is greater than 0
-                if (maxPauseDuration > 0)
+                if (maxPauseDuration > 0) // 设置了待机时间
                 {
                     if (_destinationReachTime == -1)
                     {
-                        _destinationReachTime = Time.time;
-                        _pauseTime = Random.Range(minPauseDuration, maxPauseDuration);
+                        _destinationReachTime = Time.time; // 设置待机开始时刻
+                        _pauseTime = Random.Range(minPauseDuration, maxPauseDuration); // 设置待机时长
                         if (onRest != null)
                         {
                             onRest.Invoke();
                         }
                     }
 
-                    if (_destinationReachTime + _pauseTime <= Time.time)
+                    if (_destinationReachTime + _pauseTime <= Time.time) // 待机超时
                     {
                         SetTarget();
                     }
                 }
-                else
+                else // 没设置待机时间，继续前进
                 {
                     SetTarget();                   
                 }
             }
+            else if (navMeshAgent.pathPending) // 寻路中（运动中途调用SetDestination规划新路径，这时pathPending但在完成前依旧沿原路线行进）
+            {
+                if (_moveTriggered)
+                {
+                    _moveTriggered = false;
+                    if (onRest != null)
+                    {
+                        onRest.Invoke();
+                    }
+                }
+            }
+            else // 行进中
+            {
+                if (_moveTriggered == false)
+                {
+                    _moveTriggered = true;
+                    if (onMove != null)
+                    {
+                        onMove.Invoke();
+                    }
+                }
+            }
+
             UpdateNavMeshObstacle();
             return LocomotionStatus.RUNNING;
         }
@@ -82,16 +107,11 @@ namespace Phenix.Unity.AI.Locomotion
         {
             if (TrySetTarget())
             {
-                _destinationReachTime = -1;
-                _targetSetting = false;
-                if (onMove != null)
-                {                    
-                    onMove.Invoke();
-                }
+                _destinationReachTime = -1;                
             }
-            else if (_targetSetting == false)
+            else if (_moveTriggered)
             {
-                _targetSetting = true;
+                _moveTriggered = false;
                 if (onRest != null)
                 {                    
                     onRest.Invoke();
